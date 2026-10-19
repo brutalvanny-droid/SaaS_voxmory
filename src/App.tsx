@@ -1,25 +1,26 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ArrowRight } from 'lucide-react';
 import Navbar from './components/Navbar.js';
 import Footer from './components/Footer.js';
 
 // Pages
 import Home from './pages/Home.js';
-import OrderForm from './pages/OrderForm.js';
-import Gallery from './pages/Gallery.js';
-import Reviews from './pages/Reviews.js';
-import Pricing from './pages/Pricing.js';
-import MemoryPageComp from './pages/MemoryPage.js';
-import Tracking from './pages/Tracking.js';
-import InstallGuide from './pages/InstallGuide.js';
 import PromotionBanner from './components/PromotionBanner.js';
 
 import { Package, GallerySong, ClientReview, PromotionSettings } from './types.js';
 
-// Le studio d'administration représente une part importante du code et
-// n'intéresse qu'un utilisateur sur mille : il est chargé à la demande, ce
-// qui allège d'autant le premier affichage pour les visiteurs, souvent en 3G.
+// Seule la page d'accueil est chargée d'emblée. Toutes les autres — y compris
+// le studio d'administration — sont chargées à la demande : le visiteur qui
+// arrive ne paie que l'accueil. Sur une 3G, la différence se compte en
+// secondes entières.
+const OrderForm = lazy(() => import('./pages/OrderForm.js'));
+const Gallery = lazy(() => import('./pages/Gallery.js'));
+const Reviews = lazy(() => import('./pages/Reviews.js'));
+const Pricing = lazy(() => import('./pages/Pricing.js'));
+const MemoryPageComp = lazy(() => import('./pages/MemoryPage.js'));
+const Tracking = lazy(() => import('./pages/Tracking.js'));
+const InstallGuide = lazy(() => import('./pages/InstallGuide.js'));
 const Admin = lazy(() => import('./pages/Admin.js'));
 
 // Extend Window interface for Google Analytics tracking
@@ -28,6 +29,17 @@ declare global {
     dataLayer: any[];
     gtag: (...args: any[]) => void;
   }
+}
+
+const PAGES_WITH_STICKY_CTA = ['home', 'gallery', 'reviews', 'pricing', 'memory'];
+
+function PageLoader() {
+  return (
+    <div className="flex items-center justify-center py-40 text-[#6C7581] gap-3 text-sm">
+      <Loader2 className="w-4 h-4 animate-spin text-[#A3FF12]" />
+      Chargement…
+    </div>
+  );
 }
 
 export default function App() {
@@ -48,7 +60,7 @@ export default function App() {
 
     const scriptId = 'google-analytics-gtag';
     let script = document.getElementById(scriptId) as HTMLScriptElement;
-    
+
     if (!script) {
       script = document.createElement('script');
       script.id = scriptId;
@@ -57,12 +69,12 @@ export default function App() {
       document.head.appendChild(script);
 
       window.dataLayer = window.dataLayer || [];
-      window.gtag = function() {
+      window.gtag = function () {
         window.dataLayer.push(arguments);
       };
       window.gtag('js', new Date());
       window.gtag('config', gaId, {
-        page_path: window.location.hash || '#home'
+        page_path: window.location.hash || '#home',
       });
     }
   }, []);
@@ -74,7 +86,7 @@ export default function App() {
       const pagePath = window.location.hash || '#home';
       window.gtag('config', gaId, {
         page_path: pagePath,
-        page_title: `${currentPage.toUpperCase()} | VOXMORY`
+        page_title: `${currentPage.toUpperCase()} | VOXMORY`,
       });
     }
   }, [currentPage]);
@@ -100,6 +112,11 @@ export default function App() {
     return () => window.removeEventListener('hashchange', parseHash);
   }, []);
 
+  // Chaque changement de page repart du haut, sans quoi on atterrit au milieu.
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [currentPage, memorySlug]);
+
   // Track page visits
   useEffect(() => {
     fetch('/api/stats/visit', { method: 'POST' }).catch(() => {});
@@ -111,7 +128,7 @@ export default function App() {
         fetch('/api/packages'),
         fetch('/api/gallery'),
         fetch('/api/reviews'),
-        fetch('/api/promotion')
+        fetch('/api/promotion'),
       ]);
 
       if (pkgsRes.ok) {
@@ -153,13 +170,18 @@ export default function App() {
   };
 
   const getFeaturedSongs = () => {
-    const featured = gallerySongs.filter(s => s.isFeatured);
+    const featured = gallerySongs.filter((s) => s.isFeatured);
     return featured.length > 0 ? featured : gallerySongs.slice(0, 3);
   };
 
   return (
-    <div className="min-h-screen bg-[#030304] text-white flex flex-col justify-between selection:bg-yellow-400 selection:text-black">
-      
+    <div className="relative min-h-screen bg-[#07080A] text-white flex flex-col justify-between selection:bg-[#A3FF12] selection:text-[#06080A] grain">
+      {/* Fond ambiant : deux halos fixes donnent de la profondeur à chaque page */}
+      <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+        <div className="absolute -top-40 -left-32 w-[45rem] h-[45rem] rounded-full bg-[#A3FF12]/[0.045] blur-[150px]" />
+        <div className="absolute -bottom-56 -right-32 w-[42rem] h-[42rem] rounded-full bg-[#0B3D1E]/45 blur-[160px]" />
+      </div>
+
       {/* Promotion Announcement / Ticker Banner */}
       <PromotionBanner promotion={promotion} onNavigate={handleNavigate} />
 
@@ -167,77 +189,65 @@ export default function App() {
       <Navbar currentPage={currentPage} onNavigate={handleNavigate} />
 
       {/* Main Page Canvas */}
-      <main className={`flex-grow ${['home', 'gallery', 'reviews', 'pricing', 'memory'].includes(currentPage) ? 'pb-24 md:pb-0' : ''}`}>
-        {currentPage === 'home' && (
-          <Home
-            packages={packages}
-            featuredSongs={getFeaturedSongs()}
-            featuredReviews={featuredReviews}
-            onNavigate={handleNavigate}
-          />
-        )}
-
-        {currentPage === 'order' && (
-          <OrderForm
-            packages={packages}
-            initialParams={pageParams}
-            onNavigate={(page) => handleNavigate(page)}
-            onSubmitSuccess={(orderId) => handleNavigate('tracking', { id: orderId })}
-          />
-        )}
-
-        {currentPage === 'gallery' && (
-          <Gallery
-            initialSongs={gallerySongs}
-            onNavigate={handleNavigate}
-          />
-        )}
-
-        {currentPage === 'reviews' && (
-          <Reviews
-            initialReviews={featuredReviews}
-            onNavigate={handleNavigate}
-          />
-        )}
-
-        {currentPage === 'pricing' && (
-          <Pricing
-            packages={packages}
-            onNavigate={handleNavigate}
-          />
-        )}
-
-        {currentPage === 'memory' && (
-          <MemoryPageComp
-            slug={memorySlug}
-            onNavigate={handleNavigate}
-          />
-        )}
-
-        {currentPage === 'tracking' && (
-          <Tracking
-            initialOrderId={pageParams?.id || ''}
-            onNavigate={handleNavigate}
-          />
-        )}
-
-        {currentPage === 'admin' && (
-          <Suspense
-            fallback={
-              <div className="flex items-center justify-center py-32 text-gray-500 gap-2 text-sm">
-                <Loader2 className="w-4 h-4 animate-spin" /> Chargement du studio…
-              </div>
-            }
+      <main className="flex-grow relative">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentPage === 'memory' ? `memory-${memorySlug}` : currentPage}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            className={PAGES_WITH_STICKY_CTA.includes(currentPage) ? 'pb-28 md:pb-0' : ''}
           >
-            <Admin onNavigate={handleNavigate} onPromotionChanged={loadInitialData} />
-          </Suspense>
-        )}
+            <Suspense fallback={<PageLoader />}>
+            {currentPage === 'home' && (
+              <Home
+                packages={packages}
+                featuredSongs={getFeaturedSongs()}
+                featuredReviews={featuredReviews}
+                onNavigate={handleNavigate}
+              />
+            )}
 
-        {currentPage === 'install' && (
-          <InstallGuide
-            onNavigate={handleNavigate}
-          />
-        )}
+            {currentPage === 'order' && (
+              <OrderForm
+                packages={packages}
+                initialParams={pageParams}
+                onNavigate={(page) => handleNavigate(page)}
+                onSubmitSuccess={(orderId) => handleNavigate('tracking', { id: orderId })}
+              />
+            )}
+
+            {currentPage === 'gallery' && (
+              <Gallery initialSongs={gallerySongs} onNavigate={handleNavigate} />
+            )}
+
+            {currentPage === 'reviews' && (
+              <Reviews initialReviews={featuredReviews} onNavigate={handleNavigate} />
+            )}
+
+            {currentPage === 'pricing' && (
+              <Pricing packages={packages} onNavigate={handleNavigate} />
+            )}
+
+            {currentPage === 'memory' && (
+              <MemoryPageComp slug={memorySlug} onNavigate={handleNavigate} />
+            )}
+
+            {currentPage === 'tracking' && (
+              <Tracking initialOrderId={pageParams?.id || ''} onNavigate={handleNavigate} />
+            )}
+
+            {currentPage === 'admin' && (
+              <Admin onNavigate={handleNavigate} onPromotionChanged={loadInitialData} />
+            )}
+
+            {currentPage === 'install' && (
+              <InstallGuide onNavigate={handleNavigate} />
+            )}
+            </Suspense>
+          </motion.div>
+        </AnimatePresence>
       </main>
 
       {/* Global Footer Block */}
@@ -245,29 +255,32 @@ export default function App() {
 
       {/* Mobile Sticky CTA */}
       <AnimatePresence>
-        {['home', 'gallery', 'reviews', 'pricing', 'memory'].includes(currentPage) && (
+        {PAGES_WITH_STICKY_CTA.includes(currentPage) && (
           <motion.div
-            initial={{ opacity: 0, y: 50 }}
+            initial={{ opacity: 0, y: 60 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 50 }}
-            transition={{ type: 'spring', stiffness: 260, damping: 25 }}
-            className="md:hidden fixed bottom-0 left-0 right-0 z-50 p-4 bg-[#0a0a0d] border-t border-white/10 flex items-center justify-between gap-4 shadow-[0_-8px_30px_rgb(0,0,0,0.9)]"
+            exit={{ opacity: 0, y: 60 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            className="md:hidden fixed bottom-0 left-0 right-0 z-50 px-4 py-3 bg-[#0B0D10]/95 backdrop-blur-xl border-t border-white/[0.08] flex items-center justify-between gap-4 shadow-[0_-12px_40px_rgba(0,0,0,0.85)]"
           >
-            <div className="flex flex-col">
-              <span className="text-[9px] text-yellow-400 font-mono font-bold uppercase tracking-widest">Voxmory Studio</span>
-              <h5 className="text-[13px] font-extrabold text-white leading-tight">Votre Rumba Sur-Mesure</h5>
+            <div className="flex flex-col min-w-0">
+              <span className="text-[9px] text-[#A3FF12] font-mono font-bold uppercase tracking-[0.18em]">
+                Voxmory Studio
+              </span>
+              <h5 className="text-[13.5px] font-extrabold text-white leading-tight tracking-tight truncate">
+                Votre chanson sur-mesure
+              </h5>
             </div>
             <button
               onClick={() => handleNavigate('order')}
-              className="px-5 py-2.5 bg-gradient-to-r from-yellow-500 to-amber-500 text-black text-xs font-sans font-black uppercase tracking-wider rounded-xl cursor-pointer shadow-lg active:scale-95 transition-all flex items-center gap-1.5"
+              className="group shrink-0 inline-flex items-center gap-1.5 px-5 py-2.5 bg-gradient-to-b from-[#C8FF4D] to-[#96F00A] text-[#06080A] text-xs font-black uppercase tracking-wider rounded-xl cursor-pointer shadow-[0_8px_24px_-8px_rgba(163,255,18,0.6)] active:scale-95 transition-all"
             >
-              <span>Commander</span>
-              <span className="text-[14px]">🎵</span>
+              Commander
+              <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-0.5" />
             </button>
           </motion.div>
         )}
       </AnimatePresence>
-
     </div>
   );
 }

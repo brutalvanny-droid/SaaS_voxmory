@@ -24,8 +24,8 @@ export default function SettingsPanel({ onPromotionChanged }: { onPromotionChang
             onClick={() => setTab(id)}
             className={`px-4 py-2.5 text-xs font-bold uppercase tracking-wide border-b-2 transition-colors ${
               tab === id
-                ? 'border-yellow-500 text-yellow-400'
-                : 'border-transparent text-gray-500 hover:text-white'
+                ? 'border-[#A3FF12] text-[#A3FF12]'
+                : 'border-transparent text-[#8A949F] hover:text-white'
             }`}
           >
             {label}
@@ -87,7 +87,7 @@ function Packages() {
   return (
     <div className="space-y-4">
       <ErrorNote message={error} />
-      <p className="text-xs text-gray-500">
+      <p className="text-xs text-[#8A949F]">
         Le prix est enregistré en centimes, jamais interprété depuis une chaîne de
         caractères : le chiffre d'affaires calculé est donc exact.
       </p>
@@ -105,7 +105,7 @@ function Packages() {
                 />
               </Field>
             </div>
-            <span className="pb-2 text-sm text-gray-500">{pkg.currency}</span>
+            <span className="pb-2 text-sm text-[#8A949F]">{pkg.currency}</span>
             <Button
               variant="primary"
               disabled={saving === pkg.id}
@@ -124,13 +124,13 @@ function Packages() {
           </div>
           <ul className="mt-3 space-y-1">
             {pkg.includes.map((inc) => (
-              <li key={inc} className="text-[11px] text-gray-500 flex gap-2">
-                <span className="text-yellow-500">✓</span>
+              <li key={inc} className="text-[11px] text-[#8A949F] flex gap-2">
+                <span className="text-[#A3FF12]">✓</span>
                 {inc}
               </li>
             ))}
           </ul>
-          <p className="text-[10px] text-gray-600 mt-3">
+          <p className="text-[10px] text-[#6C7581] mt-3">
             Livraison : {pkg.deliveryTime} · ordre {pkg.sortOrder}
           </p>
         </Card>
@@ -256,11 +256,11 @@ function Audit() {
             >
               <div className="min-w-0">
                 <span className="text-white font-bold">{r.action}</span>
-                <span className="text-gray-500 ml-2">{r.entity ?? ''}</span>
+                <span className="text-[#8A949F] ml-2">{r.entity ?? ''}</span>
               </div>
               <div className="text-right shrink-0">
-                <p className="text-gray-400">{r.adminEmail ?? '—'}</p>
-                <p className="text-gray-600 text-[10px]">
+                <p className="text-[#A2ABB5]">{r.adminEmail ?? '—'}</p>
+                <p className="text-[#6C7581] text-[10px]">
                   {new Date(r.createdAt).toLocaleString('fr-FR')}
                 </p>
               </div>
@@ -274,7 +274,7 @@ function Audit() {
 
 function Spinner() {
   return (
-    <div className="flex items-center justify-center py-16 text-gray-500 gap-2 text-sm">
+    <div className="flex items-center justify-center py-16 text-[#8A949F] gap-2 text-sm">
       <Loader2 className="w-4 h-4 animate-spin" /> Chargement…
     </div>
   );

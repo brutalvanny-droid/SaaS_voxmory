@@ -28,8 +28,8 @@ export default function Outreach() {
           </Button>
         }
       >
-        {testResult && <p className="text-xs text-gray-400">{testResult}</p>}
-        <p className="flex items-start gap-2 text-[11px] text-amber-400/80 leading-relaxed">
+        {testResult && <p className="text-xs text-[#A2ABB5]">{testResult}</p>}
+        <p className="flex items-start gap-2 text-[11px] text-[#A3FF12]/80 leading-relaxed">
           <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
           Un envoi massif depuis un numéro professionnel peut entraîner un
           bannissement. Les campagnes sont plafonnées à 200 destinataires et
@@ -50,8 +50,8 @@ export default function Outreach() {
             onClick={() => setTab(id)}
             className={`px-4 py-2.5 text-xs font-bold uppercase tracking-wide border-b-2 transition-colors ${
               tab === id
-                ? 'border-yellow-500 text-yellow-400'
-                : 'border-transparent text-gray-500 hover:text-white'
+                ? 'border-[#A3FF12] text-[#A3FF12]'
+                : 'border-transparent text-[#8A949F] hover:text-white'
             }`}
           >
             {label}
@@ -114,10 +114,10 @@ function Lists() {
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-sm font-bold text-white flex items-center gap-2">
-                      <Users className="w-4 h-4 text-yellow-400" />
+                      <Users className="w-4 h-4 text-[#A3FF12]" />
                       {l.name}
                     </p>
-                    <p className="text-[11px] text-gray-500 mt-0.5">{l.description}</p>
+                    <p className="text-[11px] text-[#8A949F] mt-0.5">{l.description}</p>
                   </div>
                   <div className="flex gap-1.5 shrink-0">
                     <Button onClick={() => setContactOpen(l.id)}>
@@ -130,7 +130,7 @@ function Lists() {
                         await api.admin.deleteBroadcastList(l.id);
                         await load();
                       }}
-                      className="p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-red-400"
+                      className="p-2 rounded-lg hover:bg-white/10 text-[#A2ABB5] hover:text-red-400"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -141,7 +141,7 @@ function Lists() {
                     {l.contacts.map((c) => (
                       <span
                         key={c.id}
-                        className="text-[10px] bg-white/5 border border-white/10 rounded-full px-2 py-1 text-gray-300"
+                        className="text-[10px] bg-white/5 border border-white/10 rounded-full px-2 py-1 text-[#C3CAD2]"
                       >
                         {c.name} · {c.phone}
                       </span>
@@ -277,7 +277,7 @@ function Campaigns({ lists }: { lists: BroadcastList[] }) {
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="text-sm font-bold text-white">{c.title}</p>
-                    <p className="text-[11px] text-gray-500">
+                    <p className="text-[11px] text-[#8A949F]">
                       {c.targetListName ?? 'Sans liste'} · {c.sentCount}/{c.totalCount} envoyés
                     </p>
                   </div>
@@ -448,7 +448,7 @@ function Reminders() {
             >
               <div>
                 <p className="text-sm font-bold text-white">{r.eventName}</p>
-                <p className="text-[11px] text-gray-500">
+                <p className="text-[11px] text-[#8A949F]">
                   {r.customerName} · {r.eventDate}
                 </p>
               </div>
@@ -457,7 +457,7 @@ function Reminders() {
                   await api.admin.deleteReminder(r.id);
                   await load();
                 }}
-                className="p-1.5 rounded-lg hover:bg-white/10 text-gray-400 hover:text-red-400"
+                className="p-1.5 rounded-lg hover:bg-white/10 text-[#A2ABB5] hover:text-red-400"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
@@ -471,7 +471,7 @@ function Reminders() {
 
 function Spinner() {
   return (
-    <div className="flex items-center justify-center py-16 text-gray-500 gap-2 text-sm">
+    <div className="flex items-center justify-center py-16 text-[#8A949F] gap-2 text-sm">
       <Loader2 className="w-4 h-4 animate-spin" /> Chargement…
     </div>
   );

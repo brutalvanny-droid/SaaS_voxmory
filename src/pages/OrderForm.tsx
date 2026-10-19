@@ -204,10 +204,12 @@ export default function OrderForm({ packages, onNavigate, onSubmitSuccess }: Pro
   /* ----------------------------- Formulaire ------------------------- */
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-10">
-      <header className="text-center mb-8">
-        <h1 className="text-3xl font-black text-white">Commander une chanson</h1>
-        <p className="text-sm text-gray-400 mt-2">
+    <div className="max-w-3xl mx-auto px-5 sm:px-6 py-16 sm:py-20">
+      <header className="text-center mb-10">
+        <h1 className="text-[clamp(1.9rem,4.6vw,2.9rem)] font-extrabold text-white tracking-[-0.035em] leading-tight">
+          Commander une <span className="text-gradient">chanson</span>
+        </h1>
+        <p className="text-[14.5px] text-[#A2ABB5] mt-3">
           Quelques minutes suffisent pour nous raconter l'essentiel.
         </p>
       </header>
@@ -221,15 +223,15 @@ export default function OrderForm({ packages, onNavigate, onSubmitSuccess }: Pro
                   i < step
                     ? 'bg-emerald-500 text-black'
                     : i === step
-                      ? 'bg-yellow-500 text-black'
-                      : 'bg-white/10 text-gray-500'
+                      ? 'bg-[#A3FF12] text-black'
+                      : 'bg-white/10 text-[#8A949F]'
                 }`}
               >
                 {i < step ? <Check className="w-4 h-4" /> : i + 1}
               </div>
               <span
                 className={`text-[10px] uppercase tracking-wide ${
-                  i === step ? 'text-yellow-400 font-bold' : 'text-gray-600'
+                  i === step ? 'text-[#A3FF12] font-bold' : 'text-[#6C7581]'
                 }`}
               >
                 {label}
@@ -251,7 +253,7 @@ export default function OrderForm({ packages, onNavigate, onSubmitSuccess }: Pro
         </p>
       )}
 
-      <div className="bg-[#0b0b10] border border-white/10 rounded-2xl p-6">
+      <div className="bg-[#0B0D10] border border-white/10 rounded-2xl p-6">
         <AnimatePresence mode="wait">
           <motion.div
             key={step}
@@ -309,9 +311,9 @@ export default function OrderForm({ packages, onNavigate, onSubmitSuccess }: Pro
                     type="checkbox"
                     checked={form.acceptsWhatsapp}
                     onChange={(e) => set('acceptsWhatsapp', e.target.checked)}
-                    className="mt-0.5 w-4 h-4 accent-yellow-500"
+                    className="mt-0.5 w-4 h-4 accent-[#A3FF12]"
                   />
-                  <span className="text-xs text-gray-300 leading-relaxed">
+                  <span className="text-xs text-[#C3CAD2] leading-relaxed">
                     J'accepte d'être contacté sur WhatsApp pour finaliser ma commande et
                     recevoir ma chanson.
                     {fieldErrors.acceptsWhatsapp && (
@@ -366,7 +368,7 @@ export default function OrderForm({ packages, onNavigate, onSubmitSuccess }: Pro
                 </div>
 
                 <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 mb-2">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-[#A2ABB5] mb-2">
                     Comment nous raconter son histoire ?
                   </p>
                   <div className="grid grid-cols-3 gap-2">
@@ -383,8 +385,8 @@ export default function OrderForm({ packages, onNavigate, onSubmitSuccess }: Pro
                         onClick={() => set('storyOption', id)}
                         className={`p-3 rounded-xl border text-xs font-bold flex flex-col items-center gap-1.5 transition-all ${
                           form.storyOption === id
-                            ? 'border-yellow-500 bg-yellow-500/10 text-yellow-400'
-                            : 'border-white/10 text-gray-400 hover:border-white/25'
+                            ? 'border-[#A3FF12] bg-[#A3FF12]/10 text-[#A3FF12]'
+                            : 'border-white/10 text-[#A2ABB5] hover:border-white/25'
                         }`}
                       >
                         <Icon className="w-4 h-4" />
@@ -412,7 +414,7 @@ export default function OrderForm({ packages, onNavigate, onSubmitSuccess }: Pro
 
                 {form.storyOption === 'audio' && (
                   <Field label="Votre note vocale *" error={fieldErrors.storyAudioUrl}>
-                    <label className="flex items-center justify-center gap-2 w-full p-6 rounded-xl border border-dashed border-white/20 cursor-pointer hover:border-yellow-500/50 transition-colors">
+                    <label className="flex items-center justify-center gap-2 w-full p-6 rounded-xl border border-dashed border-white/20 cursor-pointer hover:border-[#A3FF12]/50 transition-colors">
                       <input
                         type="file"
                         accept="audio/*"
@@ -420,11 +422,11 @@ export default function OrderForm({ packages, onNavigate, onSubmitSuccess }: Pro
                         onChange={(e) => void handleFile('audio', e.target.files?.[0])}
                       />
                       {uploading === 'audio' ? (
-                        <Loader2 className="w-4 h-4 animate-spin text-yellow-400" />
+                        <Loader2 className="w-4 h-4 animate-spin text-[#A3FF12]" />
                       ) : (
-                        <Upload className="w-4 h-4 text-yellow-400" />
+                        <Upload className="w-4 h-4 text-[#A3FF12]" />
                       )}
-                      <span className="text-xs text-gray-300">
+                      <span className="text-xs text-[#C3CAD2]">
                         {form.storyAudioUrl
                           ? 'Fichier déposé — cliquez pour remplacer'
                           : 'Déposer un fichier audio (10 Mo max.)'}
@@ -434,7 +436,7 @@ export default function OrderForm({ packages, onNavigate, onSubmitSuccess }: Pro
                 )}
 
                 {form.storyOption === 'whatsapp' && (
-                  <p className="text-xs text-gray-400 bg-black/40 border border-white/10 rounded-xl p-4 leading-relaxed">
+                  <p className="text-xs text-[#A2ABB5] bg-black/40 border border-white/10 rounded-xl p-4 leading-relaxed">
                     Parfait : nous vous appellerons sur WhatsApp pour recueillir son
                     histoire de vive voix. La commande est enregistrée dès maintenant.
                   </p>
@@ -458,7 +460,7 @@ export default function OrderForm({ packages, onNavigate, onSubmitSuccess }: Pro
                 </div>
 
                 <Field label="Photo du destinataire (facultatif)">
-                  <label className="flex items-center justify-center gap-2 w-full p-4 rounded-xl border border-dashed border-white/20 cursor-pointer hover:border-yellow-500/50 transition-colors">
+                  <label className="flex items-center justify-center gap-2 w-full p-4 rounded-xl border border-dashed border-white/20 cursor-pointer hover:border-[#A3FF12]/50 transition-colors">
                     <input
                       type="file"
                       accept="image/*"
@@ -466,11 +468,11 @@ export default function OrderForm({ packages, onNavigate, onSubmitSuccess }: Pro
                       onChange={(e) => void handleFile('photo', e.target.files?.[0])}
                     />
                     {uploading === 'photo' ? (
-                      <Loader2 className="w-4 h-4 animate-spin text-yellow-400" />
+                      <Loader2 className="w-4 h-4 animate-spin text-[#A3FF12]" />
                     ) : (
-                      <Upload className="w-4 h-4 text-yellow-400" />
+                      <Upload className="w-4 h-4 text-[#A3FF12]" />
                     )}
-                    <span className="text-xs text-gray-300">
+                    <span className="text-xs text-[#C3CAD2]">
                       {form.storyPhotoUrl ? 'Photo déposée' : 'Ajouter une photo'}
                     </span>
                   </label>
@@ -489,8 +491,8 @@ export default function OrderForm({ packages, onNavigate, onSubmitSuccess }: Pro
                         onClick={() => set('mood', m)}
                         className={`px-3.5 py-2 rounded-full text-xs font-bold border transition-all ${
                           form.mood === m
-                            ? 'border-yellow-500 bg-yellow-500/10 text-yellow-400'
-                            : 'border-white/10 text-gray-400 hover:border-white/25'
+                            ? 'border-[#A3FF12] bg-[#A3FF12]/10 text-[#A3FF12]'
+                            : 'border-white/10 text-[#A2ABB5] hover:border-white/25'
                         }`}
                       >
                         {m}
@@ -508,8 +510,8 @@ export default function OrderForm({ packages, onNavigate, onSubmitSuccess }: Pro
                         onClick={() => set('musicStyle', s)}
                         className={`px-3.5 py-2 rounded-full text-xs font-bold border transition-all ${
                           form.musicStyle === s
-                            ? 'border-yellow-500 bg-yellow-500/10 text-yellow-400'
-                            : 'border-white/10 text-gray-400 hover:border-white/25'
+                            ? 'border-[#A3FF12] bg-[#A3FF12]/10 text-[#A3FF12]'
+                            : 'border-white/10 text-[#A2ABB5] hover:border-white/25'
                         }`}
                       >
                         {s}
@@ -527,18 +529,18 @@ export default function OrderForm({ packages, onNavigate, onSubmitSuccess }: Pro
                         onClick={() => set('packageId', p.id)}
                         className={`w-full text-left p-4 rounded-xl border transition-all ${
                           form.packageId === p.id
-                            ? 'border-yellow-500 bg-yellow-500/5'
+                            ? 'border-[#A3FF12] bg-[#A3FF12]/5'
                             : 'border-white/10 hover:border-white/25'
                         }`}
                       >
                         <div className="flex items-center justify-between gap-3">
                           <div>
                             <p className="text-sm font-bold text-white">{p.name}</p>
-                            <p className="text-[11px] text-gray-500 mt-0.5">{p.promise}</p>
+                            <p className="text-[11px] text-[#8A949F] mt-0.5">{p.promise}</p>
                           </div>
                           <div className="text-right shrink-0">
-                            <p className="text-sm font-black text-yellow-400">{p.priceLabel}</p>
-                            <p className="text-[10px] text-gray-500">{p.deliveryTime}</p>
+                            <p className="text-sm font-black text-[#A3FF12]">{p.priceLabel}</p>
+                            <p className="text-[10px] text-[#8A949F]">{p.deliveryTime}</p>
                           </div>
                         </div>
                       </button>
@@ -551,9 +553,9 @@ export default function OrderForm({ packages, onNavigate, onSubmitSuccess }: Pro
                     type="checkbox"
                     checked={form.vipCardSelected}
                     onChange={(e) => set('vipCardSelected', e.target.checked)}
-                    className="mt-0.5 w-4 h-4 accent-yellow-500"
+                    className="mt-0.5 w-4 h-4 accent-[#A3FF12]"
                   />
-                  <span className="text-xs text-gray-300">
+                  <span className="text-xs text-[#C3CAD2]">
                     Ajouter la carte VIP souvenir (+ 2 $)
                   </span>
                 </label>
@@ -591,14 +593,14 @@ export default function OrderForm({ packages, onNavigate, onSubmitSuccess }: Pro
                 <Recap label="Musique" value={`${form.musicStyle} · ${form.mood}`} />
                 <Recap label="Formule" value={`${selected?.name ?? '—'} · ${selected?.deliveryTime}`} />
 
-                <div className="flex items-center justify-between p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/30">
+                <div className="flex items-center justify-between p-4 rounded-xl bg-[#A3FF12]/10 border border-[#A3FF12]/30">
                   <span className="text-sm font-bold text-white">Total</span>
-                  <span className="text-xl font-black text-yellow-400">
+                  <span className="text-xl font-black text-[#A3FF12]">
                     {(totalCents / 100).toLocaleString('fr-FR')} $
                   </span>
                 </div>
 
-                <p className="text-[11px] text-gray-500 leading-relaxed">
+                <p className="text-[11px] text-[#8A949F] leading-relaxed">
                   Le prix est calculé sur le serveur à partir de la formule choisie.
                   Vous réglez à l'étape suivante par mobile money ou carte via SasPay.
                 </p>
@@ -612,7 +614,7 @@ export default function OrderForm({ packages, onNavigate, onSubmitSuccess }: Pro
             type="button"
             onClick={() => setStep((s) => Math.max(0, s - 1))}
             disabled={step === 0}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-xs font-bold text-gray-400 hover:text-white disabled:opacity-30"
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-xs font-bold text-[#A2ABB5] hover:text-white disabled:opacity-30"
           >
             <ChevronLeft className="w-4 h-4" /> Retour
           </button>
@@ -621,7 +623,7 @@ export default function OrderForm({ packages, onNavigate, onSubmitSuccess }: Pro
             <button
               type="button"
               onClick={next}
-              className="flex items-center gap-1.5 px-5 py-2.5 rounded-lg bg-yellow-500 hover:bg-yellow-400 text-black text-xs font-black uppercase tracking-wide"
+              className="flex items-center gap-1.5 px-5 py-2.5 rounded-lg bg-[#A3FF12] hover:bg-[#A3FF12] text-black text-xs font-black uppercase tracking-wide"
             >
               Continuer <ChevronRight className="w-4 h-4" />
             </button>
@@ -630,7 +632,7 @@ export default function OrderForm({ packages, onNavigate, onSubmitSuccess }: Pro
               type="button"
               onClick={() => void submit()}
               disabled={submitting}
-              className="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-yellow-500 hover:bg-yellow-400 text-black text-xs font-black uppercase tracking-wide disabled:opacity-50"
+              className="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-[#A3FF12] hover:bg-[#A3FF12] text-black text-xs font-black uppercase tracking-wide disabled:opacity-50"
             >
               {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
               Envoyer ma commande
@@ -735,13 +737,13 @@ export function OrderSuccess({
           <Check className="w-8 h-8 text-emerald-400" />
         </div>
 
-        <h1 className="text-2xl font-black text-white">Commande enregistrée</h1>
-        <p className="text-sm text-gray-400 mt-2">
+        <h1 className="text-[clamp(1.7rem,4vw,2.4rem)] font-extrabold text-white tracking-[-0.035em]">Commande enregistrée</h1>
+        <p className="text-sm text-[#A2ABB5] mt-2">
           Conservez précieusement votre référence de commande.
         </p>
 
         <div className="mt-6 p-4 rounded-xl bg-black/50 border border-white/10">
-          <p className="font-mono text-xl font-black text-yellow-400 tracking-wider">
+          <p className="font-mono text-xl font-black text-[#A3FF12] tracking-wider">
             {reference}
           </p>
           <button
@@ -750,7 +752,7 @@ export function OrderSuccess({
               setCopied(true);
               setTimeout(() => setCopied(false), 2000);
             }}
-            className="mt-2 text-[11px] text-gray-500 hover:text-white inline-flex items-center gap-1"
+            className="mt-2 text-[11px] text-[#8A949F] hover:text-white inline-flex items-center gap-1"
           >
             <Copy className="w-3 h-3" /> {copied ? 'Copié !' : 'Copier'}
           </button>
@@ -762,9 +764,9 @@ export function OrderSuccess({
           </p>
         ) : (
           <div className="mt-6 space-y-4 text-left">
-            <div className="p-4 rounded-xl bg-[#0b0b10] border border-white/10">
+            <div className="p-4 rounded-xl bg-[#0B0D10] border border-white/10">
               <p className="text-xs font-bold text-white mb-3 flex items-center gap-2">
-                <CreditCard className="w-4 h-4 text-yellow-400" />
+                <CreditCard className="w-4 h-4 text-[#A3FF12]" />
                 Régler ma commande — {(amountCents / 100).toLocaleString('fr-FR')} {currency}
               </p>
 
@@ -780,8 +782,8 @@ export function OrderSuccess({
                     onClick={() => setMethod(id)}
                     className={`p-2.5 rounded-lg text-xs font-bold border transition-all ${
                       method === id
-                        ? 'border-yellow-500 bg-yellow-500/10 text-yellow-400'
-                        : 'border-white/10 text-gray-400'
+                        ? 'border-[#A3FF12] bg-[#A3FF12]/10 text-[#A3FF12]'
+                        : 'border-white/10 text-[#A2ABB5]'
                     }`}
                   >
                     {label}
@@ -809,7 +811,7 @@ export function OrderSuccess({
               <button
                 onClick={() => void pay()}
                 disabled={busy || (method === 'softpay' && !network)}
-                className="w-full mt-4 py-2.5 rounded-lg bg-yellow-500 hover:bg-yellow-400 text-black text-xs font-black uppercase tracking-wide disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full mt-4 py-2.5 rounded-lg bg-[#A3FF12] hover:bg-[#A3FF12] text-black text-xs font-black uppercase tracking-wide disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {busy && <Loader2 className="w-4 h-4 animate-spin" />}
                 Payer maintenant
@@ -827,7 +829,7 @@ export function OrderSuccess({
           </button>
           <button
             onClick={() => onNavigate('home')}
-            className="px-5 py-2.5 rounded-lg text-gray-500 hover:text-white text-xs font-bold"
+            className="px-5 py-2.5 rounded-lg text-[#8A949F] hover:text-white text-xs font-bold"
           >
             Retour à l'accueil
           </button>
@@ -849,7 +851,7 @@ function storySummary(form: { storyOption: string; storyText: string }): string 
 }
 
 const inputClass =
-  'w-full bg-black/60 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-yellow-500/60 transition-colors';
+  'w-full bg-black/60 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#1D2229] focus:outline-none focus:border-[#A3FF12]/60 transition-colors';
 
 function Field({
   label,
@@ -864,11 +866,11 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="block text-[10px] font-semibold uppercase tracking-wider text-gray-400 mb-1.5">
+      <span className="block text-[10px] font-semibold uppercase tracking-wider text-[#A2ABB5] mb-1.5">
         {label}
       </span>
       {children}
-      {hint && !error && <span className="block text-[10px] text-gray-600 mt-1">{hint}</span>}
+      {hint && !error && <span className="block text-[10px] text-[#6C7581] mt-1">{hint}</span>}
       {error && <span className="block text-[11px] text-red-400 mt-1">{error}</span>}
     </label>
   );
@@ -877,8 +879,8 @@ function Field({
 function Recap({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between gap-4 text-sm py-2 border-b border-white/5">
-      <span className="text-gray-500 shrink-0">{label}</span>
-      <span className="text-gray-200 text-right">{value}</span>
+      <span className="text-[#8A949F] shrink-0">{label}</span>
+      <span className="text-[#E8EDF1] text-right">{value}</span>
     </div>
   );
 }

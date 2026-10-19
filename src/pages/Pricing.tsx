@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { HelpCircle, ChevronDown, ChevronUp, MessageCircle, Sparkles, Coins, Smartphone, Check, ShieldCheck, Heart, Gift, Users, Eye, Star } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import Reveal from '../components/Reveal.js';
 import { Package } from '../types.js';
 
 interface PricingProps {
@@ -84,31 +85,34 @@ export default function Pricing({ packages, onNavigate }: PricingProps) {
   ];
 
   return (
-    <div className="min-h-[85vh] py-16 bg-[#040206] text-white relative overflow-hidden">
+    <div className="min-h-[85vh] py-20 sm:py-28 text-white relative overflow-hidden">
       
       {/* Background ambient glows */}
-      <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-[radial-gradient(circle,_rgba(147,51,234,0.1)_0%,_transparent_75%)] pointer-events-none" />
-      <div className="absolute bottom-1/3 left-1/4 w-[450px] h-[450px] bg-[radial-gradient(circle,_rgba(219,39,119,0.08)_0%,_transparent_75%)] pointer-events-none" />
+      <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-[radial-gradient(circle,_rgba(163,255,18,0.1)_0%,_transparent_75%)] pointer-events-none" />
+      <div className="absolute bottom-1/3 left-1/4 w-[450px] h-[450px] bg-[radial-gradient(circle,_rgba(163,255,18,0.08)_0%,_transparent_75%)] pointer-events-none" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10 space-y-20">
         
-        {/* Header */}
-        <div className="max-w-3xl mx-auto text-center space-y-4">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-purple-950/40 border border-purple-500/20 text-yellow-400 font-mono text-xs uppercase tracking-wider">
-            <Sparkles className="w-3.5 h-3.5 text-yellow-500" />
-            <span>Offrez l'immortalité en chanson</span>
+        {/* En-tête */}
+        <Reveal>
+          <div className="max-w-3xl mx-auto text-center space-y-6">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[#A3FF12]/20 bg-[#A3FF12]/[0.05] text-[#A3FF12] font-mono text-[11px] uppercase tracking-[0.16em]">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Offrez l'immortalité en chanson</span>
+            </div>
+            <h1 className="text-[clamp(2.1rem,5.6vw,3.75rem)] font-extrabold text-white tracking-[-0.04em] leading-[1.02]">
+              Créateurs d'<span className="text-gradient">émotions</span> &amp; de souvenirs
+            </h1>
+            <p className="text-[#A2ABB5] text-[15px] sm:text-base leading-relaxed max-w-2xl mx-auto">
+              Bien plus qu'une production musicale : un héritage intemporel, des larmes de bonheur
+              garanties et un trésor familial transmis à travers les générations.
+            </p>
           </div>
-          <h1 className="font-sans font-black text-3xl sm:text-4xl lg:text-5xl text-white tracking-tight leading-none">
-            Créateurs d'Émotions &amp; de Souvenirs
-          </h1>
-          <p className="text-gray-400 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto">
-            Bien plus qu'une production musicale : un héritage intemporel, des larmes de bonheur garanties et un trésor familial transmis à travers les générations.
-          </p>
-        </div>
+        </Reveal>
 
         {/* Pricing Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
-          {packages.map((pkg) => {
+          {packages.map((pkg, index) => {
             const score = metrics[pkg.id] || { emotion: 4, souvenir: 4, family: 4 };
             const badge = badges[pkg.id];
             const isFeatured = pkg.id === 'pack_musique_video';
@@ -119,21 +123,21 @@ export default function Pricing({ packages, onNavigate }: PricingProps) {
                 key={pkg.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4 }}
-                className={`bg-[#0a0710] border rounded-3xl p-6 flex flex-col justify-between transition-all duration-300 relative ${
+                transition={{ duration: 0.45, delay: 0.06 * index }}
+                className={`group border rounded-2xl p-6 flex flex-col justify-between transition-all duration-500 relative overflow-hidden ${
                   isFeatured
-                    ? 'border-yellow-400 ring-1 ring-yellow-400/25 lg:scale-[1.03] shadow-2xl shadow-yellow-950/20 bg-[#0e0a16]'
-                    : 'border-white/5 hover:border-purple-500/30'
+                    ? 'border-[#A3FF12]/40 bg-gradient-to-b from-[#A3FF12]/[0.07] to-transparent lg:scale-[1.02] shadow-[0_24px_60px_-24px_rgba(163,255,18,0.22)]'
+                    : 'border-white/[0.07] bg-gradient-to-b from-white/[0.03] to-transparent hover:border-[#A3FF12]/30'
                 }`}
               >
                 {/* Badge of Trust / Distinction */}
                 {badge && (
                   <span className={`absolute -top-3 left-1/2 -translate-x-1/2 font-sans font-bold text-[9px] uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg ${
                     isFeatured 
-                      ? 'bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-600 text-black'
+                      ? 'bg-gradient-to-r from-[#A3FF12] via-[#A3FF12] to-[#7ACC00] text-black'
                       : pkg.id === 'pack_premium_vip'
-                      ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white border border-purple-400/20'
-                      : 'bg-[#1b1527] text-purple-300 border border-purple-500/10'
+                      ? 'bg-gradient-to-r from-[#A3FF12] to-[#7ACC00] text-white border border-[#A3FF12]/20'
+                      : 'bg-[#161A20] text-[#A3FF12] border border-[#A3FF12]/10'
                   }`}>
                     {badge}
                   </span>
@@ -144,35 +148,35 @@ export default function Pricing({ packages, onNavigate }: PricingProps) {
                   {/* Name and Promise */}
                   <div className="space-y-2 text-center pt-2">
                     <h3 className="font-sans font-black text-xl text-white">{pkg.name}</h3>
-                    <p className="text-xs text-purple-200/70 italic leading-relaxed min-h-[40px] px-2">
+                    <p className="text-xs text-[#A3FF12]/70 italic leading-relaxed min-h-[40px] px-2">
                       « {pkg.promise} »
                     </p>
                   </div>
 
                   {/* Price and Delivery */}
                   <div className="border-y border-white/5 py-4 text-center space-y-1 bg-black/30 rounded-xl">
-                    <span className="block font-sans font-black text-3xl text-yellow-400 tracking-tight">{pkg.priceLabel}</span>
-                    <span className="block text-[10px] text-pink-400 font-semibold tracking-wider uppercase">Délai : {pkg.deliveryTime}</span>
+                    <span className="block font-sans font-black text-3xl text-[#A3FF12] tracking-tight">{pkg.priceLabel}</span>
+                    <span className="block text-[10px] text-[#A3FF12] font-semibold tracking-wider uppercase">Délai : {pkg.deliveryTime}</span>
                   </div>
 
                   {/* Visual indicators of value */}
-                  <div className="space-y-3 bg-[#110e1a]/60 p-4 rounded-2xl border border-white/5">
-                    <h4 className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
-                      <Star className="w-3.5 h-3.5 text-yellow-500 fill-yellow-500" />
+                  <div className="space-y-3 bg-[#161A20]/60 p-4 rounded-2xl border border-white/5">
+                    <h4 className="text-[10px] font-mono font-bold text-[#A2ABB5] uppercase tracking-wider flex items-center gap-1.5">
+                      <Star className="w-3.5 h-3.5 text-[#A3FF12] fill-[#A3FF12]" />
                       <span>Impact &amp; Valeur Estimés</span>
                     </h4>
                     
                     {/* Emotion Metric */}
                     <div className="space-y-1">
-                      <div className="flex justify-between text-[10px] font-medium text-gray-300">
+                      <div className="flex justify-between text-[10px] font-medium text-[#C3CAD2]">
                         <span className="flex items-center gap-1">
-                          <Heart className="w-3 h-3 text-pink-500 fill-pink-500" /> Émotion
+                          <Heart className="w-3 h-3 text-[#A3FF12] fill-[#A3FF12]" /> Émotion
                         </span>
-                        <span className="text-pink-400">{getMetricLabel(score.emotion)}</span>
+                        <span className="text-[#A3FF12]">{getMetricLabel(score.emotion)}</span>
                       </div>
                       <div className="w-full h-1.5 bg-black/40 rounded-full overflow-hidden">
                         <div 
-                          className="h-full bg-gradient-to-r from-pink-500 to-purple-500 rounded-full" 
+                          className="h-full bg-gradient-to-r from-[#A3FF12] to-[#7ACC00] rounded-full" 
                           style={{ width: `${(score.emotion / 5) * 100}%` }}
                         />
                       </div>
@@ -180,15 +184,15 @@ export default function Pricing({ packages, onNavigate }: PricingProps) {
 
                     {/* Souvenir Metric */}
                     <div className="space-y-1">
-                      <div className="flex justify-between text-[10px] font-medium text-gray-300">
+                      <div className="flex justify-between text-[10px] font-medium text-[#C3CAD2]">
                         <span className="flex items-center gap-1">
-                          <Gift className="w-3 h-3 text-yellow-500 fill-yellow-500" /> Souvenir
+                          <Gift className="w-3 h-3 text-[#A3FF12] fill-[#A3FF12]" /> Souvenir
                         </span>
-                        <span className="text-yellow-400">{getMetricLabel(score.souvenir)}</span>
+                        <span className="text-[#A3FF12]">{getMetricLabel(score.souvenir)}</span>
                       </div>
                       <div className="w-full h-1.5 bg-black/40 rounded-full overflow-hidden">
                         <div 
-                          className="h-full bg-gradient-to-r from-yellow-500 to-amber-500 rounded-full" 
+                          className="h-full bg-gradient-to-r from-[#A3FF12] to-[#7ACC00] rounded-full" 
                           style={{ width: `${(score.souvenir / 5) * 100}%` }}
                         />
                       </div>
@@ -196,15 +200,15 @@ export default function Pricing({ packages, onNavigate }: PricingProps) {
 
                     {/* Family Impact Metric */}
                     <div className="space-y-1">
-                      <div className="flex justify-between text-[10px] font-medium text-gray-300">
+                      <div className="flex justify-between text-[10px] font-medium text-[#C3CAD2]">
                         <span className="flex items-center gap-1">
-                          <Users className="w-3 h-3 text-purple-400 fill-purple-400" /> Impact Famille
+                          <Users className="w-3 h-3 text-[#A3FF12] fill-[#A3FF12]" /> Impact Famille
                         </span>
-                        <span className="text-purple-300">{getMetricLabel(score.family)}</span>
+                        <span className="text-[#A3FF12]">{getMetricLabel(score.family)}</span>
                       </div>
                       <div className="w-full h-1.5 bg-black/40 rounded-full overflow-hidden">
                         <div 
-                          className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full" 
+                          className="h-full bg-gradient-to-r from-[#A3FF12] to-[#7ACC00] rounded-full" 
                           style={{ width: `${(score.family / 5) * 100}%` }}
                         />
                       </div>
@@ -217,10 +221,10 @@ export default function Pricing({ packages, onNavigate }: PricingProps) {
                     <button
                       type="button"
                       onClick={() => toggleExpand(pkg.id)}
-                      className="w-full py-2 px-3 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white transition-all text-xs font-semibold flex items-center justify-between cursor-pointer"
+                      className="w-full py-2 px-3 rounded-lg bg-white/5 hover:bg-white/10 text-[#C3CAD2] hover:text-white transition-all text-xs font-semibold flex items-center justify-between cursor-pointer"
                     >
                       <span className="flex items-center gap-1.5">
-                        <Eye className="w-3.5 h-3.5 text-purple-400" />
+                        <Eye className="w-3.5 h-3.5 text-[#A3FF12]" />
                         {isExpanded ? "Masquer les détails" : "Voir les détails inclus"}
                       </span>
                       {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -235,10 +239,10 @@ export default function Pricing({ packages, onNavigate }: PricingProps) {
                           transition={{ duration: 0.25 }}
                           className="overflow-hidden"
                         >
-                          <ul className="space-y-2.5 p-3 rounded-2xl bg-black/40 border border-white/5 text-[11px] text-gray-300">
+                          <ul className="space-y-2.5 p-3 rounded-2xl bg-black/40 border border-white/5 text-[11px] text-[#C3CAD2]">
                             {pkg.includes.map((inc, i) => (
                               <li key={i} className="flex items-start gap-2 leading-relaxed">
-                                <span className="text-yellow-400 font-bold">✓</span>
+                                <span className="text-[#A3FF12] font-bold">✓</span>
                                 <span>{inc}</span>
                               </li>
                             ))}
@@ -256,7 +260,7 @@ export default function Pricing({ packages, onNavigate }: PricingProps) {
                     onClick={() => onNavigate('order', { packageId: pkg.id })}
                     className={`w-full py-3.5 rounded-xl font-sans font-bold text-xs uppercase tracking-widest transition-all cursor-pointer text-center ${
                       isFeatured
-                        ? 'bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-600 text-black hover:scale-[1.02] shadow-lg shadow-yellow-500/10'
+                        ? 'bg-gradient-to-r from-[#A3FF12] via-[#A3FF12] to-[#7ACC00] text-black hover:scale-[1.02] shadow-lg shadow-[#A3FF12]/10'
                         : 'bg-white/5 text-white hover:bg-white/10'
                     }`}
                   >
@@ -276,52 +280,52 @@ export default function Pricing({ packages, onNavigate }: PricingProps) {
               <span className="text-xl">✨</span>
               <span>Options supplémentaires</span>
             </h2>
-            <p className="text-xs text-gray-400">Pour ajouter une touche encore plus mémorable et physique à votre attention.</p>
+            <p className="text-xs text-[#A2ABB5]">Pour ajouter une touche encore plus mémorable et physique à votre attention.</p>
           </div>
 
-          <div className="bg-gradient-to-br from-[#12091c] via-[#09050f] to-[#0d0714] border border-purple-500/20 p-6 sm:p-8 rounded-3xl grid grid-cols-1 md:grid-cols-12 gap-6 items-center shadow-2xl relative">
+          <div className="bg-gradient-to-br from-[#161A20] via-[#0B0D10] to-[#0B0D10] border border-[#A3FF12]/20 p-6 sm:p-8 rounded-3xl grid grid-cols-1 md:grid-cols-12 gap-6 items-center shadow-2xl relative">
             
             {/* Corner Badge */}
-            <span className="absolute -top-3 right-6 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-mono font-bold text-[8px] uppercase tracking-widest px-3 py-1 rounded-full border border-pink-400/20">
+            <span className="absolute -top-3 right-6 bg-gradient-to-r from-[#A3FF12] to-[#7ACC00] text-white font-mono font-bold text-[8px] uppercase tracking-widest px-3 py-1 rounded-full border border-[#A3FF12]/20">
               Cadeau Physique
             </span>
 
             <div className="md:col-span-8 space-y-3">
               <div className="flex items-center gap-3">
                 <h3 className="font-sans font-black text-2xl text-white">Carte VIP Souvenir</h3>
-                <span className="px-2.5 py-1 rounded-lg bg-yellow-400 text-black font-sans font-black text-sm">2 $</span>
+                <span className="px-2.5 py-1 rounded-lg bg-[#A3FF12] text-black font-sans font-black text-sm">2 $</span>
               </div>
-              <p className="text-sm text-yellow-400/90 font-medium">
+              <p className="text-sm text-[#A3FF12]/90 font-medium">
                 « Une carte souvenir officielle VOXMORY pour rendre votre commande plus spéciale. »
               </p>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
-                <ul className="space-y-1.5 text-xs text-gray-300">
+                <ul className="space-y-1.5 text-xs text-[#C3CAD2]">
                   <li className="flex items-center gap-2">
-                    <span className="text-pink-500 text-xs">◆</span>
+                    <span className="text-[#A3FF12] text-xs">◆</span>
                     <span>Carte VIP personnalisée VOXMORY</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="text-pink-500 text-xs">◆</span>
+                    <span className="text-[#A3FF12] text-xs">◆</span>
                     <span>Nom du bénéficiaire inscrit</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="text-pink-500 text-xs">◆</span>
+                    <span className="text-[#A3FF12] text-xs">◆</span>
                     <span>Code ou numéro souvenir unique</span>
                   </li>
                 </ul>
-                <ul className="space-y-1.5 text-xs text-gray-300">
+                <ul className="space-y-1.5 text-xs text-[#C3CAD2]">
                   <li className="flex items-center gap-2">
-                    <span className="text-pink-500 text-xs">◆</span>
+                    <span className="text-[#A3FF12] text-xs">◆</span>
                     <span>Design premium avec reflets métalliques</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="text-pink-500 text-xs">◆</span>
+                    <span className="text-[#A3FF12] text-xs">◆</span>
                     <span>Version digitale prête à partager</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="text-pink-500 text-xs">◆</span>
-                    <span className="text-purple-300 font-semibold">Peut être ajoutée à n’importe quelle formule</span>
+                    <span className="text-[#A3FF12] text-xs">◆</span>
+                    <span className="text-[#A3FF12] font-semibold">Peut être ajoutée à n’importe quelle formule</span>
                   </li>
                 </ul>
               </div>
@@ -330,11 +334,11 @@ export default function Pricing({ packages, onNavigate }: PricingProps) {
             <div className="md:col-span-4 flex flex-col justify-center items-stretch pt-4 md:pt-0">
               <button
                 onClick={() => onNavigate('order', { vipCardSelected: true, step: 7 })}
-                className="w-full py-4 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-400 hover:to-purple-500 text-white rounded-xl font-sans font-extrabold text-xs uppercase tracking-widest text-center transition-all cursor-pointer shadow-lg shadow-pink-500/10 active:scale-95"
+                className="w-full py-4 bg-gradient-to-r from-[#A3FF12] to-[#7ACC00] hover:from-[#A3FF12] hover:to-[#7ACC00] text-white rounded-xl font-sans font-extrabold text-xs uppercase tracking-widest text-center transition-all cursor-pointer shadow-lg shadow-[#A3FF12]/10 active:scale-95"
               >
                 Ajouter la Carte VIP
               </button>
-              <span className="text-center text-[10px] text-gray-500 mt-2">Livrée numériquement ou en main propre</span>
+              <span className="text-center text-[10px] text-[#8A949F] mt-2">Livrée numériquement ou en main propre</span>
             </div>
 
           </div>
@@ -344,26 +348,26 @@ export default function Pricing({ packages, onNavigate }: PricingProps) {
         <div className="max-w-5xl mx-auto space-y-6">
           <div className="text-center space-y-2">
             <h2 className="font-sans font-black text-2xl text-white">Comparez nos Formules</h2>
-            <p className="text-xs text-gray-400">Pour choisir exactement l'impact et les options dont vous avez besoin.</p>
+            <p className="text-xs text-[#A2ABB5]">Pour choisir exactement l'impact et les options dont vous avez besoin.</p>
           </div>
 
           <div className="overflow-x-auto rounded-2xl border border-white/5 bg-black/40">
             <table className="w-full text-left border-collapse min-w-[650px] text-xs">
               <thead>
-                <tr className="border-b border-white/5 bg-white/5 text-gray-400 font-mono text-[10px] uppercase tracking-wider">
+                <tr className="border-b border-white/5 bg-white/5 text-[#A2ABB5] font-mono text-[10px] uppercase tracking-wider">
                   <th className="p-4">Avantages</th>
                   <th className="p-4">Chanson Simple</th>
-                  <th className="p-4 text-yellow-400">Musique + Vidéo</th>
-                  <th className="p-4 text-purple-400">Premium VIP</th>
+                  <th className="p-4 text-[#A3FF12]">Musique + Vidéo</th>
+                  <th className="p-4 text-[#A3FF12]">Premium VIP</th>
                   <th className="p-4">Prestation Présentielle</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5 text-gray-300">
+              <tbody className="divide-y divide-white/5 text-[#C3CAD2]">
                 <tr>
                   <td className="p-4 font-bold text-white">Tarif</td>
                   <td className="p-4">20 $</td>
-                  <td className="p-4 font-bold text-yellow-400">50 $</td>
-                  <td className="p-4 font-bold text-purple-300">100 $</td>
+                  <td className="p-4 font-bold text-[#A3FF12]">50 $</td>
+                  <td className="p-4 font-bold text-[#A3FF12]">100 $</td>
                   <td className="p-4">À partir de 1000 $</td>
                 </tr>
                 <tr>
@@ -384,35 +388,35 @@ export default function Pricing({ packages, onNavigate }: PricingProps) {
                   <td className="p-4 font-bold text-white">Montage Vidéo Souvenir</td>
                   <td className="p-4">❌ Non</td>
                   <td className="p-4">✅ Standard (Photos)</td>
-                  <td className="p-4 text-purple-300">✅ Prestige (Premium)</td>
+                  <td className="p-4 text-[#A3FF12]">✅ Prestige (Premium)</td>
                   <td className="p-4">✅ Vidéo Live Souvenir</td>
                 </tr>
                 <tr>
                   <td className="p-4 font-bold text-white">Page Souvenir Privée</td>
                   <td className="p-4">❌ Non</td>
                   <td className="p-4">✅ Accès Privé QR Code</td>
-                  <td className="p-4 text-purple-300">✅ Accès Premium à vie</td>
+                  <td className="p-4 text-[#A3FF12]">✅ Accès Premium à vie</td>
                   <td className="p-4">✅ Accès Premium à vie</td>
                 </tr>
                 <tr>
                   <td className="p-4 font-bold text-white">Révisions des Paroles</td>
                   <td className="p-4">1 Révision</td>
                   <td className="p-4">2 Révisions</td>
-                  <td className="p-4 text-purple-300">✅ Prioritaire / Illimitée</td>
+                  <td className="p-4 text-[#A3FF12]">✅ Prioritaire / Illimitée</td>
                   <td className="p-4">✅ Sur-Mesure Totale</td>
                 </tr>
                 <tr>
                   <td className="p-4 font-bold text-white">Carte VIP Souvenir</td>
-                  <td className="p-4 text-gray-500">Option (+2 $)</td>
-                  <td className="p-4 text-gray-500">Option (+2 $)</td>
-                  <td className="p-4 text-purple-300">✅ Incluse Gratuite</td>
+                  <td className="p-4 text-[#8A949F]">Option (+2 $)</td>
+                  <td className="p-4 text-[#8A949F]">Option (+2 $)</td>
+                  <td className="p-4 text-[#A3FF12]">✅ Incluse Gratuite</td>
                   <td className="p-4">✅ Incluse Collector</td>
                 </tr>
                 <tr>
                   <td className="p-4 font-bold text-white">Support Client</td>
                   <td className="p-4">Standard</td>
                   <td className="p-4">Standard</td>
-                  <td className="p-4 text-purple-300">✅ Ligne WhatsApp VIP</td>
+                  <td className="p-4 text-[#A3FF12]">✅ Ligne WhatsApp VIP</td>
                   <td className="p-4">✅ Ligne Directe Direction</td>
                 </tr>
                 <tr className="bg-white/5">
@@ -421,10 +425,10 @@ export default function Pricing({ packages, onNavigate }: PricingProps) {
                     <button onClick={() => onNavigate('order', { packageId: 'pack_simple' })} className="py-2 px-4 rounded-lg bg-white/5 hover:bg-white/10 text-white font-bold transition-all cursor-pointer">Choisir</button>
                   </td>
                   <td className="p-4">
-                    <button onClick={() => onNavigate('order', { packageId: 'pack_musique_video' })} className="py-2 px-4 rounded-lg bg-gradient-to-r from-yellow-400 to-amber-500 text-black font-bold transition-all cursor-pointer hover:scale-105">Choisir</button>
+                    <button onClick={() => onNavigate('order', { packageId: 'pack_musique_video' })} className="py-2 px-4 rounded-lg bg-gradient-to-r from-[#A3FF12] to-[#7ACC00] text-black font-bold transition-all cursor-pointer hover:scale-105">Choisir</button>
                   </td>
                   <td className="p-4">
-                    <button onClick={() => onNavigate('order', { packageId: 'pack_premium_vip' })} className="py-2 px-4 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-bold transition-all cursor-pointer hover:scale-105">Choisir</button>
+                    <button onClick={() => onNavigate('order', { packageId: 'pack_premium_vip' })} className="py-2 px-4 rounded-lg bg-[#A3FF12] hover:bg-[#A3FF12] text-white font-bold transition-all cursor-pointer hover:scale-105">Choisir</button>
                   </td>
                   <td className="p-4">
                     <button onClick={() => onNavigate('order', { packageId: 'pack_presentiel' })} className="py-2 px-4 rounded-lg bg-white/5 hover:bg-white/10 text-white font-bold transition-all cursor-pointer">Dispo</button>
@@ -436,17 +440,17 @@ export default function Pricing({ packages, onNavigate }: PricingProps) {
         </div>
 
         {/* Mobile Money payment guide board */}
-        <div className="max-w-4xl mx-auto bg-[#09090d] border border-yellow-500/15 p-6 sm:p-10 rounded-3xl grid grid-cols-1 md:grid-cols-12 gap-8 items-center shadow-xl">
+        <div className="max-w-4xl mx-auto bg-[#09090d] border border-[#A3FF12]/15 p-6 sm:p-10 rounded-3xl grid grid-cols-1 md:grid-cols-12 gap-8 items-center shadow-xl">
           
           <div className="md:col-span-7 space-y-5">
-            <span className="inline-flex items-center gap-1.5 text-xs text-pink-400 font-bold uppercase tracking-widest font-mono">
+            <span className="inline-flex items-center gap-1.5 text-xs text-[#A3FF12] font-bold uppercase tracking-widest font-mono">
               <Coins className="w-4 h-4" />
               <span>Paiement Sécurisé RDC</span>
             </span>
             <h3 className="font-sans font-extrabold text-2xl text-white leading-snug">
               Comment payer ma commande par Mobile Money ?
             </h3>
-            <p className="text-sm text-gray-300 leading-relaxed">
+            <p className="text-sm text-[#C3CAD2] leading-relaxed">
               Pour initier la composition musicale, un versement d'acompte (50%) ou le règlement total de la formule choisie est requis. Nous prenons en charge l'ensemble des réseaux opérant en RDC.
             </p>
             <div className="flex items-center gap-2 text-xs text-green-400 font-semibold">
@@ -457,7 +461,7 @@ export default function Pricing({ packages, onNavigate }: PricingProps) {
 
           {/* Money Info details box */}
           <div className="md:col-span-5 bg-black p-6 rounded-2xl border border-white/5 space-y-4">
-            <h4 className="font-sans font-bold text-xs text-yellow-400 tracking-wider flex items-center gap-1.5 uppercase">
+            <h4 className="font-sans font-bold text-xs text-[#A3FF12] tracking-wider flex items-center gap-1.5 uppercase">
               <Smartphone className="w-4 h-4" />
               <span>Numéros de Transfert</span>
             </h4>
@@ -465,21 +469,21 @@ export default function Pricing({ packages, onNavigate }: PricingProps) {
             <div className="space-y-3 font-mono text-xs text-left">
               <div className="border-b border-white/5 pb-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-500">Airtel Money :</span>
+                  <span className="text-[#8A949F]">Airtel Money :</span>
                   <span className="font-bold text-white text-sm">+243 978 508 099</span>
                 </div>
-                <div className="text-[10px] text-yellow-500/80 mt-1 uppercase">Bénéficiaire : VANNY irung</div>
+                <div className="text-[10px] text-[#A3FF12]/80 mt-1 uppercase">Bénéficiaire : VANNY irung</div>
               </div>
               <div className="pb-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-500">Orange Money :</span>
+                  <span className="text-[#8A949F]">Orange Money :</span>
                   <span className="font-bold text-white text-sm">+243 891 170 023</span>
                 </div>
-                <div className="text-[10px] text-yellow-500/80 mt-1 uppercase">Bénéficiaire : VANNY KAYEMB</div>
+                <div className="text-[10px] text-[#A3FF12]/80 mt-1 uppercase">Bénéficiaire : VANNY KAYEMB</div>
               </div>
             </div>
 
-            <div className="border-t border-white/5 pt-4 text-[10px] text-gray-400 leading-normal text-left">
+            <div className="border-t border-white/5 pt-4 text-[10px] text-[#A2ABB5] leading-normal text-left">
               Après le transfert, envoyez simplement une copie/capture d'écran de l'opération sur WhatsApp pour valider la commande :
             </div>
 
@@ -501,17 +505,17 @@ export default function Pricing({ packages, onNavigate }: PricingProps) {
           
           <div className="text-center space-y-2">
             <h2 className="font-sans font-extrabold text-2xl sm:text-3xl text-white flex items-center justify-center gap-2">
-              <HelpCircle className="w-6 h-6 text-yellow-400" />
+              <HelpCircle className="w-6 h-6 text-[#A3FF12]" />
               <span>Foire aux Questions</span>
             </h2>
-            <p className="text-xs text-gray-400 uppercase tracking-widest font-mono">Toutes les réponses à vos interrogations</p>
+            <p className="text-xs text-[#A2ABB5] uppercase tracking-widest font-mono">Toutes les réponses à vos interrogations</p>
           </div>
 
           <div className="space-y-4">
             {faqs.map((faq, i) => (
               <div
                 key={i}
-                className="bg-[#0e0e12] border border-white/5 rounded-2xl overflow-hidden transition-all duration-300"
+                className="bg-[#0B0D10] border border-white/5 rounded-2xl overflow-hidden transition-all duration-300"
               >
                 <button
                   type="button"
@@ -519,11 +523,11 @@ export default function Pricing({ packages, onNavigate }: PricingProps) {
                   className="w-full px-6 py-5 text-left font-sans font-bold text-sm sm:text-base text-white flex items-center justify-between gap-4 hover:bg-white/5 focus:outline-none cursor-pointer"
                 >
                   <span>{faq.q}</span>
-                  {openFaq === i ? <ChevronUp className="w-4 h-4 text-yellow-400" /> : <ChevronDown className="w-4 h-4 text-gray-500" />}
+                  {openFaq === i ? <ChevronUp className="w-4 h-4 text-[#A3FF12]" /> : <ChevronDown className="w-4 h-4 text-[#8A949F]" />}
                 </button>
 
                 {openFaq === i && (
-                  <div className="px-6 pb-6 pt-1 text-xs sm:text-sm text-gray-300 leading-relaxed border-t border-white/5 animate-fade-in bg-black/20">
+                  <div className="px-6 pb-6 pt-1 text-xs sm:text-sm text-[#C3CAD2] leading-relaxed border-t border-white/5 animate-fade-in bg-black/20">
                     {faq.a}
                   </div>
                 )}

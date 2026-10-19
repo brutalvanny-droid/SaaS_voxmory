@@ -3,6 +3,7 @@ import { Search, Sparkles, Filter, Music, Lock, Unlock, Pencil, Trash2, X, Uploa
 import AudioPlayer from '../components/AudioPlayer.js';
 import { api } from '../lib/api.js';
 import { GallerySong } from '../types.js';
+import Reveal from '../components/Reveal.js';
 
 interface GalleryProps {
   initialSongs: GallerySong[];
@@ -312,7 +313,7 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
       
       {/* Dynamic Toast feedback */}
       {feedbackMessage && (
-        <div className={`fixed bottom-6 right-6 z-[120] flex items-center gap-2.5 px-4 py-3.5 rounded-2xl border text-xs font-bold shadow-2xl animate-in fade-in slide-in-from-bottom-5 duration-300 ${
+        <div className={`fixed bottom-6 right-6 z-[120] flex items-center gap-2.5 px-4 py-3.5 rounded-2xl border text-xs font-bold shadow-2xl animate-fade-in ${
           feedbackMessage.type === 'success' 
             ? 'bg-emerald-950/90 border-emerald-500/30 text-emerald-300' 
             : 'bg-red-950/90 border-red-500/30 text-red-300'
@@ -323,7 +324,7 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
       )}
 
       {/* Decorative glows */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-[radial-gradient(circle,_rgba(147,51,234,0.15)_0%,_transparent_70%)] pointer-events-none" />
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-[radial-gradient(circle,_rgba(163,255,18,0.15)_0%,_transparent_70%)] pointer-events-none" />
 
       {/* Admin Toggle Button (Float/Header) */}
       <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20">
@@ -339,7 +340,7 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
         ) : (
           <button
             onClick={handleOpenUnlockModal}
-            className="p-2.5 bg-[#0e0e12]/60 hover:bg-[#13131a] text-gray-500 hover:text-yellow-400 rounded-xl transition-all border border-white/5 flex items-center gap-1.5 cursor-pointer shadow-md"
+            className="p-2.5 bg-[#0B0D10]/60 hover:bg-[#0B0D10] text-[#8A949F] hover:text-[#A3FF12] rounded-xl transition-all border border-white/5 flex items-center gap-1.5 cursor-pointer shadow-md"
             title="S'authentifier pour éditer/supprimer les chansons"
           >
             <Lock className="w-4 h-4" />
@@ -350,18 +351,20 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10 space-y-12">
         
         {/* Header section */}
-        <div className="max-w-3xl mx-auto text-center space-y-4">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-950/40 border border-purple-500/20 text-yellow-400 font-mono text-xs uppercase tracking-wider">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Galerie d'Émotions</span>
+        <Reveal>
+          <div className="max-w-3xl mx-auto text-center space-y-6">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[#A3FF12]/20 bg-[#A3FF12]/[0.05] text-[#A3FF12] font-mono text-[11px] uppercase tracking-[0.16em]">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Galerie d'émotions</span>
+            </div>
+            <h1 className="text-[clamp(2.1rem,5.6vw,3.75rem)] font-extrabold text-white tracking-[-0.04em] leading-[1.02]">
+              Écoutez les chansons qui ont déjà <span className="text-gradient">touché des cœurs</span>
+            </h1>
+            <p className="text-[#A2ABB5] text-[15px] sm:text-base leading-relaxed">
+              Chaque chanson part d’une vraie histoire : une maman, un couple, une famille, un souvenir, une personne qu’on aime.
+            </p>
           </div>
-          <h1 className="font-sans font-extrabold text-3xl sm:text-4xl lg:text-5xl text-white">
-            Écoutez les chansons qui ont déjà touché des cœurs
-          </h1>
-          <p className="text-gray-400 text-sm sm:text-base leading-relaxed">
-            Chaque chanson part d’une vraie histoire : une maman, un couple, une famille, un souvenir, une personne qu’on aime.
-          </p>
-        </div>
+        </Reveal>
 
         {/* Admin mode active indicator banner */}
         {isAdminUnlocked && (
@@ -370,7 +373,7 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
               <span className="text-xl">🔧</span>
               <div className="text-xs">
                 <p className="text-white font-bold font-sans">Console de Modification Directe Active</p>
-                <p className="text-gray-400 mt-0.5">Vous pouvez modifier les fiches de chansons (titres, images, audios) ou supprimer des productions.</p>
+                <p className="text-[#A2ABB5] mt-0.5">Vous pouvez modifier les fiches de chansons (titres, images, audios) ou supprimer des productions.</p>
               </div>
             </div>
             <button
@@ -383,12 +386,12 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
         )}
 
         {/* Search and Filters Bar */}
-        <div className="bg-[#0e0e12] border border-yellow-500/10 p-6 rounded-3xl space-y-5">
+        <div className="bg-[#0B0D10] border border-[#A3FF12]/10 p-6 rounded-3xl space-y-5">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
             
             {/* Search Input */}
             <div className="md:col-span-6 relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8A949F]">
                 <Search className="w-4 h-4" />
               </span>
               <input
@@ -396,7 +399,7 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
                 placeholder="Rechercher une chanson, un prénom, une histoire..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-black border border-white/10 rounded-xl pl-10 pr-4 py-3.5 text-white focus:border-yellow-500 focus:outline-none text-sm transition-all"
+                className="w-full bg-black border border-white/10 rounded-xl pl-10 pr-4 py-3.5 text-white focus:border-[#A3FF12] focus:outline-none text-sm transition-all"
               />
             </div>
 
@@ -405,7 +408,7 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
               <select
                 value={selectedOccasion}
                 onChange={(e) => setSelectedOccasion(e.target.value)}
-                className="w-full bg-black border border-white/10 rounded-xl px-4 py-3.5 text-white focus:border-yellow-500 focus:outline-none text-sm transition-all appearance-none cursor-pointer"
+                className="w-full bg-black border border-white/10 rounded-xl px-4 py-3.5 text-white focus:border-[#A3FF12] focus:outline-none text-sm transition-all appearance-none cursor-pointer"
               >
                 {occasions.map(occ => (
                   <option key={occ} value={occ}>
@@ -413,7 +416,7 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
                   </option>
                 ))}
               </select>
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none text-xs font-mono">▼</span>
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#8A949F] pointer-events-none text-xs font-mono">▼</span>
             </div>
 
             {/* Music Style Selector */}
@@ -421,7 +424,7 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
               <select
                 value={selectedStyle}
                 onChange={(e) => setSelectedStyle(e.target.value)}
-                className="w-full bg-black border border-white/10 rounded-xl px-4 py-3.5 text-white focus:border-yellow-500 focus:outline-none text-sm transition-all appearance-none cursor-pointer"
+                className="w-full bg-black border border-white/10 rounded-xl px-4 py-3.5 text-white focus:border-[#A3FF12] focus:outline-none text-sm transition-all appearance-none cursor-pointer"
               >
                 {styles.map(st => (
                   <option key={st} value={st}>
@@ -429,7 +432,7 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
                   </option>
                 ))}
               </select>
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none text-xs font-mono">▼</span>
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#8A949F] pointer-events-none text-xs font-mono">▼</span>
             </div>
 
           </div>
@@ -441,11 +444,11 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
             {Array.from({ length: 6 }).map((_, idx) => (
               <div
                 key={`skeleton-gallery-${idx}`}
-                className="bg-[#0b0a0e] border border-yellow-500/10 rounded-3xl p-6 space-y-6 animate-pulse flex flex-col justify-between"
+                className="bg-[#0B0D10] border border-[#A3FF12]/10 rounded-3xl p-6 space-y-6 animate-pulse flex flex-col justify-between"
               >
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <div className="h-5 w-24 bg-purple-950/80 rounded-full"></div>
+                    <div className="h-5 w-24 bg-[#0B0D10]/80 rounded-full"></div>
                     <div className="h-4 w-16 bg-white/5 rounded"></div>
                   </div>
 
@@ -464,9 +467,9 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
                     <div className="h-3 bg-white/5 rounded w-4/6"></div>
                   </div>
 
-                  <div className="p-3 bg-purple-950/10 rounded-xl border border-purple-500/5 space-y-2">
-                    <div className="h-2 bg-pink-500/10 rounded w-1/4"></div>
-                    <div className="h-3 bg-pink-500/5 rounded w-11/12"></div>
+                  <div className="p-3 bg-[#0B0D10]/10 rounded-xl border border-[#A3FF12]/5 space-y-2">
+                    <div className="h-2 bg-[#A3FF12]/10 rounded w-1/4"></div>
+                    <div className="h-3 bg-[#A3FF12]/5 rounded w-11/12"></div>
                   </div>
                 </div>
 
@@ -477,12 +480,12 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
             ))}
           </div>
         ) : filteredSongs.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 stagger-in">
             {filteredSongs.map((song) => (
               <div
                 key={song.id}
-                className={`bg-[#0b0a0e] border rounded-3xl p-6 space-y-6 transition-all duration-300 flex flex-col justify-between relative group ${
-                  isAdminUnlocked ? 'border-red-500/10 hover:border-red-500/30' : 'border-yellow-500/10 hover:border-purple-500/20'
+                className={`bg-[#0B0D10] border rounded-3xl p-6 space-y-6 transition-all duration-300 flex flex-col justify-between relative group ${
+                  isAdminUnlocked ? 'border-red-500/10 hover:border-red-500/30' : 'border-[#A3FF12]/10 hover:border-[#A3FF12]/20'
                 }`}
               >
                 {/* ADMIN CARD OVERLAYS FOR EDIT/DELETE */}
@@ -490,14 +493,14 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
                   <div className="absolute top-4 right-4 flex items-center gap-1.5 z-10 animate-fade-in">
                     <button
                       onClick={() => handleStartEdit(song)}
-                      className="p-2 bg-black/80 hover:bg-yellow-400 text-gray-400 hover:text-black rounded-xl transition-all cursor-pointer border border-white/5 hover:border-transparent"
+                      className="p-2 bg-black/80 hover:bg-[#A3FF12] text-[#A2ABB5] hover:text-black rounded-xl transition-all cursor-pointer border border-white/5 hover:border-transparent"
                       title="Modifier les informations"
                     >
                       <Pencil className="w-3 h-3" />
                     </button>
 
                     {confirmDeleteId === song.id ? (
-                      <div className="flex items-center gap-1 bg-red-950/90 border border-red-500/30 p-1 rounded-xl animate-in fade-in zoom-in-95 duration-150">
+                      <div className="flex items-center gap-1 bg-red-950/90 border border-red-500/30 p-1 rounded-xl animate-fade-in">
                         <span className="text-[9px] text-red-400 font-bold px-1.5 uppercase font-mono">Retirer ?</span>
                         <button
                           onClick={() => handleDeleteGallerySong(song.id)}
@@ -507,7 +510,7 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
                         </button>
                         <button
                           onClick={() => setConfirmDeleteId(null)}
-                          className="px-2 py-1 bg-white/10 hover:bg-white/20 text-gray-300 text-[9px] font-bold rounded-lg transition-all cursor-pointer"
+                          className="px-2 py-1 bg-white/10 hover:bg-white/20 text-[#C3CAD2] text-[9px] font-bold rounded-lg transition-all cursor-pointer"
                         >
                           Non
                         </button>
@@ -529,16 +532,16 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
                   {/* Card top */}
                   <div className="flex items-center justify-between">
                     <div className="flex gap-1.5 items-center">
-                      <span className="px-2.5 py-1 rounded-full bg-purple-950 text-pink-400 font-sans font-semibold text-[10px] uppercase tracking-wider">
+                      <span className="px-2.5 py-1 rounded-full bg-[#0B0D10] text-[#A3FF12] font-sans font-semibold text-[10px] uppercase tracking-wider">
                         {song.occasion}
                       </span>
                       {song.isFeatured && (
-                        <span className="px-2.5 py-1 rounded-full bg-yellow-400/10 text-yellow-400 font-sans font-bold text-[9px] uppercase tracking-wider flex items-center gap-1 border border-yellow-400/20">
+                        <span className="px-2.5 py-1 rounded-full bg-[#A3FF12]/10 text-[#A3FF12] font-sans font-bold text-[9px] uppercase tracking-wider flex items-center gap-1 border border-[#A3FF12]/20">
                           ✨ Vedette
                         </span>
                       )}
                     </div>
-                    <span className="text-[11px] text-gray-500 font-mono pr-8 group-hover:pr-12 transition-all">{song.style}</span>
+                    <span className="text-[11px] text-[#8A949F] font-mono pr-8 group-hover:pr-12 transition-all">{song.style}</span>
                   </div>
 
                   {/* Audio Player */}
@@ -553,15 +556,15 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
 
                   {/* Description */}
                   <div className="space-y-3">
-                    <p className="text-xs text-gray-400 leading-relaxed italic">
+                    <p className="text-xs text-[#A2ABB5] leading-relaxed italic">
                       "{song.description}"
                     </p>
 
                     {/* Client feedback message */}
                     {song.clientReaction && (
-                      <div className="p-3 bg-purple-950/20 rounded-xl border border-purple-500/5 space-y-1">
-                        <span className="block text-[9px] uppercase tracking-widest font-mono text-pink-400 font-bold">Retour Client</span>
-                        <p className="text-[11px] text-pink-300 leading-normal italic">
+                      <div className="p-3 bg-[#0B0D10]/20 rounded-xl border border-[#A3FF12]/5 space-y-1">
+                        <span className="block text-[9px] uppercase tracking-widest font-mono text-[#A3FF12] font-bold">Retour Client</span>
+                        <p className="text-[11px] text-[#A3FF12] leading-normal italic">
                           "{song.clientReaction}"
                         </p>
                       </div>
@@ -582,7 +585,7 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
                 <div className="pt-4 border-t border-white/5 space-y-3">
                   {/* Share component */}
                   <div className="flex items-center justify-between bg-emerald-950/10 border border-emerald-500/10 p-3 rounded-2xl gap-3">
-                    <span className="text-[10px] font-mono text-gray-400 font-medium">Partager le souvenir :</span>
+                    <span className="text-[10px] font-mono text-[#A2ABB5] font-medium">Partager le souvenir :</span>
                     <div className="flex items-center gap-1.5">
                       <button
                         onClick={() => handleShareWhatsApp(song)}
@@ -594,7 +597,7 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
                       </button>
                       <button
                         onClick={() => handleCopyLink(song)}
-                        className="p-1.5 bg-white/5 hover:bg-white/10 text-gray-300 rounded-xl transition-all cursor-pointer flex items-center justify-center border border-white/5"
+                        className="p-1.5 bg-white/5 hover:bg-white/10 text-[#C3CAD2] rounded-xl transition-all cursor-pointer flex items-center justify-center border border-white/5"
                         title="Copier le lien"
                       >
                         {copiedSongId === song.id ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Share2 className="w-3.5 h-3.5" />}
@@ -604,7 +607,7 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
 
                   <button
                     onClick={() => onNavigate('order', { songTemplate: song.title, category: song.occasion, style: song.style, mood: song.mood })}
-                    className="w-full py-3.5 bg-gradient-to-r from-yellow-400/10 to-amber-500/10 hover:from-yellow-400 hover:to-amber-500 text-yellow-400 hover:text-black font-sans font-bold text-xs uppercase tracking-widest rounded-xl transition-all duration-300 cursor-pointer text-center border border-yellow-500/20 hover:border-transparent"
+                    className="w-full py-3.5 bg-gradient-to-r from-[#A3FF12]/10 to-[#7ACC00]/10 hover:from-[#A3FF12] hover:to-[#7ACC00] text-[#A3FF12] hover:text-black font-sans font-bold text-xs uppercase tracking-widest rounded-xl transition-all duration-300 cursor-pointer text-center border border-[#A3FF12]/20 hover:border-transparent"
                   >
                     Commander une chanson similaire
                   </button>
@@ -614,13 +617,13 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
             ))}
           </div>
         ) : (
-          <div className="text-center py-20 bg-[#0e0e12] rounded-3xl border border-white/5 space-y-4">
-            <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mx-auto text-gray-500">
+          <div className="text-center py-20 bg-[#0B0D10] rounded-3xl border border-white/5 space-y-4">
+            <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mx-auto text-[#8A949F]">
               <Music className="w-6 h-6" />
             </div>
             <div className="space-y-1">
               <h3 className="font-bold text-lg text-white">Aucun exemple trouvé</h3>
-              <p className="text-xs text-gray-400 max-w-sm mx-auto">Essayez de modifier vos critères de recherche ou sélectionnez d'autres options de filtre.</p>
+              <p className="text-xs text-[#A2ABB5] max-w-sm mx-auto">Essayez de modifier vos critères de recherche ou sélectionnez d'autres options de filtre.</p>
             </div>
             <button
               onClick={() => {
@@ -628,7 +631,7 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
                 setSelectedOccasion('all');
                 setSelectedStyle('all');
               }}
-              className="text-xs text-yellow-400 underline font-semibold cursor-pointer"
+              className="text-xs text-[#A3FF12] underline font-semibold cursor-pointer"
             >
               Réinitialiser les filtres
             </button>
@@ -644,12 +647,12 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
         <div className="fixed inset-0 z-[110] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
           <form
             onSubmit={handleUnlockAdmin}
-            className="w-full max-w-md bg-[#0e0e12] border border-red-500/20 p-8 rounded-3xl space-y-6 shadow-2xl relative"
+            className="w-full max-w-md bg-[#0B0D10] border border-red-500/20 p-8 rounded-3xl space-y-6 shadow-2xl relative"
           >
             <button
               type="button"
               onClick={() => setShowUnlockModal(false)}
-              className="absolute top-4 right-4 text-gray-500 hover:text-white p-1.5"
+              className="absolute top-4 right-4 text-[#8A949F] hover:text-white p-1.5"
               title="Fermer"
             >
               <X className="w-5 h-5" />
@@ -660,10 +663,10 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
                 <Lock className="w-5 h-5" />
               </div>
               <h3 className="font-sans font-extrabold text-xl text-white">Console d'Édition Galerie</h3>
-              <p className="text-xs text-gray-500">Accès sécurisé pour l'équipe Studio VOXMORY.</p>
+              <p className="text-xs text-[#8A949F]">Accès sécurisé pour l'équipe Studio VOXMORY.</p>
             </div>
 
-            <p className="text-xs text-gray-400 leading-relaxed text-center">
+            <p className="text-xs text-[#A2ABB5] leading-relaxed text-center">
               Connectez-vous au studio VOXMORY pour modifier la galerie. La
               vérification se fait côté serveur, aucune clé n'est conservée dans
               le navigateur.
@@ -693,10 +696,10 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
           ------------------------------------ */}
       {editingSong && (
         <div className="fixed inset-0 z-[110] bg-black/95 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-[#0e0e12] border border-red-500/20 max-w-2xl w-full rounded-3xl p-6 md:p-8 space-y-6 shadow-2xl relative my-8 text-left">
+          <div className="bg-[#0B0D10] border border-red-500/20 max-w-2xl w-full rounded-3xl p-6 md:p-8 space-y-6 shadow-2xl relative my-8 text-left">
             <button
               onClick={() => setEditingSong(null)}
-              className="absolute top-4 right-4 text-gray-500 hover:text-white p-1.5"
+              className="absolute top-4 right-4 text-[#8A949F] hover:text-white p-1.5"
               title="Fermer"
             >
               <X className="w-5 h-5" />
@@ -704,17 +707,17 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
 
             <div className="space-y-1">
               <h3 className="font-sans font-extrabold text-xl text-white flex items-center gap-2">
-                <span className="text-yellow-400">📝</span>
+                <span className="text-[#A3FF12]">📝</span>
                 <span>Modifier la Chanson</span>
               </h3>
-              <p className="text-xs text-gray-500">Mettez à jour les données, la découpe (Teaser) ou téléversez de nouveaux fichiers.</p>
+              <p className="text-xs text-[#8A949F]">Mettez à jour les données, la découpe (Teaser) ou téléversez de nouveaux fichiers.</p>
             </div>
 
             <form onSubmit={handleSaveEdit} className="space-y-5">
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="text-[10px] text-gray-400 uppercase font-mono">Titre de la chanson *</label>
+                  <label className="text-[10px] text-[#A2ABB5] uppercase font-mono">Titre de la chanson *</label>
                   <input
                     type="text"
                     required
@@ -726,7 +729,7 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[10px] text-gray-400 uppercase font-mono">Occasion *</label>
+                  <label className="text-[10px] text-[#A2ABB5] uppercase font-mono">Occasion *</label>
                   <select
                     value={editOccasion}
                     onChange={(e) => setEditOccasion(e.target.value)}
@@ -744,7 +747,7 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-1">
-                  <label className="text-[10px] text-gray-400 uppercase font-mono">Rythme / Style *</label>
+                  <label className="text-[10px] text-[#A2ABB5] uppercase font-mono">Rythme / Style *</label>
                   <select
                     value={editStyle}
                     onChange={(e) => setEditStyle(e.target.value)}
@@ -759,7 +762,7 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[10px] text-gray-400 uppercase font-mono">Langue</label>
+                  <label className="text-[10px] text-[#A2ABB5] uppercase font-mono">Langue</label>
                   <input
                     type="text"
                     value={editLanguage}
@@ -769,7 +772,7 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[10px] text-gray-400 uppercase font-mono">Ambiance / Mood</label>
+                  <label className="text-[10px] text-[#A2ABB5] uppercase font-mono">Ambiance / Mood</label>
                   <input
                     type="text"
                     value={editMood}
@@ -780,7 +783,7 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] text-gray-400 uppercase font-mono block">Fichier Audio (MP3/WAV) *</label>
+                <label className="text-[10px] text-[#A2ABB5] uppercase font-mono block">Fichier Audio (MP3/WAV) *</label>
                 <div className="flex flex-col sm:flex-row gap-2">
                   <input
                     type="text"
@@ -790,7 +793,7 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
                     onChange={(e) => setEditAudioUrl(e.target.value)}
                     className="flex-1 bg-black border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-red-500 font-mono"
                   />
-                  <label className="flex-shrink-0 flex items-center justify-center px-4 py-2.5 bg-yellow-400/10 hover:bg-yellow-400/20 text-yellow-400 border border-yellow-400/20 rounded-xl text-xs font-bold cursor-pointer transition-all">
+                  <label className="flex-shrink-0 flex items-center justify-center px-4 py-2.5 bg-[#A3FF12]/10 hover:bg-[#A3FF12]/20 text-[#A3FF12] border border-[#A3FF12]/20 rounded-xl text-xs font-bold cursor-pointer transition-all">
                     {isUploadingEditAudio ? 'Téléversement...' : 'Remplacer Audio'}
                     <input
                       type="file"
@@ -804,7 +807,7 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] text-gray-400 uppercase font-mono block">Image de Couverture</label>
+                <label className="text-[10px] text-[#A2ABB5] uppercase font-mono block">Image de Couverture</label>
                 <div className="flex flex-col sm:flex-row gap-2">
                   <input
                     type="text"
@@ -813,7 +816,7 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
                     onChange={(e) => setEditCoverUrl(e.target.value)}
                     className="flex-1 bg-black border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-red-500 font-mono"
                   />
-                  <label className="flex-shrink-0 flex items-center justify-center px-4 py-2.5 bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border border-purple-500/20 rounded-xl text-xs font-bold cursor-pointer transition-all">
+                  <label className="flex-shrink-0 flex items-center justify-center px-4 py-2.5 bg-[#A3FF12]/10 hover:bg-[#A3FF12]/20 text-[#A3FF12] border border-[#A3FF12]/20 rounded-xl text-xs font-bold cursor-pointer transition-all">
                     {isUploadingEditCover ? 'Téléversement...' : 'Remplacer Pochette'}
                     <input
                       type="file"
@@ -829,10 +832,10 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
               <div className="grid grid-cols-2 gap-4 bg-red-950/10 p-4 rounded-2xl border border-red-500/10">
                 <div className="col-span-2">
                   <span className="block text-[11px] text-red-400 font-bold uppercase font-mono">✂️ Métrage / Découpe d'écoute (Teaser)</span>
-                  <span className="block text-[9px] text-gray-500">Modifiez le timing de lecture publique pour masquer le morceau complet.</span>
+                  <span className="block text-[9px] text-[#8A949F]">Modifiez le timing de lecture publique pour masquer le morceau complet.</span>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] text-gray-400 uppercase font-mono">Début (secondes)</label>
+                  <label className="text-[10px] text-[#A2ABB5] uppercase font-mono">Début (secondes)</label>
                   <input
                     type="number"
                     min="0"
@@ -843,7 +846,7 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] text-gray-400 uppercase font-mono">Fin (secondes)</label>
+                  <label className="text-[10px] text-[#A2ABB5] uppercase font-mono">Fin (secondes)</label>
                   <input
                     type="number"
                     min="0"
@@ -856,7 +859,7 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] text-gray-400 uppercase font-mono">Histoire / Description de la chanson</label>
+                <label className="text-[10px] text-[#A2ABB5] uppercase font-mono">Histoire / Description de la chanson</label>
                 <textarea
                   rows={2}
                   placeholder="Histoire d'origine..."
@@ -867,7 +870,7 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] text-gray-400 uppercase font-mono">Retour Émotionnel du Client</label>
+                <label className="text-[10px] text-[#A2ABB5] uppercase font-mono">Retour Émotionnel du Client</label>
                 <textarea
                   rows={2}
                   placeholder="Commentaire de réaction..."
@@ -879,7 +882,7 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="text-[10px] text-gray-400 uppercase font-mono">Option de Visibilité</label>
+                  <label className="text-[10px] text-[#A2ABB5] uppercase font-mono">Option de Visibilité</label>
                   <select
                     value={editVisibility}
                     onChange={(e: any) => setEditVisibility(e.target.value)}
@@ -893,7 +896,7 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[10px] text-gray-400 uppercase font-mono">Prénom du Client</label>
+                  <label className="text-[10px] text-[#A2ABB5] uppercase font-mono">Prénom du Client</label>
                   <input
                     type="text"
                     placeholder="Ex: Sarah"
@@ -905,7 +908,7 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] text-gray-400 uppercase font-mono">Identifiant Page Souvenir (Slug/ID VOXMORY)</label>
+                <label className="text-[10px] text-[#A2ABB5] uppercase font-mono">Identifiant Page Souvenir (Slug/ID VOXMORY)</label>
                 <input
                   type="text"
                   placeholder="Ex: maman-georgette (Laissez vide pour utiliser l'identifiant par défaut)"
@@ -925,7 +928,7 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-3.5 bg-gradient-to-r from-red-600 to-amber-500 hover:from-red-500 hover:to-amber-400 text-white font-sans font-bold text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer text-center shadow-lg hover:shadow-red-950/20"
+                  className="flex-1 py-3.5 bg-gradient-to-r from-red-600 to-[#7ACC00] hover:from-red-500 hover:to-[#7ACC00] text-white font-sans font-bold text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer text-center shadow-lg hover:shadow-red-950/20"
                 >
                   Enregistrer les modifications
                 </button>

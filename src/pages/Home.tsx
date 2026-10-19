@@ -9,10 +9,8 @@ import {
   Zap,
   Play,
   Star,
-  ChevronDown,
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext.js';
-import { api } from '../lib/api.js';
 import AudioPlayer from '../components/AudioPlayer.js';
 import Reveal from '../components/Reveal.js';
 import MeshBackground from '../components/MeshBackground.js';
@@ -71,16 +69,6 @@ export default function Home({
   onNavigate,
 }: HomeProps) {
   const { t } = useLanguage();
-  const [visits, setVisits] = useState(0);
-
-  useEffect(() => {
-    api.stats.visit().catch(() => {});
-    api
-      .admin
-      .stats()
-      .then((s) => setVisits(s.visitsCount))
-      .catch(() => {});
-  }, []);
 
   const steps = [
     {
@@ -94,7 +82,7 @@ export default function Home({
   ];
 
   return (
-    <div className="relative grain">
+    <div className="relative">
       {/* ================= HÉROS ================= */}
       <section className="relative overflow-hidden">
         <MeshBackground />
@@ -190,9 +178,9 @@ export default function Home({
             className="mt-16 grid grid-cols-3 gap-3 max-w-2xl"
           >
             {[
-              { label: 'Visites', value: visits || 1345, suffix: '+' },
-              { label: 'Chansons livrées', value: 320, suffix: '+' },
-              { label: 'Satisfaction', value: 98, suffix: '%' },
+              { label: 'Formules', value: packages.length, suffix: '' },
+              { label: 'Langues chantées', value: 5, suffix: '' },
+              { label: 'Livraison express', value: 24, suffix: ' h' },
             ].map((stat) => (
               <div
                 key={stat.label}

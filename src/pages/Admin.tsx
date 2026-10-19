@@ -71,7 +71,7 @@ export default function Admin({ onNavigate, onPromotionChanged }: AdminProps) {
 
   if (checking) {
     return (
-      <div className="flex items-center justify-center py-32 text-gray-500 gap-2">
+      <div className="flex items-center justify-center py-32 text-[#8A949F] gap-2">
         <Loader2 className="w-4 h-4 animate-spin" /> Vérification de la session…
       </div>
     );
@@ -86,7 +86,7 @@ export default function Admin({ onNavigate, onPromotionChanged }: AdminProps) {
       <header className="flex flex-wrap items-center justify-between gap-4 mb-7">
         <div>
           <h1 className="text-2xl font-black text-white">Studio VOXMORY</h1>
-          <p className="text-xs text-gray-500 mt-0.5">
+          <p className="text-xs text-[#8A949F] mt-0.5">
             Connecté en tant que {session.email}
           </p>
         </div>
@@ -106,8 +106,8 @@ export default function Admin({ onNavigate, onPromotionChanged }: AdminProps) {
             onClick={() => setTab(id)}
             className={`flex items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-wide border-b-2 whitespace-nowrap transition-colors ${
               tab === id
-                ? 'border-yellow-500 text-yellow-400'
-                : 'border-transparent text-gray-500 hover:text-white'
+                ? 'border-[#A3FF12] text-[#A3FF12]'
+                : 'border-transparent text-[#8A949F] hover:text-white'
             }`}
           >
             <Icon className="w-4 h-4" />
@@ -150,7 +150,7 @@ function Dashboard() {
   }
   if (!stats) {
     return (
-      <div className="flex items-center justify-center py-24 text-gray-500 gap-2">
+      <div className="flex items-center justify-center py-24 text-[#8A949F] gap-2">
         <Loader2 className="w-4 h-4 animate-spin" /> Chargement…
       </div>
     );
@@ -175,47 +175,47 @@ function Dashboard() {
         <Stat
           label="Chiffre d'affaires"
           value={`${(stats.totalRevenueCents / 100).toLocaleString('fr-FR')} $`}
-          accent="text-yellow-400"
+          accent="text-[#A3FF12]"
           hint="Commandes marquées comme payées"
         />
         <Stat
           label="Note moyenne"
           value={`${stats.averageRating} / 5`}
-          accent="text-purple-400"
+          accent="text-[#A3FF12]"
           hint={`${stats.clientSatisfaction} % de satisfaction`}
         />
       </div>
 
       <Card title="Audience — 14 derniers jours" subtitle="Visites et écoutes">
         {days.length === 0 ? (
-          <p className="text-sm text-gray-600">Pas encore de données.</p>
+          <p className="text-sm text-[#6C7581]">Pas encore de données.</p>
         ) : (
           <div className="flex items-end gap-1.5 h-40">
             {days.map((d) => (
               <div key={d.date} className="flex-1 flex flex-col items-center gap-1">
                 <div className="w-full flex items-end justify-center gap-0.5 h-32">
                   <div
-                    className="w-1/2 bg-yellow-500/70 rounded-t"
+                    className="w-1/2 bg-[#A3FF12]/70 rounded-t"
                     style={{ height: `${(d.visits / maxVisits) * 100}%` }}
                     title={`${d.visits} visites`}
                   />
                   <div
-                    className="w-1/2 bg-purple-500/70 rounded-t"
+                    className="w-1/2 bg-[#A3FF12]/70 rounded-t"
                     style={{ height: `${(d.listens / maxVisits) * 100}%` }}
                     title={`${d.listens} écoutes`}
                   />
                 </div>
-                <span className="text-[9px] text-gray-600">{d.date.slice(5)}</span>
+                <span className="text-[9px] text-[#6C7581]">{d.date.slice(5)}</span>
               </div>
             ))}
           </div>
         )}
-        <div className="flex gap-4 mt-3 text-[11px] text-gray-500">
+        <div className="flex gap-4 mt-3 text-[11px] text-[#8A949F]">
           <span className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-sm bg-yellow-500/70" /> Visites
+            <span className="w-2.5 h-2.5 rounded-sm bg-[#A3FF12]/70" /> Visites
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-sm bg-purple-500/70" /> Écoutes
+            <span className="w-2.5 h-2.5 rounded-sm bg-[#A3FF12]/70" /> Écoutes
           </span>
         </div>
       </Card>

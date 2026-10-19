@@ -26,8 +26,8 @@ export default function Catalog() {
             onClick={() => setTab(id)}
             className={`px-4 py-2.5 text-xs font-bold uppercase tracking-wide border-b-2 transition-colors ${
               tab === id
-                ? 'border-yellow-500 text-yellow-400'
-                : 'border-transparent text-gray-500 hover:text-white'
+                ? 'border-[#A3FF12] text-[#A3FF12]'
+                : 'border-transparent text-[#8A949F] hover:text-white'
             }`}
           >
             {label}
@@ -126,7 +126,7 @@ function GalleryAdmin() {
               >
                 <div className="min-w-0">
                   <p className="text-sm font-bold text-white truncate">{s.title}</p>
-                  <p className="text-[11px] text-gray-500 truncate">
+                  <p className="text-[11px] text-[#8A949F] truncate">
                     {s.style} · {s.occasion} · {s.visibility}
                   </p>
                 </div>
@@ -135,14 +135,14 @@ function GalleryAdmin() {
                   {s.visibility === 'Private' && <Badge tone="gray">Privée</Badge>}
                   <button
                     onClick={() => void toggleFeatured(s)}
-                    className="p-1.5 rounded-lg hover:bg-white/10 text-gray-400 hover:text-yellow-400"
+                    className="p-1.5 rounded-lg hover:bg-white/10 text-[#A2ABB5] hover:text-[#A3FF12]"
                     title="Mettre en vedette"
                   >
                     <Sparkles className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => void remove(s.id)}
-                    className="p-1.5 rounded-lg hover:bg-white/10 text-gray-400 hover:text-red-400"
+                    className="p-1.5 rounded-lg hover:bg-white/10 text-[#A2ABB5] hover:text-red-400"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -273,7 +273,7 @@ function ReviewsAdmin() {
     <div className="space-y-4">
       <ErrorNote message={error} />
       {pending > 0 && (
-        <p className="text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2">
+        <p className="text-xs text-[#A3FF12] bg-[#A3FF12]/10 border border-[#A3FF12]/20 rounded-lg px-3 py-2">
           {pending} témoignage(s) en attente de modération.
         </p>
       )}
@@ -289,7 +289,7 @@ function ReviewsAdmin() {
               <div className="min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <p className="text-sm font-bold text-white">{r.clientName}</p>
-                  <span className="text-yellow-400 text-xs">{'★'.repeat(r.rating)}</span>
+                  <span className="text-[#A3FF12] text-xs">{'★'.repeat(r.rating)}</span>
                   {r.approved ? (
                     <Badge tone="green">
                       <Eye className="w-3 h-3 inline mr-1" />
@@ -302,8 +302,8 @@ function ReviewsAdmin() {
                     </Badge>
                   )}
                 </div>
-                <p className="text-[11px] text-gray-500 mt-1">{r.occasion}</p>
-                <p className="text-sm text-gray-300 mt-2 leading-relaxed">{r.comment}</p>
+                <p className="text-[11px] text-[#8A949F] mt-1">{r.occasion}</p>
+                <p className="text-sm text-[#C3CAD2] mt-2 leading-relaxed">{r.comment}</p>
               </div>
               <div className="flex gap-1.5 shrink-0">
                 <Button variant={r.approved ? 'ghost' : 'success'} onClick={() => void toggle(r)}>
@@ -312,7 +312,7 @@ function ReviewsAdmin() {
                 </Button>
                 <button
                   onClick={() => void remove(r.id)}
-                  className="p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-red-400"
+                  className="p-2 rounded-lg hover:bg-white/10 text-[#A2ABB5] hover:text-red-400"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -362,7 +362,7 @@ function MemoryAdmin() {
         >
           <div className="min-w-0">
             <p className="text-sm font-bold text-white truncate">{p.eventTitle}</p>
-            <p className="text-[11px] text-gray-500 font-mono truncate">{p.id}</p>
+            <p className="text-[11px] text-[#8A949F] font-mono truncate">{p.id}</p>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
             <a
@@ -373,7 +373,7 @@ function MemoryAdmin() {
             </a>
             <button
               onClick={() => void remove(p.id)}
-              className="p-1.5 rounded-lg hover:bg-white/10 text-gray-400 hover:text-red-400"
+              className="p-1.5 rounded-lg hover:bg-white/10 text-[#A2ABB5] hover:text-red-400"
             >
               <Trash2 className="w-4 h-4" />
             </button>
@@ -386,7 +386,7 @@ function MemoryAdmin() {
 
 function Spinner() {
   return (
-    <div className="flex items-center justify-center py-16 text-gray-500 gap-2 text-sm">
+    <div className="flex items-center justify-center py-16 text-[#8A949F] gap-2 text-sm">
       <Loader2 className="w-4 h-4 animate-spin" /> Chargement…
     </div>
   );

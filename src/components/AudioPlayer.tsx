@@ -158,10 +158,13 @@ export default function AudioPlayer({ audioUrl, title, subtitle, coverUrl, start
   ];
 
   return (
-    <div className="bg-[#0e0e12] border border-yellow-500/15 p-4 rounded-2xl flex flex-col sm:flex-row items-center gap-4 shadow-xl shadow-purple-950/20 max-w-2xl mx-auto w-full">
+    <div className="bg-[#0B0D10] border border-[#A3FF12]/15 p-4 rounded-2xl flex flex-col sm:flex-row items-center gap-4 shadow-xl shadow-[#0B0D10]/20 max-w-2xl mx-auto w-full">
       <audio
         ref={audioRef}
-        src={audioUrl}
+        // Une chanson peut exister sans fichier audio encore déposé : passer
+        // une chaîne vide ferait retélécharger la page entière par le
+        // navigateur. On préfère ne pas renseigner l'attribut.
+        src={audioUrl || undefined}
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
         onEnded={handleAudioEnded}
@@ -183,15 +186,15 @@ export default function AudioPlayer({ audioUrl, title, subtitle, coverUrl, start
             onError={() => setImageError(true)}
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-tr from-purple-950 via-zinc-950 to-pink-950 flex items-center justify-center">
-            <Music className="w-8 h-8 text-yellow-500/80 animate-pulse" />
+          <div className="w-full h-full bg-gradient-to-tr from-[#0B0D10] via-[#07080A] to-[#0B0D10] flex items-center justify-center">
+            <Music className="w-8 h-8 text-[#A3FF12]/80 animate-pulse" />
           </div>
         )}
         
         {/* Glowing record spinner when playing */}
         {isPlaying && (
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-            <div className="w-3 h-3 rounded-full bg-yellow-400 animate-ping" />
+            <div className="w-3 h-3 rounded-full bg-[#A3FF12] animate-ping" />
           </div>
         )}
       </div>
@@ -200,7 +203,7 @@ export default function AudioPlayer({ audioUrl, title, subtitle, coverUrl, start
       <div className="flex-grow w-full space-y-2">
         <div className="text-center sm:text-left">
           <h4 className="font-sans font-bold text-white text-sm sm:text-base leading-tight tracking-wide">{title}</h4>
-          <span className="text-xs text-pink-400 font-medium">{subtitle}</span>
+          <span className="text-xs text-[#A3FF12] font-medium">{subtitle}</span>
         </div>
 
         {/* Animated Audio Waveform Visualizer */}
@@ -235,7 +238,7 @@ export default function AudioPlayer({ audioUrl, title, subtitle, coverUrl, start
                 }}
                 className={`w-[4px] rounded-full transition-all duration-300 cursor-pointer origin-center ${
                   isActive 
-                    ? 'bg-gradient-to-t from-amber-500 via-yellow-400 to-amber-300 shadow-[0_0_8px_rgba(245,158,11,0.25)]' 
+                    ? 'bg-gradient-to-t from-[#A3FF12] via-[#A3FF12] to-[#7ACC00] shadow-[0_0_8px_rgba(163,255,18,0.25)]' 
                     : 'bg-white/10 hover:bg-white/35'
                 } ${isPlaying && isActive ? animClass : ''}`}
                 title={`Aller à ${Math.round(barPercent)}%`}
@@ -246,7 +249,7 @@ export default function AudioPlayer({ audioUrl, title, subtitle, coverUrl, start
 
         {/* Audio Slider bar */}
         <div className="flex items-center gap-2">
-          <span className="text-[10px] font-mono text-gray-500 w-8 text-right">{formatTime(displayCurrent)}</span>
+          <span className="text-[10px] font-mono text-[#8A949F] w-8 text-right">{formatTime(displayCurrent)}</span>
           <input
             ref={progressBarRef}
             type="range"
@@ -254,9 +257,9 @@ export default function AudioPlayer({ audioUrl, title, subtitle, coverUrl, start
             max={maxLimit || 100}
             value={currentTime}
             onChange={handleProgressChange}
-            className="flex-grow h-1.5 rounded-lg appearance-none cursor-pointer accent-yellow-400 bg-white/10"
+            className="flex-grow h-1.5 rounded-lg appearance-none cursor-pointer accent-[#A3FF12] bg-white/10"
           />
-          <span className="text-[10px] font-mono text-gray-500 w-8">{formatTime(displayDuration || (maxLimit - minTime))}</span>
+          <span className="text-[10px] font-mono text-[#8A949F] w-8">{formatTime(displayDuration || (maxLimit - minTime))}</span>
         </div>
 
         {/* Controls Panel */}
@@ -270,14 +273,14 @@ export default function AudioPlayer({ audioUrl, title, subtitle, coverUrl, start
                 }
               }}
               title="Reset"
-              className="text-gray-500 hover:text-white transition-all cursor-pointer"
+              className="text-[#8A949F] hover:text-white transition-all cursor-pointer"
             >
               <SkipBack className="w-4 h-4" />
             </button>
             
             <button
               onClick={togglePlay}
-              className="w-10 h-10 rounded-full bg-gradient-to-tr from-yellow-400 via-amber-400 to-yellow-500 text-black flex items-center justify-center hover:scale-105 transition-all shadow-md shadow-yellow-500/20 cursor-pointer disabled:opacity-70"
+              className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#A3FF12] via-[#A3FF12] to-[#7ACC00] text-black flex items-center justify-center hover:scale-105 transition-all shadow-md shadow-[#A3FF12]/20 cursor-pointer disabled:opacity-70"
             >
               {isLoading ? (
                 <svg className="animate-spin h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -293,20 +296,20 @@ export default function AudioPlayer({ audioUrl, title, subtitle, coverUrl, start
 
             {/* Simulated mini active wave status indicator */}
             {isLoading ? (
-              <span className="text-[10px] text-yellow-400 font-mono animate-pulse px-2">Chargement...</span>
+              <span className="text-[10px] text-[#A3FF12] font-mono animate-pulse px-2">Chargement...</span>
             ) : isPlaying ? (
-              <span className="text-[10px] text-yellow-400 font-mono px-2 flex items-center gap-1">
+              <span className="text-[10px] text-[#A3FF12] font-mono px-2 flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-ping inline-block" />
                 Lecture en cours
               </span>
             ) : (
-              <span className="text-[10px] text-gray-500 font-mono px-2">Prêt</span>
+              <span className="text-[10px] text-[#8A949F] font-mono px-2">Prêt</span>
             )}
           </div>
 
           {/* Volume Control */}
           <div className="flex items-center gap-1.5">
-            <Volume2 className="w-3.5 h-3.5 text-gray-500" />
+            <Volume2 className="w-3.5 h-3.5 text-[#8A949F]" />
             <input
               type="range"
               min="0"
@@ -314,7 +317,7 @@ export default function AudioPlayer({ audioUrl, title, subtitle, coverUrl, start
               step="0.05"
               value={volume}
               onChange={handleVolumeChange}
-              className="w-16 h-1 rounded-lg appearance-none cursor-pointer accent-yellow-400/80 bg-white/10"
+              className="w-16 h-1 rounded-lg appearance-none cursor-pointer accent-[#A3FF12]/80 bg-white/10"
             />
           </div>
         </div>

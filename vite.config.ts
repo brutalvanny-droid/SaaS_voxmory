@@ -38,10 +38,14 @@ export default defineConfig(() => {
           manualChunks: {
             react: ['react', 'react-dom'],
             motion: ['motion'],
+            // Les icônes sont utilisées par presque toutes les pages : les
+            // isoler permet au navigateur de les mettre en cache une fois
+            // pour toutes, indépendamment du code applicatif.
+            lucide: ['lucide-react'],
           },
         },
       },
-      chunkSizeWarningLimit: 700,
+      chunkSizeWarningLimit: 600,
     },
   };
 });

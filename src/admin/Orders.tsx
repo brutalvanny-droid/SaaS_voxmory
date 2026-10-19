@@ -137,7 +137,7 @@ export default function Orders() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-24 text-gray-500 gap-2">
+      <div className="flex items-center justify-center py-24 text-[#8A949F] gap-2">
         <Loader2 className="w-4 h-4 animate-spin" /> Chargement des commandes…
       </div>
     );
@@ -148,17 +148,17 @@ export default function Orders() {
       <ErrorNote message={error} />
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-        <div className="bg-[#0b0b10] border border-white/10 rounded-xl p-3">
-          <p className="text-[10px] uppercase tracking-widest text-gray-500">Commandes</p>
+        <div className="bg-[#0B0D10] border border-white/10 rounded-xl p-3">
+          <p className="text-[10px] uppercase tracking-widest text-[#8A949F]">Commandes</p>
           <p className="text-xl font-black text-white">{totals.count}</p>
         </div>
-        <div className="bg-[#0b0b10] border border-white/10 rounded-xl p-3">
-          <p className="text-[10px] uppercase tracking-widest text-gray-500">Payées</p>
+        <div className="bg-[#0B0D10] border border-white/10 rounded-xl p-3">
+          <p className="text-[10px] uppercase tracking-widest text-[#8A949F]">Payées</p>
           <p className="text-xl font-black text-emerald-400">{totals.paid}</p>
         </div>
-        <div className="bg-[#0b0b10] border border-white/10 rounded-xl p-3">
-          <p className="text-[10px] uppercase tracking-widest text-gray-500">Encaissé</p>
-          <p className="text-xl font-black text-yellow-400">
+        <div className="bg-[#0B0D10] border border-white/10 rounded-xl p-3">
+          <p className="text-[10px] uppercase tracking-widest text-[#8A949F]">Encaissé</p>
+          <p className="text-xl font-black text-[#A3FF12]">
             {totals.revenue.toLocaleString('fr-FR')} $
           </p>
         </div>
@@ -170,7 +170,7 @@ export default function Orders() {
         actions={
           <div className="flex gap-2">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-600" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#6C7581]" />
               <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -203,14 +203,14 @@ export default function Orders() {
                 onClick={() => void openDetail(o.id)}
                 className={`w-full text-left p-3.5 rounded-xl border transition-all ${
                   selectedId === o.id
-                    ? 'border-yellow-500/50 bg-yellow-500/5'
+                    ? 'border-[#A3FF12]/50 bg-[#A3FF12]/5'
                     : 'border-white/10 bg-black/30 hover:border-white/25'
                 }`}
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="text-sm font-bold text-white font-mono">{o.reference}</p>
-                    <p className="text-[11px] text-gray-500 truncate">
+                    <p className="text-[11px] text-[#8A949F] truncate">
                       {o.customerName} · pour {o.recipientName}
                     </p>
                   </div>
@@ -219,10 +219,10 @@ export default function Orders() {
                     <Badge tone={paymentTone(o.paymentStatus)}>{o.paymentStatus}</Badge>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 mt-2 text-[10px] text-gray-600">
+                <div className="flex items-center gap-3 mt-2 text-[10px] text-[#6C7581]">
                   <span>{new Date(o.createdAt).toLocaleDateString('fr-FR')}</span>
                   <span>{o.musicStyle}</span>
-                  <span className="text-yellow-500 font-bold">
+                  <span className="text-[#A3FF12] font-bold">
                     {(o.amountCents / 100).toLocaleString('fr-FR')} {o.currency}
                   </span>
                 </div>
@@ -306,22 +306,22 @@ function OrderDetail({
       </div>
 
       <div className="bg-black/40 border border-white/10 rounded-xl p-4">
-        <p className="text-[10px] uppercase tracking-widest text-gray-500 font-semibold mb-2">
+        <p className="text-[10px] uppercase tracking-widest text-[#8A949F] font-semibold mb-2">
           Histoire du client
         </p>
-        <p className="text-sm text-gray-300 whitespace-pre-wrap leading-relaxed">
+        <p className="text-sm text-[#C3CAD2] whitespace-pre-wrap leading-relaxed">
           {order.storyText || 'Aucune histoire écrite.'}
         </p>
         {order.storyAudioUrl && (
           <audio controls src={order.storyAudioUrl} className="w-full mt-3" />
         )}
         {order.importantWords && (
-          <p className="text-xs text-gray-500 mt-3">
-            <span className="text-yellow-400">Mots clés :</span> {order.importantWords}
+          <p className="text-xs text-[#8A949F] mt-3">
+            <span className="text-[#A3FF12]">Mots clés :</span> {order.importantWords}
           </p>
         )}
         {order.avoidWords && (
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-[#8A949F] mt-1">
             <span className="text-red-400">À éviter :</span> {order.avoidWords}
           </p>
         )}
@@ -329,7 +329,7 @@ function OrderDetail({
 
       {payment && (
         <div className="bg-black/40 border border-white/10 rounded-xl p-4 text-xs space-y-1">
-          <p className="text-[10px] uppercase tracking-widest text-gray-500 font-semibold mb-2">
+          <p className="text-[10px] uppercase tracking-widest text-[#8A949F] font-semibold mb-2">
             Paiement
           </p>
           <Row label="Statut" value={payment.status} />
@@ -340,7 +340,7 @@ function OrderDetail({
               href={payment.checkoutUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1 text-yellow-400 hover:underline mt-1"
+              className="inline-flex items-center gap-1 text-[#A3FF12] hover:underline mt-1"
             >
               Lien de paiement <ExternalLink className="w-3 h-3" />
             </a>
@@ -485,7 +485,7 @@ function AiAssist({ order }: { order: Order }) {
   };
 
   return (
-    <div className="bg-purple-500/5 border border-purple-500/20 rounded-xl p-4 space-y-3">
+    <div className="bg-[#A3FF12]/5 border border-[#A3FF12]/20 rounded-xl p-4 space-y-3">
       <div className="flex gap-2">
         <Select value={kind} onChange={(e) => setKind(e.target.value)} className="flex-1">
           {AI_KINDS.map((k) => (
@@ -502,7 +502,7 @@ function AiAssist({ order }: { order: Order }) {
       {text && (
         <div className="space-y-2">
           {degraded && (
-            <p className="text-[11px] text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2">
+            <p className="text-[11px] text-[#A3FF12] bg-[#A3FF12]/10 border border-[#A3FF12]/20 rounded-lg px-3 py-2">
               ⚠️ Réponse non générée par l'IA — ne pas livrer telle quelle au client.
             </p>
           )}
@@ -531,7 +531,7 @@ function AiAssist({ order }: { order: Order }) {
 function InfoBlock({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div className="bg-black/40 border border-white/10 rounded-xl p-4">
-      <p className="text-[10px] uppercase tracking-widest text-gray-500 font-semibold mb-2">
+      <p className="text-[10px] uppercase tracking-widest text-[#8A949F] font-semibold mb-2">
         {title}
       </p>
       <div className="space-y-1">{children}</div>
@@ -542,8 +542,8 @@ function InfoBlock({ title, children }: { title: string; children: ReactNode }) 
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between gap-3 text-xs">
-      <span className="text-gray-500">{label}</span>
-      <span className="text-gray-200 text-right">{value}</span>
+      <span className="text-[#8A949F]">{label}</span>
+      <span className="text-[#E8EDF1] text-right">{value}</span>
     </div>
   );
 }

@@ -22,13 +22,13 @@ export function Card({
 }) {
   return (
     <section
-      className={`bg-[#0b0b10] border border-white/10 rounded-2xl p-5 ${className}`}
+      className={`bg-[#0B0D10] border border-white/10 rounded-2xl p-5 ${className}`}
     >
       {(title || actions) && (
         <header className="flex items-start justify-between gap-4 mb-4">
           <div>
             {title && <h3 className="text-sm font-bold text-white">{title}</h3>}
-            {subtitle && <p className="text-xs text-gray-500 mt-0.5">{subtitle}</p>}
+            {subtitle && <p className="text-xs text-[#8A949F] mt-0.5">{subtitle}</p>}
           </div>
           {actions}
         </header>
@@ -50,16 +50,16 @@ export function Stat({
   accent?: string;
 }) {
   return (
-    <div className="bg-[#0b0b10] border border-white/10 rounded-2xl p-4">
-      <p className="text-[10px] uppercase tracking-widest text-gray-500 font-semibold">{label}</p>
+    <div className="bg-[#0B0D10] border border-white/10 rounded-2xl p-4">
+      <p className="text-[10px] uppercase tracking-widest text-[#8A949F] font-semibold">{label}</p>
       <p className={`text-2xl font-black mt-1 ${accent}`}>{value}</p>
-      {hint && <p className="text-[11px] text-gray-600 mt-1">{hint}</p>}
+      {hint && <p className="text-[11px] text-[#6C7581] mt-1">{hint}</p>}
     </div>
   );
 }
 
 const BUTTON_VARIANTS = {
-  primary: 'bg-yellow-500 text-black hover:bg-yellow-400',
+  primary: 'bg-[#A3FF12] text-black hover:bg-[#A3FF12]',
   ghost: 'bg-white/5 text-white hover:bg-white/10 border border-white/10',
   danger: 'bg-red-600/90 text-white hover:bg-red-500',
   success: 'bg-emerald-600 text-white hover:bg-emerald-500',
@@ -103,17 +103,17 @@ export function Field({
 }) {
   return (
     <label className="block">
-      <span className="block text-[10px] font-semibold uppercase tracking-wider text-gray-400 mb-1.5">
+      <span className="block text-[10px] font-semibold uppercase tracking-wider text-[#A2ABB5] mb-1.5">
         {label}
       </span>
       {children}
-      {hint && <span className="block text-[10px] text-gray-600 mt-1">{hint}</span>}
+      {hint && <span className="block text-[10px] text-[#6C7581] mt-1">{hint}</span>}
     </label>
   );
 }
 
 export const inputClass =
-  'w-full bg-black/60 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-yellow-500/60 transition-colors';
+  'w-full bg-black/60 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-[#1D2229] focus:outline-none focus:border-[#A3FF12]/60 transition-colors';
 
 export function Input(props: InputHTMLAttributes<HTMLInputElement>) {
   return <input {...props} className={`${inputClass} ${props.className ?? ''}`} />;
@@ -128,12 +128,12 @@ export function Select(props: SelectHTMLAttributes<HTMLSelectElement>) {
 }
 
 const BADGE_TONES = {
-  gray: 'bg-white/10 text-gray-300',
-  yellow: 'bg-yellow-500/15 text-yellow-300',
+  gray: 'bg-white/10 text-[#C3CAD2]',
+  yellow: 'bg-[#A3FF12]/15 text-[#A3FF12]',
   green: 'bg-emerald-500/15 text-emerald-300',
   red: 'bg-red-500/15 text-red-300',
   blue: 'bg-blue-500/15 text-blue-300',
-  purple: 'bg-purple-500/15 text-purple-300',
+  purple: 'bg-[#A3FF12]/15 text-[#A3FF12]',
 } as const;
 
 export function Badge({
@@ -170,13 +170,13 @@ export function Modal({
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
       <div
-        className={`relative bg-[#0b0b10] border border-white/15 rounded-2xl p-6 w-full ${
+        className={`relative bg-[#0B0D10] border border-white/15 rounded-2xl p-6 w-full ${
           wide ? 'max-w-4xl' : 'max-w-lg'
         } max-h-[88vh] overflow-y-auto`}
       >
         <div className="flex items-center justify-between mb-5">
           <h3 className="text-base font-bold text-white">{title}</h3>
-          <button onClick={onClose} className="text-gray-500 hover:text-white text-xl leading-none">
+          <button onClick={onClose} className="text-[#8A949F] hover:text-white text-xl leading-none">
             ×
           </button>
         </div>
@@ -188,7 +188,7 @@ export function Modal({
 
 export function Empty({ message }: { message: string }) {
   return (
-    <p className="text-center text-sm text-gray-600 py-10 border border-dashed border-white/10 rounded-xl">
+    <p className="text-center text-sm text-[#6C7581] py-10 border border-dashed border-white/10 rounded-xl">
       {message}
     </p>
   );

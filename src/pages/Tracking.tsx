@@ -86,10 +86,12 @@ export default function Tracking({ initialOrderId, onNavigate }: Props) {
   const current = order ? stageIndex(order.status) : -1;
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-12">
-      <header className="text-center mb-8">
-        <h1 className="text-3xl font-black text-white">Suivre ma commande</h1>
-        <p className="text-sm text-gray-400 mt-2">
+    <div className="max-w-2xl mx-auto px-5 sm:px-6 py-16 sm:py-24">
+      <header className="text-center mb-10">
+        <h1 className="text-[clamp(1.9rem,4.6vw,2.9rem)] font-extrabold text-white tracking-[-0.035em] leading-tight">
+          Suivre ma <span className="text-gradient">commande</span>
+        </h1>
+        <p className="text-[14.5px] text-[#A2ABB5] mt-3">
           Saisissez la référence reçue lors de votre commande.
         </p>
       </header>
@@ -105,12 +107,12 @@ export default function Tracking({ initialOrderId, onNavigate }: Props) {
           value={key}
           onChange={(e) => setKey(e.target.value)}
           placeholder="VOX-2026-…"
-          className="flex-1 bg-black/60 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-yellow-500/60 font-mono"
+          className="flex-1 bg-black/60 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-[#1D2229] focus:outline-none focus:border-[#A3FF12]/60 font-mono"
         />
         <button
           type="submit"
           disabled={loading}
-          className="px-5 py-3 rounded-xl bg-yellow-500 hover:bg-yellow-400 text-black text-xs font-black uppercase tracking-wide disabled:opacity-50 flex items-center gap-2"
+          className="px-5 py-3 rounded-xl bg-[#A3FF12] hover:bg-[#A3FF12] text-black text-xs font-black uppercase tracking-wide disabled:opacity-50 flex items-center gap-2"
         >
           {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
           Suivre
@@ -125,17 +127,17 @@ export default function Tracking({ initialOrderId, onNavigate }: Props) {
       )}
 
       {order && (
-        <div className="bg-[#0b0b10] border border-white/10 rounded-2xl p-6">
+        <div className="bg-[#0B0D10] border border-white/10 rounded-2xl p-6">
           <div className="flex items-center justify-between gap-4 mb-6 pb-5 border-b border-white/10">
             <div>
-              <p className="text-[10px] uppercase tracking-widest text-gray-500">Référence</p>
-              <p className="font-mono text-lg font-black text-yellow-400">{order.reference}</p>
+              <p className="text-[10px] uppercase tracking-widest text-[#8A949F]">Référence</p>
+              <p className="font-mono text-lg font-black text-[#A3FF12]">{order.reference}</p>
             </div>
             <span
               className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wide ${
                 order.paymentStatus === 'Paid'
                   ? 'bg-emerald-500/15 text-emerald-300'
-                  : 'bg-amber-500/15 text-amber-300'
+                  : 'bg-[#A3FF12]/15 text-[#A3FF12]'
               }`}
             >
               {order.paymentStatus === 'Paid' ? 'Payée' : 'En attente de paiement'}
@@ -151,7 +153,7 @@ export default function Tracking({ initialOrderId, onNavigate }: Props) {
                   <div className="flex flex-col items-center">
                     <div
                       className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 ${
-                        done ? 'bg-emerald-500 text-black' : 'bg-white/10 text-gray-600'
+                        done ? 'bg-emerald-500 text-black' : 'bg-white/10 text-[#6C7581]'
                       }`}
                     >
                       {done ? <CheckCircle2 className="w-4 h-4" /> : i + 1}
@@ -167,12 +169,12 @@ export default function Tracking({ initialOrderId, onNavigate }: Props) {
                   <div className="pb-2">
                     <p
                       className={`text-sm font-bold ${
-                        active ? 'text-yellow-400' : done ? 'text-white' : 'text-gray-500'
+                        active ? 'text-[#A3FF12]' : done ? 'text-white' : 'text-[#8A949F]'
                       }`}
                     >
                       {stage.label}
                     </p>
-                    <p className="text-[11px] text-gray-500 mt-0.5">{stage.desc}</p>
+                    <p className="text-[11px] text-[#8A949F] mt-0.5">{stage.desc}</p>
                   </div>
                 </li>
               );
@@ -188,14 +190,14 @@ export default function Tracking({ initialOrderId, onNavigate }: Props) {
           {order.finalAudioUrl && (
             <div className="mt-5 p-4 rounded-xl bg-black/40 border border-white/10">
               <p className="text-xs font-bold text-white mb-3 flex items-center gap-2">
-                <Music className="w-4 h-4 text-yellow-400" />
+                <Music className="w-4 h-4 text-[#A3FF12]" />
                 Votre chanson
               </p>
               <audio controls src={order.finalAudioUrl} className="w-full" />
               <a
                 href={order.finalAudioUrl}
                 download
-                className="mt-3 inline-flex items-center gap-1.5 text-xs text-yellow-400 hover:underline"
+                className="mt-3 inline-flex items-center gap-1.5 text-xs text-[#A3FF12] hover:underline"
               >
                 <Download className="w-3.5 h-3.5" /> Télécharger
               </a>
@@ -205,7 +207,7 @@ export default function Tracking({ initialOrderId, onNavigate }: Props) {
           {order.memoryPageId && (
             <button
               onClick={() => onNavigate('memory', { slug: order.memoryPageId })}
-              className="mt-5 w-full py-3 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/40 text-white text-xs font-black uppercase tracking-wide flex items-center justify-center gap-2"
+              className="mt-5 w-full py-3 rounded-xl bg-[#A3FF12]/20 hover:bg-[#A3FF12]/30 border border-[#A3FF12]/40 text-white text-xs font-black uppercase tracking-wide flex items-center justify-center gap-2"
             >
               <Gift className="w-4 h-4" />
               Voir ma page souvenir
