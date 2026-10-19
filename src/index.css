@@ -1,92 +1,365 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
 @import "tailwindcss";
 
+/* ================================================================== */
+/*  VOXMORY — Système de design                                        */
+/*                                                                     */
+/*  Fond quasi-noir, accent vert, contraste élevé.                     */
+/*  La saturation est réservée à l'accent ; tout le reste reste        */
+/*  désaturé pour le laisser porter seul l'attention.                  */
+/* ================================================================== */
+
 @theme {
-  --font-sans: "Outfit", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
-  /* Custom Animations & Keyframes */
-  --animate-wave-fast: wave 0.6s ease-in-out infinite alternate;
-  --animate-wave-mid: wave 0.9s ease-in-out infinite alternate;
-  --animate-wave-slow: wave 1.2s ease-in-out infinite alternate;
-  --animate-fade-in: fadeIn 0.5s ease-out forwards;
-  --animate-pulse-slow: pulseSlow 5s ease-in-out infinite;
-  --animate-float: float 6s ease-in-out infinite;
+  /* ---- Surfaces ---- */
+  --color-ink-950: #06070900;
+  --color-ink: #07080A;
+  --color-ink-800: #0B0D10;
+  --color-ink-700: #101317;
+  --color-ink-600: #161A20;
+  --color-ink-500: #1D2229;
 
-  @keyframes wave {
-    0% { transform: scaleY(0.25); }
-    100% { transform: scaleY(1.15); }
+  /* ---- Texte ---- */
+  --color-chalk: #F4F6F7;
+  --color-chalk-dim: #A2ABB5;
+  --color-chalk-faint: #6C7581;
+
+  /* ---- Accent : vert signal ---- */
+  --color-lime: #A3FF12;
+  --color-lime-bright: #C8FF4D;
+  --color-lime-deep: #7ACC00;
+  --color-emerald: #0B3D1E;
+  --color-emerald-vivid: #25FB26;
+
+  /* ---- Accent secondaire : réservé au prestige ---- */
+  --color-gold: #E8C25A;
+
+  --animate-marquee: marquee 32s linear infinite;
+  --animate-drift-a: driftA 22s ease-in-out infinite;
+  --animate-drift-b: driftB 28s ease-in-out infinite;
+  --animate-float: float 7s ease-in-out infinite;
+  --animate-shimmer: shimmer 2.4s linear infinite;
+  --animate-beam: beam 6s linear infinite;
+  --animate-pulse-ring: pulseRing 3s ease-out infinite;
+
+  @keyframes marquee {
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(-50%, 0, 0); }
   }
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(15px); }
-    to { opacity: 1; transform: translateY(0); }
+
+  @keyframes driftA {
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+    50% { transform: translate3d(4%, -6%, 0) scale(1.12); }
   }
-  @keyframes pulseSlow {
-    0%, 100% { opacity: 0.15; transform: scale(1); }
-    50% { opacity: 0.35; transform: scale(1.15); }
+
+  @keyframes driftB {
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1.05); }
+    50% { transform: translate3d(-5%, 5%, 0) scale(0.95); }
   }
+
   @keyframes float {
-    0%, 100% { transform: translateY(0px) scale(1); }
-    50% { transform: translateY(-15px) scale(1.03); }
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+
+  @keyframes shimmer {
+    from { background-position: 200% 0; }
+    to { background-position: -200% 0; }
+  }
+
+  /* Liseré lumineux qui parcourt le contour d'une carte. */
+  @keyframes beam {
+    from { offset-distance: 0%; }
+    to { offset-distance: 100%; }
+  }
+
+  @keyframes pulseRing {
+    0% { transform: scale(0.9); opacity: 0.7; }
+    70% { transform: scale(1.6); opacity: 0; }
+    100% { transform: scale(1.6); opacity: 0; }
   }
 }
 
-html, body {
-  color-scheme: dark;
+/* ================================================================== */
+/*  Base                                                               */
+/* ================================================================== */
+
+:root {
+  --vox-bg: #07080A;
+  --vox-surface: #0E1114;
+  --vox-border: rgba(255, 255, 255, 0.08);
+  --vox-border-strong: rgba(255, 255, 255, 0.16);
+  --vox-lime: #A3FF12;
+  --vox-radius: 18px;
 }
 
-/* Custom visual utilities for African Cinematic Luxury theme */
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
-  background-color: #030304;
-  color: #f3f4f6;
+  background-color: var(--vox-bg);
+  color: #F4F6F7;
   font-family: var(--font-sans);
+  font-feature-settings: "cv11", "ss01";
+  font-variant-ligatures: contextual;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
   overflow-x: hidden;
 }
 
-/* Scrollbar styling */
-::-webkit-scrollbar {
-  width: 8px;
+::selection {
+  background: rgba(163, 255, 18, 0.28);
+  color: #FFFFFF;
 }
-::-webkit-scrollbar-track {
-  background: #050506;
-}
+
+/* Barre de défilement discrète */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: #07080A; }
 ::-webkit-scrollbar-thumb {
-  background: #27272a;
-  border-radius: 4px;
+  background: #1E242B;
+  border-radius: 999px;
+  border: 2px solid #07080A;
 }
-::-webkit-scrollbar-thumb:hover {
-  background: #3f3f46;
-}
+::-webkit-scrollbar-thumb:hover { background: #2C343D; }
 
-/* Custom marquee container & text for promotional banner */
-.marquee-container {
-  display: flex;
+/* ================================================================== */
+/*  Fond : dégradé diffus très lent                                    */
+/* ================================================================== */
+
+.mesh-bg {
+  position: absolute;
+  inset: 0;
   overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.mesh-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.5;
+  will-change: transform;
+}
+
+/* Grain très léger : évite l'effet « aplat » des grands aplats noirs. */
+.grain::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ================================================================== */
+/*  Révélation au défilement                                           */
+/* ================================================================== */
+
+.reveal {
+  opacity: 0;
+  transform: translate3d(0, 24px, 0);
+  transition:
+    opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .mesh-blob,
+  .animate-float,
+  .animate-drift-a,
+  .animate-drift-b,
+  .animate-marquee {
+    animation: none !important;
+  }
+  html { scroll-behavior: auto; }
+}
+
+/* ================================================================== */
+/*  Surfaces                                                           */
+/* ================================================================== */
+
+.glass {
+  background: rgba(14, 17, 20, 0.72);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid var(--vox-border);
+}
+
+.surface {
+  background: linear-gradient(180deg, #0F1216 0%, #0B0E11 100%);
+  border: 1px solid var(--vox-border);
+  border-radius: var(--vox-radius);
+}
+
+/* Halo de survol : la carte « respire » sous le curseur. */
+.lift {
+  transition:
+    transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.4s ease,
+    box-shadow 0.4s ease;
+}
+
+.lift:hover {
+  transform: translateY(-4px);
+  border-color: rgba(163, 255, 18, 0.28);
+  box-shadow:
+    0 18px 50px -20px rgba(0, 0, 0, 0.9),
+    0 0 0 1px rgba(163, 255, 18, 0.06);
+}
+
+/* ================================================================== */
+/*  Typographie                                                        */
+/* ================================================================== */
+
+.display {
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 0.98;
+}
+
+.display-tight {
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 0.92;
+}
+
+/* Dégradé de texte sobre : blanc -> vert pâle, jamais criard. */
+.text-gradient {
+  background: linear-gradient(100deg, #FFFFFF 0%, #E8F7C8 45%, var(--vox-lime) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #7C8794;
+}
+
+/* ================================================================== */
+/*  Boutons                                                            */
+/* ================================================================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 12px 22px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
   white-space: nowrap;
-  width: 100%;
-  position: relative;
-}
-.marquee-text {
-  display: inline-block;
-  padding-left: 100%;
-  animation: marquee 30s linear infinite;
-}
-@keyframes marquee {
-  0% { transform: translate3d(0, 0, 0); }
-  100% { transform: translate3d(-100%, 0, 0); }
 }
 
-.animate-spin-slow {
-  animation: spinSlow 12s linear infinite;
-}
-@keyframes spinSlow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+.btn:active { transform: scale(0.97); }
+
+/* Primaire : vert signal, texte noir — maximum de contraste. */
+.btn-primary {
+  background: linear-gradient(180deg, #C8FF4D 0%, #96F00A 100%);
+  color: #06080A;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.35) inset,
+    0 8px 24px -8px rgba(163, 255, 18, 0.5);
 }
 
-/* Elegant static luxury gradient border for artwork (highly stable, no mobile rendering bugs) */
-.animated-border-glow {
-  position: relative;
-  background: linear-gradient(135deg, #eab308, #8b5cf6, #3b82f6);
+.btn-primary:hover {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.45) inset,
+    0 12px 34px -8px rgba(163, 255, 18, 0.7);
+  transform: translateY(-1px);
 }
 
+.btn-ghost {
+  background: rgba(255, 255, 255, 0.04);
+  color: #E8EDF1;
+  border: 1px solid var(--vox-border-strong);
+}
+
+.btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.26);
+}
+
+.btn-quiet {
+  background: transparent;
+  color: #8A949F;
+}
+
+.btn-quiet:hover { color: #FFFFFF; }
+
+/* ================================================================== */
+/*  Bandeau défilant                                                   */
+/* ================================================================== */
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 32s linear infinite;
+}
+
+.marquee-track:hover { animation-play-state: paused; }
+
+/* ================================================================== */
+/*  Divers                                                             */
+/* ================================================================== */
+
+/* Anneau qui pulse — utilisé sur les indicateurs « en direct ». */
+.pulse-ring::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: var(--vox-lime);
+  animation: pulseRing 3s ease-out infinite;
+}
+
+.shimmer-text {
+  background: linear-gradient(
+    90deg,
+    #6C7581 0%,
+    #C8D2DC 40%,
+    var(--vox-lime) 55%,
+    #6C7581 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 2.4s linear infinite;
+}
+
+/* Filet séparateur qui s'estompe */
+.rule-fade {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+}
+
+/* Dégradé de masquage en bas de section (fondu vers le noir) */
+.fade-to-black {
+  -webkit-mask-image: linear-gradient(180deg, #000 55%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 55%, transparent 100%);
+}
