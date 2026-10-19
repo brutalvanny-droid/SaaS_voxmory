@@ -1,0 +1,89 @@
+{
+  "packages": [
+    {
+      "id": "pack_simple",
+      "name": "Chanson Simple",
+      "promise": "Une magnifique chanson simple, sur mesure, écrite et chantée pour vous.",
+      "includes": [
+        "Chanson personnalisée sur mesure (1-2 minutes)",
+        "Format audio MP3 haute qualité",
+        "Paroles poétiques et soignées incluses",
+        "1 cycle de révision des paroles",
+        "Idéal pour : Déclarations d'amour, Clins d'œil simples"
+      ],
+      "price": "20 $",
+      "deliveryTime": "5 jours"
+    },
+    {
+      "id": "pack_musique_video",
+      "name": "Musique + Vidéo",
+      "promise": "Une œuvre musicale complète accompagnée de votre montage vidéo personnalisé.",
+      "includes": [
+        "Chanson personnalisée complète (2-3 minutes)",
+        "Montage Vidéo personnalisé (Diaporama photos ou Vidéo lyrics)",
+        "Formats audio WAV et MP3 de qualité studio",
+        "Paroles poétiques rédigées avec soin",
+        "2 cycles de révisions des paroles",
+        "Page Souvenir Privée interactive avec QR code"
+      ],
+      "price": "50 $",
+      "deliveryTime": "3 jours"
+    },
+    {
+      "id": "pack_premium_vip",
+      "name": "PREMIUM VIP",
+      "promise": "L'expérience ultime : Chanson, Carte VIP physique exclusive et abonnement d'un an.",
+      "includes": [
+        "Chanson premium longue de qualité supérieure (3-4 minutes)",
+        "Carte VIP physique exclusive (Livrée ou expédiée)",
+        "ABONNEMENT D'UN AN : Chaque mois, vous avez droit à une chanson selon l'événement !",
+        "Montage vidéo de prestige avec vos photos",
+        "Révisions de paroles illimitées avant production",
+        "Page Souvenir premium personnalisée à vie",
+        "Assistance WhatsApp VIP dédiée 24h/24"
+      ],
+      "price": "100 $",
+      "deliveryTime": "24 heures"
+    },
+    {
+      "id": "pack_presentiel",
+      "name": "Prestation Présentielle",
+      "promise": "Nos artistes ou notre équipe se déplacent en personne lors de votre événement.",
+      "includes": [
+        "Prestation en live de l'artiste pour chanter votre œuvre devant vos invités",
+        "Présence physique de l'équipe Voxmory à votre événement",
+        "Chanson personnalisée de qualité studio incluse",
+        "Carte VIP physique collector + Certificat d'authenticité",
+        "Enregistrement vidéo de la prestation live inclus",
+        "Idéal pour : Grands mariages, Collations prestige, Soirées de gala"
+      ],
+      "price": "1000 $",
+      "deliveryTime": "Sur réservation"
+    }
+  ],
+  "orders": [
+    {
+      "customerName": "Ok",
+      "customerWhatsApp": "896669",
+      "customerCity": "Kinshasa",
+      "customerCountry": "RDC",
+      "customerEmail": "",
+      "recipientName": "Ok",
+      "recipientRelationship": "Ok",
+      "recipientAge": "",
+      "eventDate": "",
+      "storyOption": "write",
+      "storyText": "Okjghhcxv",
+      "uploadedAudioFilename": "",
+      "importantWords": "",
+      "avoidWords": "",
+      "mood": "Romantique",
+      "musicStyle": "Rumba congolaise (Douce et lente)",
+      "packageId": "pack_simple",
+      "desiredDeliveryDate": "2026-06-30",
+      "urgency": "normal",
+      "specialInstructions": "",
+      "uploadedPhotoUrl": ""
+    }
+  ]
+}

@@ -1,0 +1,275 @@
+/**
+ * Contrat de données partagé entre le front-end et l'API.
+ * L'API sérialise toujours en camelCase, en cohérence avec ces types.
+ */
+
+export type OrderStatus =
+  | 'Nouvelle'
+  | 'En cours'
+  | 'Terminée'
+  | 'Livrée'
+  | 'Annulée'
+  | 'Commande reçue'
+  | 'En attente de paiement'
+  | 'Histoire reçue'
+  | 'Paroles en préparation'
+  | 'Chanson en production'
+  | 'En révision'
+  | 'Archivée';
+
+export const ORDER_STATUSES: OrderStatus[] = [
+  'Nouvelle',
+  'Commande reçue',
+  'En attente de paiement',
+  'Histoire reçue',
+  'Paroles en préparation',
+  'Chanson en production',
+  'En cours',
+  'En révision',
+  'Terminée',
+  'Livrée',
+  'Annulée',
+  'Archivée',
+];
+
+export type PaymentStatus = 'Unpaid' | 'Pending confirmation' | 'Paid' | 'Refunded';
+
+export const PAYMENT_STATUSES: PaymentStatus[] = [
+  'Unpaid',
+  'Pending confirmation',
+  'Paid',
+  'Refunded',
+];
+
+/* ------------------------------------------------------------------ */
+
+export interface Package {
+  id: string;
+  name: string;
+  promise: string;
+  includes: string[];
+  priceCents: number;
+  currency: string;
+  /** Formaté pour l'affichage, ex. « 20 $ » */
+  priceLabel: string;
+  deliveryTime: string;
+  sortOrder: number;
+  isActive: boolean;
+}
+
+export interface Order {
+  id: string;
+  reference: string;
+  /** Jeton secret permettant au client de suivre sa commande. */
+  trackingToken: string;
+  status: OrderStatus;
+  paymentStatus: PaymentStatus;
+
+  customerName: string;
+  customerPhone: string;
+  customerCity: string;
+  customerCountry: string;
+  customerEmail?: string | null;
+  acceptsWhatsapp: boolean;
+
+  recipientName: string;
+  recipientRelationship: string;
+  recipientAge?: string | null;
+  eventDate?: string | null;
+
+  storyOption: 'write' | 'audio' | 'whatsapp';
+  storyText?: string | null;
+  storyAudioUrl?: string | null;
+  storyPhotoUrl?: string | null;
+  importantWords?: string | null;
+  avoidWords?: string | null;
+  occasion?: string | null;
+
+  mood: string;
+  musicStyle: string;
+  packageId?: string | null;
+  vipCardSelected: boolean;
+
+  amountCents: number;
+  currency: string;
+
+  desiredDeliveryDate: string;
+  urgency: 'normal' | 'express' | 'super_express';
+  specialInstructions?: string | null;
+
+  adminNotes?: string | null;
+  finalAudioUrl?: string | null;
+  coverImageUrl?: string | null;
+  memoryPageId?: string | null;
+  songTitle?: string | null;
+  finalLyrics?: string | null;
+  clientFirstName?: string | null;
+
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * Vue publique d'une commande, renvoyée par le suivi.
+ * Ne contient volontairement aucune donnée personnelle sensible.
+ */
+export interface PublicOrderTracking {
+  reference: string;
+  status: OrderStatus;
+  paymentStatus: PaymentStatus;
+  occasion: string | null;
+  recipientFirstName: string | null;
+  songTitle: string | null;
+  createdAt: string;
+  desiredDeliveryDate: string;
+  memoryPageId: string | null;
+  finalAudioUrl: string | null;
+  coverImageUrl: string | null;
+}
+
+export interface PaymentInfo {
+  id: string;
+  status: string;
+  method: string;
+  amountCents: number;
+  currency: string;
+  checkoutUrl?: string | null;
+  providerRef?: string | null;
+  createdAt: string;
+}
+
+/* ------------------------------------------------------------------ */
+
+export interface GallerySong {
+  id: string;
+  title: string;
+  occasion: string;
+  style: string;
+  language: string;
+  mood: string;
+  description: string;
+  audioUrl: string;
+  coverUrl: string;
+  clientReaction?: string | null;
+  clientFirstName?: string | null;
+  visibility: 'Private' | 'Public with first name' | 'Public anonymous' | 'Demo only';
+  startTime: number;
+  endTime?: number | null;
+  memorySlug?: string | null;
+  isFeatured: boolean;
+  createdAt: string;
+}
+
+export interface PromotionSettings {
+  text: string;
+  isActive: boolean;
+  bannerStyle: 'marquee' | 'pulse' | 'gold-gradient' | 'classic';
+  linkText?: string;
+  linkUrl?: string;
+}
+
+export interface ClientReview {
+  id: string;
+  rating: number;
+  clientName: string;
+  occasion: string;
+  comment: string;
+  screenshotUrl?: string | null;
+  audioTestimonialUrl?: string | null;
+  approved: boolean;
+  createdAt: string;
+}
+
+export interface MemoryPage {
+  id: string;
+  orderId?: string | null;
+  eventTitle: string;
+  recipientName: string;
+  recipientPhotoUrl?: string | null;
+  personalMessage: string;
+  audioUrl: string;
+  coverUrl: string;
+  songTitle?: string | null;
+  senderName?: string | null;
+  occasion?: string | null;
+  lyrics?: string | null;
+  photoUrl?: string | null;
+  createdAt: string;
+}
+
+export interface EventReminder {
+  id: string;
+  customerName: string;
+  customerPhone: string;
+  eventName: string;
+  eventDate: string;
+  relationship: string;
+  createdAt: string;
+}
+
+export interface DashboardStats {
+  totalOrders: number;
+  delivered: number;
+  pendingPayment: number;
+  totalRevenueCents: number;
+  currency: string;
+  clientSatisfaction: number;
+  averageRating: number;
+  visitsCount: number;
+  listensCount: number;
+  dailyStats: { date: string; visits: number; listens: number; orders: number }[];
+}
+
+export interface BroadcastContact {
+  id: string;
+  name: string;
+  phone: string;
+  category: string;
+  addedAt: string;
+}
+
+export interface BroadcastList {
+  id: string;
+  name: string;
+  description: string;
+  contacts: BroadcastContact[];
+  createdAt: string;
+}
+
+export interface BroadcastCampaign {
+  id: string;
+  title: string;
+  messageTemplate: string;
+  targetListId?: string | null;
+  targetListName?: string | null;
+  status: 'Brouillon' | 'En cours' | 'Envoyé';
+  sentCount: number;
+  totalCount: number;
+  sentAt?: string | null;
+  logs: {
+    contactName: string;
+    phone: string;
+    status: 'Succès' | 'Échoué';
+    time: string;
+    error?: string;
+  }[];
+}
+
+/* ------------------------------------------------------------------ */
+
+export interface AdminSession {
+  email: string;
+  name: string;
+  role: string;
+}
+
+export interface NetworkOption {
+  code: string;
+  name: string;
+}
+
+export interface Money {
+  cents: number;
+  currency: string;
+  label: string;
+}

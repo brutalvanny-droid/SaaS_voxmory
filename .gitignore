@@ -1,0 +1,14 @@
+node_modules/
+build/
+dist/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
+
+# Fichiers déposés en développement local (en production : Vercel Blob)
+public/uploads/
+
+# Build Vercel
+.vercel/
