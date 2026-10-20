@@ -63,9 +63,15 @@ export const createOrderSchema = z
       .or(z.literal(''))
       .transform((v) => (v ? v : null))
       .nullable(),
-    acceptsWhatsapp: z.boolean().refine((v) => v === true, {
-      message: 'Le consentement WhatsApp est requis pour traiter la commande.',
-    }),
+    /**
+     * Consentement WhatsApp — recommandé, jamais obligatoire.
+     *
+     * L'exiger bloquait la commande des clients sans WhatsApp, alors même
+     * que la livraison peut se faire par e-mail. Le téléphone reste
+     * obligatoire par ailleurs : le studio garde toujours un moyen de
+     * joindre le client.
+     */
+    acceptsWhatsapp: z.boolean(),
 
     recipientName: requiredText('Le nom du destinataire', 2, 120),
     recipientRelationship: requiredText('Le lien avec le destinataire', 2, 100),

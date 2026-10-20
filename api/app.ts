@@ -814,10 +814,17 @@ app.post(
           }),
         );
       }
-      await whatsapp.sendWhatsAppMessage(
-        data.customerPhone,
-        whatsapp.orderReceivedMessage(data.customerName, reference),
-      );
+      /**
+       * On n'écrit jamais à un client qui a refusé WhatsApp. Sans ce
+       * respect du choix, le consentement n'aurait aucun sens — et le
+       * message tomberait de toute façon dans le vide.
+       */
+      if (data.acceptsWhatsapp) {
+        await whatsapp.sendWhatsAppMessage(
+          data.customerPhone,
+          whatsapp.orderReceivedMessage(data.customerName, reference),
+        );
+      }
     })();
 
     res.status(201).json(serializeOrder(created));

@@ -119,8 +119,14 @@ export default function OrderForm({ packages, onNavigate, onSubmitSuccess }: Pro
       if (form.customerPhone.replace(/\D/g, '').length < 7)
         errors.customerPhone = 'Numéro WhatsApp invalide.';
       if (form.customerCity.trim().length < 2) errors.customerCity = 'Indiquez votre ville.';
-      if (!form.acceptsWhatsapp)
-        errors.acceptsWhatsapp = 'Le consentement WhatsApp est nécessaire pour vous livrer.';
+      /**
+       * Sans WhatsApp, il faut un autre moyen de livrer la chanson.
+       * L'e-mail devient alors obligatoire — mais on le dit au client
+       * au moment où il décoche, pas en refusant sa commande à la fin.
+       */
+      if (!form.acceptsWhatsapp && !form.customerEmail.trim())
+        errors.customerEmail =
+          'Sans WhatsApp, indiquez une adresse e-mail pour recevoir votre chanson.';
     }
     if (step === 1) {
       if (form.recipientName.trim().length < 2)
@@ -298,7 +304,10 @@ export default function OrderForm({ packages, onNavigate, onSubmitSuccess }: Pro
                     />
                   </Field>
                 </div>
-                <Field label="E-mail (facultatif)">
+                <Field
+                  label={form.acceptsWhatsapp ? 'E-mail (facultatif)' : 'E-mail *'}
+                  error={fieldErrors.customerEmail}
+                >
                   <input
                     className={inputClass}
                     type="email"
@@ -316,11 +325,10 @@ export default function OrderForm({ packages, onNavigate, onSubmitSuccess }: Pro
                   <span className="text-xs text-[#C3CAD2] leading-relaxed">
                     J'accepte d'être contacté sur WhatsApp pour finaliser ma commande et
                     recevoir ma chanson.
-                    {fieldErrors.acceptsWhatsapp && (
-                      <span className="block text-red-400 mt-1">
-                        {fieldErrors.acceptsWhatsapp}
-                      </span>
-                    )}
+                    <span className="block text-[#8A949F] mt-1">
+                      Recommandé — c'est le moyen le plus rapide de vous joindre. Si vous
+                      le laissez décoché, indiquez une adresse e-mail.
+                    </span>
                   </span>
                 </label>
               </>
