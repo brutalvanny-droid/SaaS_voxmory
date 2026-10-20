@@ -3,6 +3,7 @@ import { HelpCircle, ChevronDown, ChevronUp, MessageCircle, Sparkles, Coins, Sma
 import { motion, AnimatePresence } from 'motion/react';
 import Reveal from '../components/Reveal.js';
 import { Package } from '../types.js';
+import { PACK_SLUGS } from '../seo/routes.js';
 
 interface PricingProps {
   packages: Package[];
@@ -147,7 +148,15 @@ export default function Pricing({ packages, onNavigate }: PricingProps) {
                   
                   {/* Name and Promise */}
                   <div className="space-y-2 text-center pt-2">
-                    <h3 className="font-sans font-black text-xl text-white">{pkg.name}</h3>
+                    <h3 className="font-sans font-black text-xl text-white">
+                      <button
+                        onClick={() => onNavigate('pack', { slug: PACK_SLUGS[pkg.id] })}
+                        className="hover:text-[#A3FF12] transition-colors cursor-pointer"
+                        aria-label={`Découvrir la formule ${pkg.name}`}
+                      >
+                        {pkg.name}
+                      </button>
+                    </h3>
                     <p className="text-xs text-[#A3FF12]/70 italic leading-relaxed min-h-[40px] px-2">
                       « {pkg.promise} »
                     </p>

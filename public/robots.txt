@@ -1,0 +1,12 @@
+# Règles d'exploration pour les moteurs de recherche.
+
+User-agent: *
+Allow: /
+
+# Le studio d'administration ne doit jamais être indexé :
+# c'est un espace privé, sans intérêt pour un visiteur.
+Disallow: /#admin
+Disallow: /admin
+
+# Emplacement du plan du site.
+Sitemap: https://saa-s-voxmory.vercel.app/sitemap.xml

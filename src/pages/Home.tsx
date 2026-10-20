@@ -15,6 +15,7 @@ import AudioPlayer from '../components/AudioPlayer.js';
 import Reveal from '../components/Reveal.js';
 import MeshBackground from '../components/MeshBackground.js';
 import type { ClientReview, GallerySong, Package } from '../types.js';
+import { PACK_SLUGS } from '../seo/routes.js';
 
 interface HomeProps {
   packages: Package[];
@@ -274,7 +275,15 @@ export default function Home({
                           Populaire
                         </span>
                       )}
-                      <h3 className="text-[15px] font-bold text-white">{pkg.name}</h3>
+                      <h3 className="text-[15px] font-bold text-white">
+                        <button
+                          onClick={() => onNavigate('pack', { slug: PACK_SLUGS[pkg.id] })}
+                          className="hover:text-[#A3FF12] transition-colors cursor-pointer text-left"
+                          aria-label={`Découvrir la formule ${pkg.name}`}
+                        >
+                          {pkg.name}
+                        </button>
+                      </h3>
                       <p className="mt-1 text-[12px] text-[#6C7581] leading-snug min-h-[32px]">
                         {pkg.promise}
                       </p>

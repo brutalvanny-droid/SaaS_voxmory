@@ -127,7 +127,7 @@ export default function Reviews({ initialReviews, onNavigate }: ReviewsProps) {
                 
                 {/* Client Name */}
                 <div className="space-y-1.5">
-                  <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#A2ABB5]">Votre Nom Complet *</label>
+                  <label className="block text-[12px] font-semibold uppercase tracking-wider text-[#C2CAD3]">Votre Nom Complet *</label>
                   <input
                     type="text"
                     required
@@ -140,7 +140,7 @@ export default function Reviews({ initialReviews, onNavigate }: ReviewsProps) {
 
                 {/* Rating selection (Stars) */}
                 <div className="space-y-1.5">
-                  <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#A2ABB5]">Note Globale *</label>
+                  <label className="block text-[12px] font-semibold uppercase tracking-wider text-[#C2CAD3]">Note Globale *</label>
                   <div className="flex items-center gap-2">
                     {[1, 2, 3, 4, 5].map((num) => (
                       <button
@@ -158,7 +158,7 @@ export default function Reviews({ initialReviews, onNavigate }: ReviewsProps) {
 
                 {/* Event Category / Occasion */}
                 <div className="space-y-1.5">
-                  <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#A2ABB5]">Occasion célébrée *</label>
+                  <label className="block text-[12px] font-semibold uppercase tracking-wider text-[#C2CAD3]">Occasion célébrée *</label>
                   <select
                     value={occasion}
                     onChange={(e) => setOccasion(e.target.value)}
@@ -176,7 +176,7 @@ export default function Reviews({ initialReviews, onNavigate }: ReviewsProps) {
 
                 {/* Comment Textarea */}
                 <div className="space-y-1.5">
-                  <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#A2ABB5]">Votre Commentaire *</label>
+                  <label className="block text-[12px] font-semibold uppercase tracking-wider text-[#C2CAD3]">Votre Commentaire *</label>
                   <textarea
                     rows={4}
                     required
@@ -189,7 +189,7 @@ export default function Reviews({ initialReviews, onNavigate }: ReviewsProps) {
 
                 {/* Optional Order Code */}
                 <div className="space-y-1.5">
-                  <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#A2ABB5]">N° de Commande (Optionnel)</label>
+                  <label className="block text-[12px] font-semibold uppercase tracking-wider text-[#C2CAD3]">N° de Commande (Optionnel)</label>
                   <input
                     type="text"
                     placeholder="Ex: VOX-2026-1034"

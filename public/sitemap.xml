@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Plan du site.
+
+  Son rôle : signaler à Google l'existence de chaque page et la fraîcheur de
+  son contenu. Sans lui, une page récente peut attendre des semaines avant
+  d'être découverte — ou ne jamais l'être.
+
+  Les pages de formule, d'avis et d'exemples y figurent désormais, ce qui
+  n'était pas possible avec l'ancien système d'adresses en « # ».
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <url>
+    <loc>https://saa-s-voxmory.vercel.app/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Pages de formule : une adresse distincte par offre -->
+  <url>
+    <loc>https://saa-s-voxmory.vercel.app/pack/chanson-simple</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://saa-s-voxmory.vercel.app/pack/musique-video</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://saa-s-voxmory.vercel.app/pack/premium-vip</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://saa-s-voxmory.vercel.app/pack/prestation-presentielle</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Pages principales -->
+  <url>
+    <loc>https://saa-s-voxmory.vercel.app/commander</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://saa-s-voxmory.vercel.app/tarifs</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://saa-s-voxmory.vercel.app/exemples</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://saa-s-voxmory.vercel.app/avis</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://saa-s-voxmory.vercel.app/suivi</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+</urlset>

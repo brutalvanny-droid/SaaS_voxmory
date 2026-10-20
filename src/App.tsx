@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { useState, useEffect, useMemo, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Loader2, ArrowRight } from 'lucide-react';
 import Navbar from './components/Navbar.js';
@@ -9,6 +9,14 @@ import Home from './pages/Home.js';
 import PromotionBanner from './components/PromotionBanner.js';
 
 import { Package, GallerySong, ClientReview, PromotionSettings } from './types.js';
+import { useSEO, useJsonLd } from './hooks/useSEO.js';
+import {
+  PAGE_PATHS,
+  pathToPage,
+  getRouteSeo,
+  getPackSeo,
+  slugToPackId,
+} from './seo/routes.js';
 
 // Seule la page d'accueil est chargée d'emblée. Toutes les autres — y compris
 // le studio d'administration — sont chargées à la demande : le visiteur qui
@@ -21,6 +29,7 @@ const Pricing = lazy(() => import('./pages/Pricing.js'));
 const MemoryPageComp = lazy(() => import('./pages/MemoryPage.js'));
 const Tracking = lazy(() => import('./pages/Tracking.js'));
 const InstallGuide = lazy(() => import('./pages/InstallGuide.js'));
+const PackagePage = lazy(() => import('./pages/PackagePage.js'));
 const Admin = lazy(() => import('./pages/Admin.js'));
 
 // Extend Window interface for Google Analytics tracking
@@ -46,11 +55,71 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState('home');
   const [pageParams, setPageParams] = useState<any>(null);
   const [memorySlug, setMemorySlug] = useState('maman-georgette');
+  const [packSlug, setPackSlug] = useState('');
+
+  /**
+   * Référencement de l'écran courant.
+   *
+   * Sans cela, toutes les pages partageraient le titre de l'accueil : un lien
+   * envoyé sur WhatsApp afficherait toujours la même chose, et Google
+   * n'indexerait qu'une seule page.
+   */
+  const packIdForSeo = currentPage === 'pack' ? slugToPackId(packSlug) : undefined;
+  const seoPack = packIdForSeo ? getPackSeo(packIdForSeo) : undefined;
+  const seo = seoPack ?? getRouteSeo(currentPage);
+
+  useSEO({
+    title: seo.title,
+    description: seo.description,
+    path: seo.path,
+  });
 
   // Shared Data States fetched from server
   const [packages, setPackages] = useState<Package[]>([]);
   const [gallerySongs, setGallerySongs] = useState<GallerySong[]>([]);
   const [featuredReviews, setFeaturedReviews] = useState<ClientReview[]>([]);
+
+  /**
+   * Données structurées « avis ».
+   *
+   * C'est ce bloc qui permet à Google d'afficher des étoiles sous votre lien.
+   * Il est généré depuis les avis réellement approuvés : tant que la section
+   * est vide, aucun bloc n'est émis — et donc aucune fausse note affichée.
+   * Dès le premier avis validé, les étoiles apparaissent sans autre intervention.
+   */
+  const reviewLd = useMemo(() => {
+    const approved = featuredReviews.filter((r) => r.approved && r.rating > 0);
+    if (approved.length === 0) return null;
+
+    const total = approved.reduce((sum, r) => sum + r.rating, 0);
+    const average = (total / approved.length).toFixed(1);
+
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'LocalBusiness',
+      name: 'VOXMORY',
+      image: 'https://saa-s-voxmory.vercel.app/og-image.jpg',
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: average,
+        reviewCount: String(approved.length),
+        bestRating: '5',
+        worstRating: '1',
+      },
+      review: approved.slice(0, 10).map((r) => ({
+        '@type': 'Review',
+        author: { '@type': 'Person', name: r.clientName },
+        reviewRating: {
+          '@type': 'Rating',
+          ratingValue: String(r.rating),
+          bestRating: '5',
+        },
+        reviewBody: r.comment,
+      })),
+    };
+  }, [featuredReviews]);
+
+  useJsonLd('voxmory-reviews', reviewLd);
   const [promotion, setPromotion] = useState<PromotionSettings | null>(null);
 
   // Dynamically initialize Google Analytics from environment variables
@@ -74,7 +143,7 @@ export default function App() {
       };
       window.gtag('js', new Date());
       window.gtag('config', gaId, {
-        page_path: window.location.hash || '#home',
+        page_path: window.location.pathname || '/',
       });
     }
   }, []);
@@ -83,33 +152,35 @@ export default function App() {
   useEffect(() => {
     const gaId = (import.meta as any).env.VITE_GA_MEASUREMENT_ID || 'G-Z0D54XEMDR';
     if (window.gtag && gaId) {
-      const pagePath = window.location.hash || '#home';
+      const pagePath = window.location.pathname || '/';
       window.gtag('config', gaId, {
         page_path: pagePath,
-        page_title: `${currentPage.toUpperCase()} | VOXMORY`,
+        page_title: document.title,
       });
     }
   }, [currentPage]);
 
-  // Hash-based routing implementation
+  /**
+   * Routage par vrais chemins (au lieu de « # »).
+   *
+   * Un moteur de recherche ignore tout ce qui suit un « # » : avec l'ancien
+   * système, /#tarifs, /#avis et /#exemples étaient une seule et même page à
+   * ses yeux. En passant par de vrais chemins, chaque écran devient une page
+   * distincte, indexable et partageable.
+   */
   useEffect(() => {
-    const parseHash = () => {
-      const hash = window.location.hash || '#home';
-      const cleanHash = hash.replace('#', '');
-      const parts = cleanHash.split('/');
-      const page = parts[0] || 'home';
-      const param = parts[1] || '';
+    const parseLocation = () => {
+      const { page, param } = pathToPage(window.location.pathname);
 
       setCurrentPage(page);
-      if (page === 'memory' && param) {
-        setMemorySlug(param);
-      }
+      if (page === 'memory' && param) setMemorySlug(param);
+      if (page === 'pack' && param) setPackSlug(param);
     };
 
-    window.addEventListener('hashchange', parseHash);
-    parseHash(); // Initial check
+    window.addEventListener('popstate', parseLocation);
+    parseLocation(); // Lecture initiale
 
-    return () => window.removeEventListener('hashchange', parseHash);
+    return () => window.removeEventListener('popstate', parseLocation);
   }, []);
 
   // Chaque changement de page repart du haut, sans quoi on atterrit au milieu.
@@ -161,12 +232,21 @@ export default function App() {
   // Handle direct router triggers with state arguments
   const handleNavigate = (page: string, params: any = null) => {
     setPageParams(params);
+
+    // Construction de l'adresse publique, puis navigation sans rechargement.
+    let url = PAGE_PATHS[page] ?? `/${page}`;
     if (page === 'memory' && params?.slug) {
       setMemorySlug(params.slug);
-      window.location.hash = `#memory/${params.slug}`;
-    } else {
-      window.location.hash = `#${page}`;
+      url = `/memory/${params.slug}`;
     }
+    if (page === 'pack' && params?.slug) {
+      setPackSlug(params.slug);
+      url = `/pack/${params.slug}`;
+    }
+
+    window.history.pushState({}, '', url);
+    setCurrentPage(page);
+    window.scrollTo(0, 0);
   };
 
   const getFeaturedSongs = () => {
@@ -229,6 +309,23 @@ export default function App() {
             {currentPage === 'pricing' && (
               <Pricing packages={packages} onNavigate={handleNavigate} />
             )}
+
+            {/* Page propre à une formule : /pack/chanson-simple */}
+            {currentPage === 'pack' &&
+              (() => {
+                const packId = slugToPackId(packSlug);
+                const pack = packages.find((p) => p.id === packId);
+                if (!pack) {
+                  return <Pricing packages={packages} onNavigate={handleNavigate} />;
+                }
+                return (
+                  <PackagePage
+                    pkg={pack}
+                    reviews={featuredReviews}
+                    onNavigate={handleNavigate}
+                  />
+                );
+              })()}
 
             {currentPage === 'memory' && (
               <MemoryPageComp slug={memorySlug} onNavigate={handleNavigate} />

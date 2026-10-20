@@ -4,26 +4,101 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="dark" />
-    
-    <!-- SEO Meta Tags -->
+
+    <!-- ============================================================
+         SEO PRINCIPAL
+         ============================================================ -->
     <title>VOXMORY | Chansons Personnalisées Poétiques & Rumba sur-mesure</title>
     <meta name="description" content="VOXMORY transforme vos plus belles histoires d'amour, de mariage, d'anniversaire ou d'hommage en chansons professionnelles personnalisées. Commandez votre Rumba ou Afrobeat unique." />
     <meta name="keywords" content="voxmory, chanson personnalisee, rumba congolaise, cadeau mariage, cadeau anniversaire, chanson sur mesure, kinshasa, afrique" />
     <meta name="author" content="VOXMORY" />
     <meta name="robots" content="index, follow" />
 
-    <!-- Open Graph / Facebook -->
+    <!-- Adresse canonique : évite le contenu dupliqué entre les variantes d'URL -->
+    <link rel="canonical" href="https://saa-s-voxmory.vercel.app/" />
+
+    <!-- ============================================================
+         OPEN GRAPH (Facebook, WhatsApp, LinkedIn)
+         Sans og:image, un lien partagé s'affiche sans aucune vignette.
+         ============================================================ -->
     <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://saa-s-voxmory.vercel.app/" />
     <meta property="og:title" content="VOXMORY | Chansons Personnalisées Poétiques & Rumba sur-mesure" />
     <meta property="og:description" content="Offrez le plus mémorable des cadeaux. Nous transformons vos histoires de vie en véritables chefs-d'œuvre musicaux (Rumba, Afrobeat)." />
     <meta property="og:site_name" content="VOXMORY" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:image" content="https://saa-s-voxmory.vercel.app/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="VOXMORY — Votre histoire, votre chanson" />
 
-    <!-- Twitter -->
+    <!-- ============================================================
+         TWITTER / X
+         ============================================================ -->
     <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://saa-s-voxmory.vercel.app/" />
     <meta property="twitter:title" content="VOXMORY | Chansons Personnalisées Poétiques" />
     <meta property="twitter:description" content="Offrez une chanson personnalisée unique créée par les meilleurs compositeurs." />
+    <meta property="twitter:image" content="https://saa-s-voxmory.vercel.app/og-image.jpg" />
+    <meta property="twitter:image:alt" content="VOXMORY — Votre histoire, votre chanson" />
 
-    <!-- Favicon link (Optional fallback icon) -->
+    <!-- ============================================================
+         DONNÉES STRUCTURÉES (JSON-LD)
+         Permettent à Google d'afficher le nom, le prix et les avis
+         directement dans les résultats de recherche.
+         ============================================================ -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "LocalBusiness",
+        "name": "VOXMORY",
+        "description": "Studio de création de chansons personnalisées : Rumba, Afrobeat et poésie sur-mesure pour mariages, anniversaires et hommages.",
+        "url": "https://saa-s-voxmory.vercel.app/",
+        "image": "https://saa-s-voxmory.vercel.app/og-image.jpg",
+        "slogan": "Votre histoire. Votre chanson.",
+        "email": "usvanny10@gmail.com",
+        "telephone": "+243978508099",
+        "priceRange": "$20-$1000",
+        "address": {
+          "@type": "PostalAddress",
+          "addressCountry": "CD",
+          "addressLocality": "Kinshasa"
+        },
+        "areaServed": {
+          "@type": "Country",
+          "name": "République Démocratique du Congo"
+        },
+        "sameAs": ["https://wa.me/243978508099"],
+        "makesOffer": [
+          {
+            "@type": "Offer",
+            "name": "Chanson Simple",
+            "price": "20",
+            "priceCurrency": "USD"
+          },
+          {
+            "@type": "Offer",
+            "name": "Musique + Vidéo",
+            "price": "50",
+            "priceCurrency": "USD"
+          },
+          {
+            "@type": "Offer",
+            "name": "Premium VIP",
+            "price": "100",
+            "priceCurrency": "USD"
+          },
+          {
+            "@type": "Offer",
+            "name": "Prestation Présentielle",
+            "price": "1000",
+            "priceCurrency": "USD"
+          }
+        ]
+      }
+    </script>
+
+    <!-- Favicon -->
     <link rel="icon" type="image/png" href="/icon-192.png" />
 
     <!-- PWA Manifest & Meta -->
@@ -39,4 +114,3 @@
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-
