@@ -77,7 +77,15 @@ export async function handleClientUpload(
         // Les fichiers sont publics : ce sont des chansons et des
         // couvertures destinées à être diffusées et partagées.
         allowUpload: true,
-        validUntil: Date.now() + 60_000,
+        //
+        // Validité du jeton : 30 minutes, et non 60 secondes.
+        // Le jeton doit rester valable pendant TOUT le transfert, pas
+        // seulement au moment où il est demandé. Une note vocale de 10 Mo
+        // envoyée depuis un téléphone en 3G met couramment plusieurs
+        // minutes : avec une minute de validité, le transfert échouait en
+        // cours de route par « jeton expiré » — chez l'utilisateur, et de
+        // façon intermittente selon la qualité du réseau.
+        validUntil: Date.now() + 30 * 60 * 1000,
       }),
       onUploadCompleted: async ({ blob }) => {
         console.log(`[Blob] Fichier déposé : ${blob.pathname}`);
