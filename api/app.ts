@@ -1496,6 +1496,98 @@ app.get(
         )
       : 100;
 
+    /* --- Ce mois-ci -----------------------------------------------------
+       Le début du mois en UTC : les dates sont stockées en ISO, un simple
+       préfixe suffit et évite tout décalage de fuseau. */
+    const debutDuMois = new Date();
+    debutDuMois.setUTCDate(1);
+    debutDuMois.setUTCHours(0, 0, 0, 0);
+
+    const rowsMois = orderRows.filter((o) => +new Date(o.createdAt) >= +debutDuMois);
+    const payeesMois = rowsMois.filter((o) => o.paymentStatus === 'Paid');
+    const revenueMoisCents = payeesMois.reduce((s, o) => s + o.amountCents, 0);
+
+    /* --- Répartition par statut -----------------------------------------
+       Alimente le pipeline : ce sont les colonnes qui réclament une action
+       aujourd'hui. */
+    const ORDRE_STATUTS = [
+      'Nouvelle',
+      'En écriture',
+      'En composition',
+      'En enregistrement',
+      'En relecture',
+      'Livrée',
+      'Annulée',
+      'Archivée',
+    ] as const;
+
+    const parStatut: Record<string, number> = {};
+    for (const st of ORDRE_STATUTS) parStatut[st] = 0;
+    for (const o of orderRows) parStatut[o.status] = (parStatut[o.status] ?? 0) + 1;
+
+    const ordersByStatus = ORDRE_STATUTS.map((status) => ({
+      status,
+      count: parStatut[status] ?? 0,
+    }));
+
+    /* --- Formules les plus vendues --------------------------------------
+       Sert à savoir quoi mettre en avant. Les annulées ne comptent pas :
+       une annulation ne dit rien d'une préférence. */
+    const packageRows = await db.select().from(packages);
+    const nomFormule = new Map(packageRows.map((pk) => [pk.id, pk.name]));
+
+    const compteurFormules = new Map<
+      string,
+      { name: string; count: number; revenueCents: number }
+    >();
+    for (const o of orderRows) {
+      if (o.status === 'Annulée') continue;
+      const cle = o.packageId ?? 'inconnu';
+      const entree = compteurFormules.get(cle) ?? {
+        name: nomFormule.get(cle) ?? 'Formule retirée',
+        count: 0,
+        revenueCents: 0,
+      };
+      entree.count += 1;
+      if (o.paymentStatus === 'Paid') entree.revenueCents += o.amountCents;
+      compteurFormules.set(cle, entree);
+    }
+    const topPackages = [...compteurFormules.values()]
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    /* --- Dernières commandes --------------------------------------------
+       Volontairement allégées : le tableau de bord n'a pas besoin des
+       paroles ni de l'histoire, seulement de quoi savoir par quoi
+       commencer la journée. */
+    const recentOrders = orderRows
+      .slice()
+      .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))
+      .slice(0, 8)
+      .map((o) => ({
+        id: o.id,
+        reference: o.reference,
+        status: o.status,
+        paymentStatus: o.paymentStatus,
+        customerName: o.customerName,
+        packageName: nomFormule.get(o.packageId ?? '') ?? 'Formule retirée',
+        amountCents: o.amountCents,
+        currency: o.currency,
+        desiredDeliveryDate: o.desiredDeliveryDate,
+        createdAt: o.createdAt,
+      }));
+
+    /* --- Clients --------------------------------------------------------
+       Un client = une adresse e-mail distincte. Les commandes sans e-mail
+       ne comptent pas : on ne peut les rattacher à personne. */
+    const emailsClients = new Set(
+      orderRows.map((o) => (o.customerEmail ?? '').trim().toLowerCase()).filter(Boolean),
+    );
+    const rowsComptes = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.isActive, true));
+
     res.json({
       totalOrders: orderRows.length,
       delivered,
@@ -1507,6 +1599,17 @@ app.get(
       averageRating,
       visitsCount: await getSetting<number>('visitsCount', 0),
       listensCount: await getSetting<number>('listensCount', 0),
+
+      /* Lecture d'ensemble : ce qui fait tourner l'activité. */
+      ordersThisMonth: rowsMois.length,
+      revenueThisMonthCents: revenueMoisCents,
+      averageOrderCents: paid.length ? Math.round(totalRevenueCents / paid.length) : 0,
+      ordersByStatus,
+      topPackages,
+      recentOrders,
+      totalClients: emailsClients.size,
+      clientsWithAccount: rowsComptes.length,
+
       dailyStats: statRows.map((s) => ({
         date: s.date,
         visits: s.visits,

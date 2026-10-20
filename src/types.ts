@@ -217,6 +217,28 @@ export interface DashboardStats {
   averageRating: number;
   visitsCount: number;
   listensCount: number;
+
+  /** Lecture d'ensemble ajoutée pour le tableau de bord. */
+  ordersThisMonth: number;
+  revenueThisMonthCents: number;
+  averageOrderCents: number;
+  ordersByStatus: { status: string; count: number }[];
+  topPackages: { name: string; count: number; revenueCents: number }[];
+  recentOrders: {
+    id: string;
+    reference: string;
+    status: string;
+    paymentStatus: string;
+    customerName: string;
+    packageName: string;
+    amountCents: number;
+    currency: string;
+    desiredDeliveryDate: string | null;
+    createdAt: string;
+  }[];
+  totalClients: number;
+  clientsWithAccount: number;
+
   dailyStats: { date: string; visits: number; listens: number; orders: number }[];
 }
 

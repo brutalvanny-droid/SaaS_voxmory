@@ -7,25 +7,28 @@ import {
   Settings as SettingsIcon,
   LogOut,
   Loader2,
-  AlertCircle,
+  Menu,
+  X,
+  ArrowUpRight,
+  Music4,
 } from 'lucide-react';
 import { api } from '../lib/api.js';
 import type { AdminSession } from '../types.js';
 import Login from '../admin/Login.js';
+import Dashboard from '../admin/Dashboard.js';
 import Orders from '../admin/Orders.js';
 import Catalog from '../admin/Catalog.js';
 import Outreach from '../admin/Outreach.js';
 import SettingsPanel from '../admin/Settings.js';
-import { Badge, Button, Card, Stat } from '../admin/ui.js';
 
 type Tab = 'dashboard' | 'orders' | 'catalog' | 'outreach' | 'settings';
 
-const TABS: { id: Tab; label: string; icon: typeof LayoutDashboard }[] = [
-  { id: 'dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
-  { id: 'orders', label: 'Commandes', icon: ShoppingBag },
-  { id: 'catalog', label: 'Catalogue', icon: Library },
-  { id: 'outreach', label: 'Diffusion', icon: Megaphone },
-  { id: 'settings', label: 'Réglages', icon: SettingsIcon },
+const TABS: { id: Tab; label: string; icon: typeof LayoutDashboard; description: string }[] = [
+  { id: 'dashboard', label: 'Tableau de bord', icon: LayoutDashboard, description: 'Vue d’ensemble de l’activité' },
+  { id: 'orders', label: 'Commandes', icon: ShoppingBag, description: 'Produire et livrer les chansons' },
+  { id: 'catalog', label: 'Catalogue', icon: Library, description: 'Formules, extraits et avis' },
+  { id: 'outreach', label: 'Diffusion', icon: Megaphone, description: 'Contacts et campagnes' },
+  { id: 'settings', label: 'Réglages', icon: SettingsIcon, description: 'Prix, paiements, textes' },
 ];
 
 interface AdminProps {
@@ -44,6 +47,9 @@ export default function Admin({ onNavigate, onPromotionChanged }: AdminProps) {
   const [session, setSession] = useState<AdminSession | null>(null);
   const [checking, setChecking] = useState(true);
   const [tab, setTab] = useState<Tab>('dashboard');
+  const [menuOuvert, setMenuOuvert] = useState(false);
+  /** Commandes en cours de production — alimente le pastille du menu. */
+  const [aProduire, setAProduire] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -63,11 +69,36 @@ export default function Admin({ onNavigate, onPromotionChanged }: AdminProps) {
     };
   }, []);
 
+  /**
+   * Le menu doit dire où se trouve le travail. On compte les commandes qui
+   * attendent une action humaine plutôt que d'afficher un point
+   * d'interrogation permanent.
+   */
+  useEffect(() => {
+    if (!session) return;
+    api.admin
+      .stats()
+      .then((s) => {
+        const actifs = ['Nouvelle', 'En écriture', 'En composition', 'En enregistrement', 'En relecture'];
+        setAProduire(
+          (s.ordersByStatus ?? [])
+            .filter((x) => actifs.includes(x.status))
+            .reduce((total, x) => total + x.count, 0),
+        );
+      })
+      .catch(() => {});
+  }, [session]);
+
   const logout = useCallback(async () => {
     await api.logout().catch(() => {});
     setSession(null);
     setTab('dashboard');
   }, []);
+
+  const aller = (id: Tab) => {
+    setTab(id);
+    setMenuOuvert(false);
+  };
 
   if (checking) {
     return (
@@ -81,148 +112,162 @@ export default function Admin({ onNavigate, onPromotionChanged }: AdminProps) {
     return <Login onSuccess={setSession} />;
   }
 
-  return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-      <header className="flex flex-wrap items-center justify-between gap-4 mb-7">
-        <div>
-          <h1 className="text-2xl font-black text-white">Studio VOXMORY</h1>
-          <p className="text-xs text-[#8A949F] mt-0.5">
-            Connecté en tant que {session.email}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button onClick={() => onNavigate('home')}>Voir le site</Button>
-          <Button onClick={() => void logout()}>
-            <LogOut className="w-3.5 h-3.5 inline mr-1.5" />
-            Se déconnecter
-          </Button>
-        </div>
-      </header>
-
-      <nav className="flex gap-1 overflow-x-auto border-b border-white/10 mb-6">
-        {TABS.map(({ id, label, icon: Icon }) => (
-          <button
-            key={id}
-            onClick={() => setTab(id)}
-            className={`flex items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-wide border-b-2 whitespace-nowrap transition-colors ${
-              tab === id
-                ? 'border-[#A3FF12] text-[#A3FF12]'
-                : 'border-transparent text-[#8A949F] hover:text-white'
-            }`}
-          >
-            <Icon className="w-4 h-4" />
-            {label}
-          </button>
-        ))}
-      </nav>
-
-      {tab === 'dashboard' && <Dashboard />}
-      {tab === 'orders' && <Orders />}
-      {tab === 'catalog' && <Catalog />}
-      {tab === 'outreach' && <Outreach />}
-      {tab === 'settings' && <SettingsPanel onPromotionChanged={onPromotionChanged} />}
-    </div>
-  );
-}
-
-/* --------------------------- Tableau de bord -------------------------- */
-
-function Dashboard() {
-  const [stats, setStats] = useState<
-    | (Awaited<ReturnType<typeof api.admin.stats>>)
-    | null
-  >(null);
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    api.admin
-      .stats()
-      .then(setStats)
-      .catch((err) => setError(err instanceof Error ? err.message : 'Indisponible.'));
-  }, []);
-
-  if (error) {
-    return (
-      <p className="flex items-center gap-2 text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3">
-        <AlertCircle className="w-4 h-4" /> {error}
-      </p>
-    );
-  }
-  if (!stats) {
-    return (
-      <div className="flex items-center justify-center py-24 text-[#8A949F] gap-2">
-        <Loader2 className="w-4 h-4 animate-spin" /> Chargement…
-      </div>
-    );
-  }
-
-  const days = stats.dailyStats.slice(-14);
-  const maxVisits = Math.max(1, ...days.map((d) => d.visits));
+  const ongletActif = TABS.find((t) => t.id === tab) ?? TABS[0];
 
   return (
-    <div className="space-y-5">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <Stat
-          label="Commandes"
-          value={stats.totalOrders}
-          hint={`${stats.pendingPayment} en attente de paiement`}
-        />
-        <Stat
-          label="Chansons livrées"
-          value={stats.delivered}
-          accent="text-emerald-400"
-        />
-        <Stat
-          label="Chiffre d'affaires"
-          value={`${(stats.totalRevenueCents / 100).toLocaleString('fr-FR')} $`}
-          accent="text-[#A3FF12]"
-          hint="Commandes marquées comme payées"
-        />
-        <Stat
-          label="Note moyenne"
-          value={`${stats.averageRating} / 5`}
-          accent="text-[#A3FF12]"
-          hint={`${stats.clientSatisfaction} % de satisfaction`}
-        />
-      </div>
-
-      <Card title="Audience — 14 derniers jours" subtitle="Visites et écoutes">
-        {days.length === 0 ? (
-          <p className="text-sm text-[#6C7581]">Pas encore de données.</p>
-        ) : (
-          <div className="flex items-end gap-1.5 h-40">
-            {days.map((d) => (
-              <div key={d.date} className="flex-1 flex flex-col items-center gap-1">
-                <div className="w-full flex items-end justify-center gap-0.5 h-32">
-                  <div
-                    className="w-1/2 bg-[#A3FF12]/70 rounded-t"
-                    style={{ height: `${(d.visits / maxVisits) * 100}%` }}
-                    title={`${d.visits} visites`}
-                  />
-                  <div
-                    className="w-1/2 bg-[#A3FF12]/70 rounded-t"
-                    style={{ height: `${(d.listens / maxVisits) * 100}%` }}
-                    title={`${d.listens} écoutes`}
-                  />
+    <div className="min-h-screen">
+      <div className="mx-auto max-w-[1400px] px-4 sm:px-6 py-6">
+        <div className="flex gap-6">
+          {/* ── Barre latérale ─────────────────────────────────────── */}
+          <aside className="hidden lg:flex w-60 flex-shrink-0 flex-col">
+            <div className="sticky top-6 space-y-4">
+              {/* Marque */}
+              <div className="flex items-center gap-2.5 px-1">
+                <span className="w-9 h-9 rounded-xl bg-[#A3FF12] grid place-items-center flex-shrink-0">
+                  <Music4 className="w-4.5 h-4.5 text-black" strokeWidth={2.5} />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-[13px] font-black text-white leading-tight">Studio</p>
+                  <p className="text-[10px] uppercase tracking-[0.18em] text-[#6C7581] leading-tight">
+                    VOXMORY
+                  </p>
                 </div>
-                <span className="text-[9px] text-[#6C7581]">{d.date.slice(5)}</span>
               </div>
-            ))}
-          </div>
-        )}
-        <div className="flex gap-4 mt-3 text-[11px] text-[#8A949F]">
-          <span className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-sm bg-[#A3FF12]/70" /> Visites
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-sm bg-[#A3FF12]/70" /> Écoutes
-          </span>
-        </div>
-      </Card>
 
-      <div className="grid sm:grid-cols-2 gap-3">
-        <Stat label="Visites cumulées" value={stats.visitsCount.toLocaleString('fr-FR')} />
-        <Stat label="Écoutes cumulées" value={stats.listensCount.toLocaleString('fr-FR')} />
+              {/* Navigation */}
+              <nav className="space-y-0.5">
+                {TABS.map(({ id, label, icon: Icon }) => {
+                  const actif = tab === id;
+                  return (
+                    <button
+                      key={id}
+                      onClick={() => aller(id)}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left transition-colors ${
+                        actif
+                          ? 'bg-[#A3FF12]/10 text-[#A3FF12]'
+                          : 'text-[#8A949F] hover:text-white hover:bg-white/[0.04]'
+                      }`}
+                    >
+                      <Icon className="w-4 h-4 flex-shrink-0" />
+                      <span className="flex-1 text-[13px] font-bold truncate">{label}</span>
+                      {id === 'orders' && aProduire > 0 && (
+                        <span className="px-1.5 py-0.5 rounded-md bg-[#A3FF12] text-black text-[10px] font-black tabular-nums">
+                          {aProduire}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </nav>
+
+              {/* Session */}
+              <div className="pt-3 border-t border-white/[0.07] space-y-2">
+                <button
+                  onClick={() => onNavigate('home')}
+                  className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[#8A949F] hover:text-white hover:bg-white/[0.04] transition-colors"
+                >
+                  <ArrowUpRight className="w-4 h-4 flex-shrink-0" />
+                  <span className="text-[13px] font-bold">Voir le site</span>
+                </button>
+
+                <div className="px-3 py-2.5">
+                  <p className="text-[11.5px] font-semibold text-white truncate">
+                    {session.email}
+                  </p>
+                  <button
+                    onClick={() => void logout()}
+                    className="mt-1.5 flex items-center gap-1.5 text-[11.5px] text-[#8A949F] hover:text-red-400 transition-colors"
+                  >
+                    <LogOut className="w-3 h-3" />
+                    Se déconnecter
+                  </button>
+                </div>
+              </div>
+            </div>
+          </aside>
+
+          {/* ── Contenu ────────────────────────────────────────────── */}
+          <main className="flex-1 min-w-0">
+            {/* En-tête */}
+            <header className="flex items-start justify-between gap-4 mb-5">
+              <div className="min-w-0">
+                <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                  {ongletActif.label}
+                </h1>
+                <p className="text-[12.5px] text-[#8A949F] mt-0.5">
+                  {ongletActif.description}
+                </p>
+              </div>
+
+              {/* Bascule du menu — mobile */}
+              <button
+                onClick={() => setMenuOuvert((v) => !v)}
+                className="lg:hidden p-2 rounded-lg border border-white/10 text-[#A2ABB5] hover:text-white flex-shrink-0"
+                aria-label="Menu"
+              >
+                {menuOuvert ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+              </button>
+            </header>
+
+            {/* Menu déroulant — mobile */}
+            {menuOuvert && (
+              <div className="lg:hidden mb-5 p-2 rounded-2xl bg-[#0B0D10] border border-white/10 space-y-0.5">
+                {TABS.map(({ id, label, icon: Icon }) => (
+                  <button
+                    key={id}
+                    onClick={() => aller(id)}
+                    className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left transition-colors ${
+                      tab === id
+                        ? 'bg-[#A3FF12]/10 text-[#A3FF12]'
+                        : 'text-[#8A949F] hover:text-white hover:bg-white/[0.04]'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4 flex-shrink-0" />
+                    <span className="flex-1 text-[13px] font-bold">{label}</span>
+                    {id === 'orders' && aProduire > 0 && (
+                      <span className="px-1.5 py-0.5 rounded-md bg-[#A3FF12] text-black text-[10px] font-black tabular-nums">
+                        {aProduire}
+                      </span>
+                    )}
+                  </button>
+                ))}
+                <button
+                  onClick={() => {
+                    onNavigate('home');
+                    setMenuOuvert(false);
+                  }}
+                  className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[#8A949F] hover:text-white hover:bg-white/[0.04] transition-colors"
+                >
+                  <ArrowUpRight className="w-4 h-4 flex-shrink-0" />
+                  <span className="text-[13px] font-bold">Voir le site</span>
+                </button>
+                <div className="px-3 py-2.5 border-t border-white/[0.07] mt-1">
+                  <p className="text-[11.5px] font-semibold text-white truncate">
+                    {session.email}
+                  </p>
+                  <button
+                    onClick={() => void logout()}
+                    className="mt-1.5 flex items-center gap-1.5 text-[11.5px] text-[#8A949F] hover:text-red-400 transition-colors"
+                  >
+                    <LogOut className="w-3 h-3" />
+                    Se déconnecter
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Onglet actif */}
+            {tab === 'dashboard' && (
+              <Dashboard onOpenOrders={() => setTab('orders')} />
+            )}
+            {tab === 'orders' && <Orders />}
+            {tab === 'catalog' && <Catalog />}
+            {tab === 'outreach' && <Outreach />}
+            {tab === 'settings' && (
+              <SettingsPanel onPromotionChanged={onPromotionChanged} />
+            )}
+          </main>
+        </div>
       </div>
     </div>
   );
