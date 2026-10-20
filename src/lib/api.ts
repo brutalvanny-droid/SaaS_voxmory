@@ -2,7 +2,9 @@ import type {
   AdminSession,
   BroadcastCampaign,
   BroadcastList,
+  ClientOrder,
   ClientReview,
+  ClientUser,
   DashboardStats,
   EventReminder,
   GallerySong,
@@ -115,6 +117,54 @@ export const api = {
   logout: () => request<{ ok: true }>('/api/auth/logout', { method: 'POST' }),
 
   me: () => request<{ admin: AdminSession }>('/api/auth/me'),
+
+  /* ---------------------- Compte client --------------------- */
+
+  account: {
+    register: (payload: { name: string; email: string; password: string; phone?: string }) =>
+      request<{ ok: true; user: ClientUser }>('/api/account/register', {
+        method: 'POST',
+        ...body(payload),
+      }),
+
+    login: (email: string, password: string) =>
+      request<{ ok: true; user: ClientUser }>('/api/account/login', {
+        method: 'POST',
+        ...body({ email, password }),
+      }),
+
+    logout: () => request<{ ok: true }>('/api/account/logout', { method: 'POST' }),
+
+    me: () => request<{ user: ClientUser }>('/api/account/me'),
+
+    update: (payload: {
+      name?: string;
+      phone?: string;
+      city?: string;
+      country?: string;
+    }) =>
+      request<{ user: ClientUser }>('/api/account/me', {
+        method: 'PATCH',
+        ...body(payload),
+      }),
+
+    changePassword: (currentPassword: string, newPassword: string) =>
+      request<{ ok: true }>('/api/account/password', {
+        method: 'POST',
+        ...body({ currentPassword, newPassword }),
+      }),
+
+    orders: () => request<ClientOrder[]>('/api/account/orders'),
+
+    forgot: (email: string) =>
+      request<{ ok: true }>('/api/account/forgot', { method: 'POST', ...body({ email }) }),
+
+    reset: (token: string, password: string) =>
+      request<{ ok: true }>('/api/account/reset', {
+        method: 'POST',
+        ...body({ token, password }),
+      }),
+  },
 
   /* ---------------------- Administration -------------------- */
 

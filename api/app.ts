@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import express, { type NextFunction, type Request, type Response } from 'express';
 import cookieParser from 'cookie-parser';
 import { and, asc, desc, eq, sql } from 'drizzle-orm';
@@ -18,6 +19,7 @@ import {
   reminders,
   reviews,
   settings,
+  users,
   webhookEvents,
 } from './_lib/db/schema.js';
 import {
@@ -42,6 +44,12 @@ import {
   gallerySongSchema,
   initPaymentSchema,
   loginSchema,
+  resetSchema,
+  forgotSchema,
+  changePasswordSchema,
+  updateProfileSchema,
+  clientLoginSchema,
+  registerSchema,
   memoryPageSchema,
   promotionSchema,
   reminderSchema,
@@ -50,6 +58,17 @@ import {
   updatePackageSchema,
   updateReviewSchema,
 } from './_lib/validation.js';
+import {
+  CLIENT_SESSION_COOKIE,
+  createClientSessionToken,
+  clearClientSessionCookie,
+  generateResetToken,
+  loadClient,
+  linkGuestOrders,
+  requireClient,
+  setClientSessionCookie,
+  type ClientRequest,
+} from './_lib/clientAuth.js';
 import * as saspay from './_lib/saspay.js';
 import * as whatsapp from './_lib/whatsapp.js';
 import { handleClientUpload, isBlobConfigured, uploadMode } from './_lib/storage.js';
@@ -442,6 +461,12 @@ app.post(
 /* ================================================================== */
 
 app.use(express.json({ limit: JSON_LIMIT }));
+
+/*
+ * Charge la session cliente si un cookie valide est présent, sans jamais
+ * bloquer la requête : le visiteur non connecté doit pouvoir continuer.
+ */
+app.use(loadClient);
 
 /* ================================================================== */
 /*  SANTÉ & CONFIGURATION PUBLIQUE                                      */
@@ -1076,6 +1101,358 @@ async function markPaymentFailed(
     .set({ paymentStatus: 'Unpaid', updatedAt: new Date() })
     .where(eq(orders.id, payment.orderId));
 }
+
+/* ================================================================== */
+/*  COMPTES CLIENTS                                                     */
+/* ================================================================== */
+
+/**
+ * Un compte n'est jamais obligatoire pour commander : l'imposer avant le
+ * paiement fait fuir. Il sert à retrouver ses chansons et à suivre ses
+ * commandes sans devoir ressaisir un numéro à chaque visite.
+ */
+
+/** Réponse publique d'un compte : jamais le mot de passe. */
+function serializeUser(u: typeof users.$inferSelect) {
+  return {
+    id: u.id,
+    email: u.email,
+    name: u.name,
+    phone: u.phone,
+    city: u.city,
+    country: u.country,
+    createdAt: u.createdAt,
+  };
+}
+
+/* --- Inscription --------------------------------------------------- */
+
+app.post(
+  '/api/account/register',
+  asyncHandler(async (req: Request, res: Response) => {
+    maybePurge();
+    const ip = clientIp(req);
+    const limit = await rateLimit(`register:${ip}`, 5, 60 * 60 * 1000);
+    if (!limit.ok) {
+      res
+        .status(429)
+        .set('Retry-After', String(limit.retryAfter))
+        .json({ error: 'Trop d\'inscriptions depuis chez vous. Réessayez plus tard.' });
+      return;
+    }
+
+    const parsed = registerSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({
+        error: parsed.error.issues[0]?.message ?? 'Informations invalides.',
+      });
+      return;
+    }
+
+    const email = parsed.data.email.toLowerCase();
+
+    const [existing] = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.email, email))
+      .limit(1);
+
+    if (existing) {
+      res.status(409).json({ error: 'Cette adresse est déjà utilisée.' });
+      return;
+    }
+
+    const id = randomUUID();
+    const passwordHash = await hashPassword(parsed.data.password);
+
+    await db.insert(users).values({
+      id,
+      email,
+      passwordHash,
+      name: parsed.data.name,
+      phone: parsed.data.phone ?? null,
+    });
+
+    // Les commandes déjà passées avec cette adresse rejoignent le compte.
+    await linkGuestOrders(id, email);
+
+    const token = await createClientSessionToken({ id, email, name: parsed.data.name });
+    setClientSessionCookie(res, token);
+
+    const [created] = await db.select().from(users).where(eq(users.id, id)).limit(1);
+    res.status(201).json({ ok: true, user: serializeUser(created) });
+  }),
+);
+
+/* --- Connexion ------------------------------------------------------ */
+
+app.post(
+  '/api/account/login',
+  asyncHandler(async (req: Request, res: Response) => {
+    maybePurge();
+    const ip = clientIp(req);
+    const limit = await rateLimit(`client-login:${ip}`, 10, 15 * 60 * 1000);
+    if (!limit.ok) {
+      res
+        .status(429)
+        .set('Retry-After', String(limit.retryAfter))
+        .json({ error: 'Trop de tentatives. Réessayez dans quelques minutes.' });
+      return;
+    }
+
+    const parsed = clientLoginSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(401).json({ error: 'Identifiants invalides.' });
+      return;
+    }
+
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, parsed.data.email))
+      .limit(1);
+
+    // Comparaison systématique : sans compte existant on compare quand même
+    // contre un faux hachage, pour que le temps de réponse ne révèle rien.
+    const ok = await verifyPassword(
+      parsed.data.password,
+      user?.passwordHash ?? '$2b$12$invalidinvalidinvalidinvalidinvalidinvalidinvalidinv',
+    );
+
+    if (!user || !ok || !user.isActive) {
+      res.status(401).json({ error: 'Identifiants invalides.' });
+      return;
+    }
+
+    await db.update(users).set({ lastLoginAt: new Date() }).where(eq(users.id, user.id));
+
+    const token = await createClientSessionToken(user);
+    setClientSessionCookie(res, token);
+
+    res.json({ ok: true, user: serializeUser(user) });
+  }),
+);
+
+/* --- Déconnexion --------------------------------------------------- */
+
+app.post('/api/account/logout', (_req: Request, res: Response) => {
+  clearClientSessionCookie(res);
+  res.json({ ok: true });
+});
+
+/* --- Profil --------------------------------------------------------- */
+
+app.get(
+  '/api/account/me',
+  requireClient,
+  asyncHandler(async (req: ClientRequest, res: Response) => {
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, req.client!.sub))
+      .limit(1);
+
+    if (!user) {
+      clearClientSessionCookie(res);
+      res.status(401).json({ error: 'Session expirée.' });
+      return;
+    }
+
+    res.json({ user: serializeUser(user) });
+  }),
+);
+
+app.patch(
+  '/api/account/me',
+  requireClient,
+  asyncHandler(async (req: ClientRequest, res: Response) => {
+    const parsed = updateProfileSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: 'Informations invalides.' });
+      return;
+    }
+
+    const [updated] = await db
+      .update(users)
+      .set({ ...parsed.data, updatedAt: new Date() })
+      .where(eq(users.id, req.client!.sub))
+      .returning();
+
+    res.json({ user: serializeUser(updated) });
+  }),
+);
+
+app.post(
+  '/api/account/password',
+  requireClient,
+  asyncHandler(async (req: ClientRequest, res: Response) => {
+    const parsed = changePasswordSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({
+        error: parsed.error.issues[0]?.message ?? 'Mot de passe invalide.',
+      });
+      return;
+    }
+
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, req.client!.sub))
+      .limit(1);
+
+    if (!user) {
+      res.status(401).json({ error: 'Session expirée.' });
+      return;
+    }
+
+    const ok = await verifyPassword(parsed.data.currentPassword, user.passwordHash);
+    if (!ok) {
+      res.status(400).json({ error: 'Votre mot de passe actuel est incorrect.' });
+      return;
+    }
+
+    await db
+      .update(users)
+      .set({ passwordHash: await hashPassword(parsed.data.newPassword), updatedAt: new Date() })
+      .where(eq(users.id, user.id));
+
+    res.json({ ok: true });
+  }),
+);
+
+/* --- Commandes du compte -------------------------------------------- */
+
+app.get(
+  '/api/account/orders',
+  requireClient,
+  asyncHandler(async (req: ClientRequest, res: Response) => {
+    const rows = await db
+      .select()
+      .from(orders)
+      .where(eq(orders.userId, req.client!.sub))
+      .orderBy(desc(orders.createdAt));
+
+    // Le nom de la formule est joint : la commande ne stocke que son
+    // identifiant, pour éviter de figer un libellé qui changerait ensuite.
+    const packs = await db.select().from(packages);
+    const packName = (id: string | null) =>
+      packs.find((p) => p.id === id)?.name ?? 'Formule';
+
+    // Le client voit l'avancement de ses propres commandes, et rien d'autre :
+    // ni les notes internes, ni les instructions de production.
+    res.json(
+      rows.map((o) => ({
+        id: o.id,
+        reference: o.reference,
+        trackingToken: o.trackingToken,
+        status: o.status,
+        paymentStatus: o.paymentStatus,
+        packageName: packName(o.packageId),
+        amountCents: o.amountCents,
+        currency: o.currency,
+        recipientName: o.recipientName,
+        occasion: o.occasion,
+        songTitle: o.songTitle,
+        finalAudioUrl: o.finalAudioUrl,
+        coverImageUrl: o.coverImageUrl,
+        memoryPageId: o.memoryPageId,
+        desiredDeliveryDate: o.desiredDeliveryDate,
+        createdAt: o.createdAt,
+      })),
+    );
+  }),
+);
+
+/* --- Mot de passe oublié -------------------------------------------- */
+
+app.post(
+  '/api/account/forgot',
+  asyncHandler(async (req: Request, res: Response) => {
+    maybePurge();
+    const ip = clientIp(req);
+    const limit = await rateLimit(`forgot:${ip}`, 5, 60 * 60 * 1000);
+    if (!limit.ok) {
+      res
+        .status(429)
+        .set('Retry-After', String(limit.retryAfter))
+        .json({ error: 'Trop de demandes. Réessayez plus tard.' });
+      return;
+    }
+
+    const parsed = forgotSchema.safeParse(req.body);
+    if (!parsed.success) {
+      // Réponse neutre : ne jamais révéler si un compte existe.
+      res.json({ ok: true });
+      return;
+    }
+
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, parsed.data.email))
+      .limit(1);
+
+    if (user) {
+      const token = generateResetToken();
+      await db
+        .update(users)
+        .set({
+          resetToken: token,
+          resetTokenExpiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 h
+        })
+        .where(eq(users.id, user.id));
+
+      // Sans service d'e-mail configuré, le jeton est journalisé : il faut
+      // pouvoir le transmettre au client d'une manière ou d'une autre.
+      console.log(`[Compte] Réinitialisation demandée pour ${user.email} — jeton ${token}`);
+    }
+
+    // Toujours la même réponse, que le compte existe ou non.
+    res.json({ ok: true });
+  }),
+);
+
+app.post(
+  '/api/account/reset',
+  asyncHandler(async (req: Request, res: Response) => {
+    maybePurge();
+    const parsed = resetSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({
+        error: parsed.error.issues[0]?.message ?? 'Demande invalide.',
+      });
+      return;
+    }
+
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.resetToken, parsed.data.token))
+      .limit(1);
+
+    const expired =
+      !user ||
+      !user.resetTokenExpiresAt ||
+      user.resetTokenExpiresAt.getTime() < Date.now();
+
+    if (expired) {
+      res.status(400).json({ error: 'Ce lien a expiré. Demandez-en un nouveau.' });
+      return;
+    }
+
+    await db
+      .update(users)
+      .set({
+        passwordHash: await hashPassword(parsed.data.password),
+        resetToken: null,
+        resetTokenExpiresAt: null,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, user.id));
+
+    res.json({ ok: true });
+  }),
+);
 
 /* ================================================================== */
 /*  ADMINISTRATION — tout ce qui suit exige une session                  */

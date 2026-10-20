@@ -275,3 +275,43 @@ export const aiSchema = z
     eventDate: z.string().trim().max(50).optional(),
   })
   .strict();
+
+/* ------------------------------------------------------------------ */
+/*  Comptes clients                                                     */
+/* ------------------------------------------------------------------ */
+
+export const registerSchema = z.object({
+  name: z.string().trim().min(2, 'Votre nom est trop court.').max(120),
+  email: z.string().trim().toLowerCase().email('Adresse e-mail invalide.'),
+  password: z
+    .string()
+    .min(8, 'Choisissez un mot de passe d\'au moins 8 caractères.')
+    .max(200),
+  phone: z.string().trim().max(40).optional(),
+});
+
+export const clientLoginSchema = z.object({
+  email: z.string().trim().toLowerCase().email(),
+  password: z.string().min(1),
+});
+
+export const updateProfileSchema = z.object({
+  name: z.string().trim().min(2).max(120).optional(),
+  phone: z.string().trim().max(40).optional(),
+  city: z.string().trim().max(120).optional(),
+  country: z.string().trim().max(120).optional(),
+});
+
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1),
+  newPassword: z.string().min(8, 'Au moins 8 caractères.').max(200),
+});
+
+export const forgotSchema = z.object({
+  email: z.string().trim().toLowerCase().email(),
+});
+
+export const resetSchema = z.object({
+  token: z.string().trim().min(20),
+  password: z.string().min(8, 'Au moins 8 caractères.').max(200),
+});

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Menu, X, MessageCircle, Music, Globe, ChevronDown, ArrowRight } from 'lucide-react';
+import { Menu, X, MessageCircle, Music, Globe, ChevronDown, ArrowRight, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useLanguage } from '../context/LanguageContext.js';
 import InstallButton from './InstallButton.js';
@@ -7,9 +7,11 @@ import InstallButton from './InstallButton.js';
 interface NavbarProps {
   currentPage: string;
   onNavigate: (page: string, params?: unknown) => void;
+  /** `null` pendant la vérification : on n'affiche encore rien. */
+  clientConnecte?: boolean | null;
 }
 
-export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
+export default function Navbar({ currentPage, onNavigate, clientConnecte }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [showLangDropdown, setShowLangDropdown] = useState(false);
@@ -148,6 +150,21 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
             </div>
 
             <InstallButton variant="navbar" onNavigate={handleNav} />
+
+            {/* Accès au compte : discret pour ne pas voler la vedette à
+                l'appel principal, mais toujours visible. */}
+            {clientConnecte !== null && (
+              <button
+                onClick={() => handleNav(clientConnecte ? 'myaccount' : 'account')}
+                aria-label={clientConnecte ? 'Mon espace' : 'Me connecter'}
+                className="flex items-center gap-1.5 px-3 py-2.5 rounded-full border border-white/[0.09] bg-white/[0.03] text-[#A2ABB5] hover:text-white hover:bg-white/[0.07] text-xs font-bold transition-all cursor-pointer"
+              >
+                <User className="w-3.5 h-3.5" />
+                <span className="hidden xl:inline">
+                  {clientConnecte ? 'Mon espace' : 'Connexion'}
+                </span>
+              </button>
+            )}
 
             <button
               onClick={() => handleNav('order')}

@@ -10,6 +10,7 @@ import PromotionBanner from './components/PromotionBanner.js';
 
 import { Package, GallerySong, ClientReview, PromotionSettings } from './types.js';
 import { useSEO, useJsonLd } from './hooks/useSEO.js';
+import { api } from './lib/api.js';
 import {
   PAGE_PATHS,
   pathToPage,
@@ -30,6 +31,8 @@ const MemoryPageComp = lazy(() => import('./pages/MemoryPage.js'));
 const Tracking = lazy(() => import('./pages/Tracking.js'));
 const InstallGuide = lazy(() => import('./pages/InstallGuide.js'));
 const PackagePage = lazy(() => import('./pages/PackagePage.js'));
+const Account = lazy(() => import('./pages/Account.js'));
+const MyAccount = lazy(() => import('./pages/MyAccount.js'));
 const Admin = lazy(() => import('./pages/Admin.js'));
 
 // Extend Window interface for Google Analytics tracking
@@ -56,6 +59,7 @@ export default function App() {
   const [pageParams, setPageParams] = useState<any>(null);
   const [memorySlug, setMemorySlug] = useState('maman-georgette');
   const [packSlug, setPackSlug] = useState('');
+  const [clientConnecte, setClientConnecte] = useState<boolean | null>(null);
 
   /**
    * Référencement de l'écran courant.
@@ -193,6 +197,21 @@ export default function App() {
     fetch('/api/stats/visit', { method: 'POST' }).catch(() => {});
   }, [currentPage]);
 
+  /**
+   * Le visiteur est-il connu ?
+   *
+   * La réponse n'est connue qu'après un aller-retour serveur. Tant qu'on
+   * ne sait pas, on n'affiche rien plutôt que de montrer « Connexion » à
+   * quelqu'un qui est déjà connecté — le bouton clignoterait à chaque
+   * chargement.
+   */
+  useEffect(() => {
+    api.account
+      .me()
+      .then(() => setClientConnecte(true))
+      .catch(() => setClientConnecte(false));
+  }, []);
+
   const loadInitialData = async () => {
     try {
       const [pkgsRes, galleryRes, reviewsRes, promoRes] = await Promise.all([
@@ -266,7 +285,11 @@ export default function App() {
       <PromotionBanner promotion={promotion} onNavigate={handleNavigate} />
 
       {/* Dynamic Header Navbar */}
-      <Navbar currentPage={currentPage} onNavigate={handleNavigate} />
+      <Navbar
+        currentPage={currentPage}
+        onNavigate={handleNavigate}
+        clientConnecte={clientConnecte}
+      />
 
       {/* Main Page Canvas */}
       <main className="flex-grow relative">
@@ -333,6 +356,26 @@ export default function App() {
 
             {currentPage === 'tracking' && (
               <Tracking initialOrderId={pageParams?.id || ''} onNavigate={handleNavigate} />
+            )}
+
+            {currentPage === 'account' && (
+              <Account
+                onAuthenticated={() => {
+                  setClientConnecte(true);
+                  handleNavigate('myaccount');
+                }}
+                onNavigate={handleNavigate}
+              />
+            )}
+
+            {currentPage === 'myaccount' && (
+              <MyAccount
+                onNavigate={handleNavigate}
+                onLoggedOut={() => {
+                  setClientConnecte(false);
+                  handleNavigate('home');
+                }}
+              />
             )}
 
             {currentPage === 'admin' && (

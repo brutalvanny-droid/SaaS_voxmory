@@ -65,6 +65,15 @@ export const orders = pgTable(
     status: text('status').notNull().default('Nouvelle'),
     paymentStatus: text('payment_status').notNull().default('Unpaid'),
 
+    /**
+     * Compte client associé, s'il existe.
+     *
+     * Resté volontairement vide pour les commandes passées en invité : la
+     * commande doit rester possible sans inscription. Rempli à la création du
+     * compte pour les commandes déjà passées avec la même adresse e-mail.
+     */
+    userId: text('user_id').references(() => users.id, { onDelete: 'set null' }),
+
     /* Client */
     customerName: text('customer_name').notNull(),
     customerPhone: text('customer_phone').notNull(),
@@ -120,6 +129,8 @@ export const orders = pgTable(
     uniqueIndex('orders_tracking_token_unique').on(t.trackingToken),
     index('orders_created_at_idx').on(t.createdAt),
     index('orders_status_idx').on(t.status),
+    index('orders_user_idx').on(t.userId),
+    index('orders_email_idx').on(t.customerEmail),
   ],
 );
 
@@ -356,9 +367,51 @@ export const auditLogs = pgTable(
 );
 
 /* ------------------------------------------------------------------ */
+/*  Comptes clients                                                     */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Les clients qui créent un compte.
+ *
+ * La commande reste possible sans compte — c'est indispensable : imposer une
+ * inscription avant de payer fait fuir une grande partie des acheteurs. Le
+ * compte sert à retrouver ses chansons plus tard, pas à passer commande.
+ *
+ * On rattache donc les commandes après coup : une personne qui commande en
+ * invité puis crée un compte avec la même adresse e-mail voit son historique
+ * se compléter automatiquement.
+ */
+export const users = pgTable(
+  'users',
+  {
+    id: text('id').primaryKey(),
+    email: text('email').notNull(),
+    passwordHash: text('password_hash').notNull(),
+    name: text('name').notNull(),
+    phone: text('phone'),
+    city: text('city'),
+    country: text('country'),
+
+    isActive: boolean('is_active').notNull().default(true),
+    /** Jeton de réinitialisation, effacé dès qu'il a servi. */
+    resetToken: text('reset_token'),
+    resetTokenExpiresAt: timestamp('reset_token_expires_at', { withTimezone: true }),
+
+    lastLoginAt: timestamp('last_login_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex('users_email_unique').on(t.email),
+    index('users_created_idx').on(t.createdAt),
+  ],
+);
+
+/* ------------------------------------------------------------------ */
 /*  Types inférés                                                       */
 /* ------------------------------------------------------------------ */
 
+export type User = typeof users.$inferSelect;
 export type AdminUser = typeof adminUsers.$inferSelect;
 export type Package = typeof packages.$inferSelect;
 export type Order = typeof orders.$inferSelect;

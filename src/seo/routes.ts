@@ -95,6 +95,20 @@ const ROUTES: Record<string, RouteSeo> = {
     path: '/tarifs',
     h1: 'Nos formules',
   },
+  account: {
+    title: 'Connexion — Mon espace VOXMORY',
+    description:
+      "Connectez-vous pour retrouver vos chansons et suivre vos commandes. Pas encore de compte ? Créez-en un en trente secondes.",
+    path: '/compte',
+    h1: 'Mon espace',
+  },
+  myaccount: {
+    title: 'Mes Chansons — Mon espace VOXMORY',
+    description:
+      "Retrouvez toutes vos chansons personnalisées, suivez l'avancement de vos commandes et téléchargez vos fichiers audio.",
+    path: '/mon-compte',
+    h1: 'Mon espace',
+  },
   tracking: {
     title: 'Suivre ma Commande de Chanson | VOXMORY',
     description:
@@ -115,6 +129,8 @@ export const PAGE_PATHS: Record<string, string> = {
   reviews: '/avis',
   pricing: '/tarifs',
   tracking: '/suivi',
+  account: '/compte',
+  myaccount: '/mon-compte',
 };
 
 /** Retrouve l'écran interne depuis une adresse publique. */

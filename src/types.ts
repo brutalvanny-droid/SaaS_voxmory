@@ -273,3 +273,43 @@ export interface Money {
   currency: string;
   label: string;
 }
+
+/* ------------------------------------------------------------------ */
+/*  Compte client                                                       */
+/* ------------------------------------------------------------------ */
+
+export interface ClientUser {
+  id: string;
+  email: string;
+  name: string;
+  phone: string | null;
+  city: string | null;
+  country: string | null;
+  createdAt: string;
+}
+
+/**
+ * Une commande vue par son propriétaire.
+ *
+ * Volontairement plus restreinte que la vue du studio : ni notes internes,
+ * ni instructions de production — uniquement de quoi suivre et récupérer
+ * sa chanson.
+ */
+export interface ClientOrder {
+  id: string;
+  reference: string;
+  trackingToken: string;
+  status: string;
+  paymentStatus: string;
+  packageName: string;
+  amountCents: number | null;
+  currency: string | null;
+  recipientName: string;
+  occasion: string | null;
+  songTitle: string | null;
+  finalAudioUrl: string | null;
+  coverImageUrl: string | null;
+  memoryPageId: string | null;
+  desiredDeliveryDate: string | null;
+  createdAt: string;
+}
