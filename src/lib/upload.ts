@@ -81,7 +81,7 @@ export async function uploadFile(file: File, admin = false): Promise<string> {
      * l'adresse sans rien savoir de tout ceci.
      */
     if (access === 'private') {
-      return `/api/media/${blob.pathname}`;
+      return `/api/media/${cheminReel(blob)}`;
     }
     return blob.url;
   } catch (err) {
@@ -89,6 +89,24 @@ export async function uploadFile(file: File, admin = false): Promise<string> {
     // incompréhensibles pour un client. On les traduit en langage courant.
     throw new Error(expliquerEchec(err, file));
   }
+}
+
+/**
+ * Chemin réellement occupé par le fichier.
+ *
+ * Piège : `blob.pathname` renvoie le chemin *demandé*, alors que le service
+ * ajoute un suffixe aléatoire quand `addRandomSuffix` est actif — ce qui est
+ * notre cas. Suivre `pathname` menait donc à une adresse qui n'existe pas :
+ * le fichier était bien stocké, mais introuvable.
+ *
+ * Seule l'adresse `blob.url` porte le vrai chemin. On l'utilise donc comme
+ * source de vérité, avec repli sur `pathname` si elle manquait.
+ */
+function cheminReel(blob: { pathname: string; url: string }): string {
+  const marque = '.blob.vercel-storage.com/';
+  const i = blob.url.indexOf(marque);
+  if (i === -1) return blob.pathname;
+  return blob.url.slice(i + marque.length).split('?')[0];
 }
 
 /**
