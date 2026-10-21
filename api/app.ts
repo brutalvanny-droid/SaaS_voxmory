@@ -393,8 +393,17 @@ app.post(
       });
       if (res.headersSent) return;
     } else {
-      // Accès public : quota strict, sinon le stockage devient une cible.
-      const limit = await rateLimit(`upload:${clientIp(req)}`, 5, 60 * 60 * 1000);
+      /**
+       * Accès public : quota strict, sinon le stockage devient une cible.
+       *
+       * Vingt envois par heure et par adresse, et non cinq : une commande
+       * complète comprend une note vocale et plusieurs photos, et un client
+       * qui hésite ou se reprend consomme plusieurs essais. Sur les réseaux
+       * mobiles l'adresse est partagée entre des dizaines d'abonnés, donc un
+       * quota trop bas finissait par bloquer des clients parfaitement
+       * honnêtes.
+       */
+      const limit = await rateLimit(`upload:${clientIp(req)}`, 20, 60 * 60 * 1000);
       if (!limit.ok) {
         res.status(429).json({ error: 'Trop de fichiers envoyés. Réessayez plus tard.' });
         return;
