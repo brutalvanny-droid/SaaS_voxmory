@@ -93,8 +93,21 @@ export async function handleClientUpload(
         maximumSizeInBytes: maxBytes,
         allowedContentTypes: ALLOWED_UPLOAD_TYPES,
         addRandomSuffix: true,
-        // Les fichiers sont publics : ce sont des chansons et des
-        // couvertures destinées à être diffusées et partagées.
+        /**
+         * Le magasin de ce projet est privé.
+         *
+         * Sans cette ligne, le service fabrique un jeton d'accès public et
+         * refuse l'envoi avec « Cannot use public access on a private
+         * store » — ce qui, chez le client, se traduisait par un échec de
+         * téléversement sans plus d'explication. Autrement dit : tous les
+         * envois échouaient, images comme sons.
+         *
+         * Le caractère privé n'empêche pas la diffusion : la lecture passe
+         * par /api/media/, qui fabrique une adresse signée à la demande.
+         * C'est même plus sûr — personne ne peut deviner l'adresse d'un
+         * fichier qu'on n'a pas partagé.
+         */
+        access: 'private',
         allowUpload: true,
         //
         // Validité du jeton : 30 minutes, et non 60 secondes.
