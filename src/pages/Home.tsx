@@ -16,6 +16,8 @@ import AudioPlayer from '../components/AudioPlayer.js';
 import Reveal from '../components/Reveal.js';
 import MeshBackground from '../components/MeshBackground.js';
 import HeroVideo from '../components/HeroVideo.js';
+import { useHomeConfig } from '../hooks/useHomeConfig.js';
+import BadgePromo from '../components/BadgePromo.js';
 import type { ClientReview, GallerySong, Package } from '../types.js';
 import { PACK_SLUGS } from '../seo/routes.js';
 
@@ -72,6 +74,7 @@ export default function Home({
   onNavigate,
 }: HomeProps) {
   const { t } = useLanguage();
+  const home = useHomeConfig();
 
   const steps = [
     {
@@ -95,6 +98,17 @@ export default function Home({
         <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pt-16 pb-24 sm:pt-24 sm:pb-32">
           <div className="max-w-4xl">
             {/* Pastille */}
+            {home.promo.actif && home.promo.texte && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                className={`mb-6 ${home.promo.position === 'droite' ? 'flex justify-end' : ''}`}
+              >
+                <BadgePromo promo={home.promo} />
+              </motion.div>
+            )}
+
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}

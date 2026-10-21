@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, lazy, Suspense } from 'react';
+import { useState, useEffect, useMemo, useCallback, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Loader2, ArrowRight } from 'lucide-react';
 import Navbar from './components/Navbar.js';
@@ -13,6 +13,7 @@ import { useSEO, useJsonLd } from './hooks/useSEO.js';
 import { signalerVue } from './lib/visiteur.js';
 import WhatsAppButton from './components/WhatsAppButton.js';
 import { api } from './lib/api.js';
+import { memeContenu } from './lib/egalite.js';
 import {
   PAGE_PATHS,
   pathToPage,
@@ -228,41 +229,80 @@ export default function App() {
       .catch(() => setClientConnecte(false));
   }, []);
 
-  const loadInitialData = async () => {
-    try {
-      const [pkgsRes, galleryRes, reviewsRes, promoRes] = await Promise.all([
-        fetch('/api/packages'),
-        fetch('/api/gallery'),
-        fetch('/api/reviews'),
-        fetch('/api/promotion'),
-      ]);
+  /**
+   * Chargement initial — et synchronisation continue.
+   *
+   * Ces quatre collections changent depuis le studio pendant que le
+   * visiteur a la page ouverte. On les relit donc périodiquement : une
+   * chanson publiée ou une promotion lancée apparaît sans que personne
+   * n'ait à recharger.
+   */
+  const chargerDonnees = useCallback(async () => {
+    const [pkgs, chansons, avis, promo] = await Promise.all([
+      api.packages(),
+      api.gallery(),
+      api.reviews(),
+      api.promotion(),
+    ]);
 
-      if (pkgsRes.ok) {
-        const pkgs = await pkgsRes.json();
-        setPackages(pkgs);
-      }
-      if (galleryRes.ok) {
-        const songs = await galleryRes.json();
-        setGallerySongs(songs);
-      }
-      if (reviewsRes.ok) {
-        const revs = await reviewsRes.json();
-        // Select only a few featured reviews
-        setFeaturedReviews(revs.filter((r: any) => r.approved === true).slice(0, 3));
-      }
-      if (promoRes.ok) {
-        const promo = await promoRes.json();
-        setPromotion(promo);
-      }
-    } catch (err) {
-      console.error('Error loading initial data in App.tsx', err);
-    }
-  };
+    setPackages((actuel) => (memeContenu(actuel, pkgs) ? actuel : pkgs));
+    setGallerySongs((actuel) => (memeContenu(actuel, chansons) ? actuel : chansons));
 
-  // Fetch initial collections
-  useEffect(() => {
-    loadInitialData();
+    const visibles = avis.filter((r) => r.approved === true).slice(0, 3);
+    setFeaturedReviews((actuel) => (memeContenu(actuel, visibles) ? actuel : visibles));
+
+    setPromotion((actuel) => (memeContenu(actuel, promo) ? actuel : promo));
   }, []);
+
+  useEffect(() => {
+    let minuteur: ReturnType<typeof setInterval> | null = null;
+
+    const lancer = () => {
+      chargerDonnees().catch(() => {
+        /* Une panne passagère garde l'écran affiché : on retentera. */
+      });
+    };
+
+    const arreter = () => {
+      if (minuteur !== null) {
+        clearInterval(minuteur);
+        minuteur = null;
+      }
+    };
+
+    const demarrer = () => {
+      if (minuteur === null) {
+        // Une minute : assez rapide pour une promotion, assez lent pour
+        // ne pas peser sur la connexion d'un téléphone.
+        minuteur = setInterval(() => {
+          if (document.visibilityState === 'visible') lancer();
+        }, 60_000);
+      }
+    };
+
+    // On ne synchronise que si l'onglet est visible. Un onglet caché ne
+    // montrerait rien de ce qu'il télécharge.
+    const surVisibilite = () => {
+      if (document.visibilityState === 'visible') {
+        lancer();
+        demarrer();
+      } else {
+        arreter();
+      }
+    };
+
+    lancer();
+    if (document.visibilityState === 'visible') demarrer();
+
+    document.addEventListener('visibilitychange', surVisibilite);
+    window.addEventListener('online', lancer);
+
+    return () => {
+      arreter();
+      document.removeEventListener('visibilitychange', surVisibilite);
+      window.removeEventListener('online', lancer);
+    };
+  }, [chargerDonnees]);
 
   // Handle direct router triggers with state arguments
   const handleNavigate = (page: string, params: any = null) => {
@@ -395,7 +435,7 @@ export default function App() {
             )}
 
             {currentPage === 'admin' && (
-              <Admin onNavigate={handleNavigate} onPromotionChanged={loadInitialData} />
+              <Admin onNavigate={handleNavigate} onPromotionChanged={() => void chargerDonnees()} />
             )}
 
             {currentPage === 'install' && (

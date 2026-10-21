@@ -1,6 +1,7 @@
 import type {
   AdminSession,
   Analytics,
+  HomeConfig,
   BroadcastCampaign,
   BroadcastList,
   ClientOrder,
@@ -58,6 +59,7 @@ export const api = {
   /* ------------------------- Public ------------------------- */
 
   packages: () => request<Package[]>('/api/packages'),
+  home: () => request<HomeConfig>('/api/home'),
   gallery: () => request<GallerySong[]>('/api/gallery'),
   reviews: () => request<ClientReview[]>('/api/reviews'),
   promotion: () => request<PromotionSettings>('/api/promotion'),
@@ -262,6 +264,10 @@ export const api = {
         method: 'POST',
         ...body(phone ? { phone } : {}),
       }),
+
+    home: () => request<HomeConfig>('/api/admin/home'),
+    saveHome: (config: HomeConfig) =>
+      request<HomeConfig>('/api/admin/home', { method: 'PUT', ...body(config) }),
 
     analytics: (days = 30) =>
       request<Analytics>(`/api/admin/analytics?days=${encodeURIComponent(String(days))}`),

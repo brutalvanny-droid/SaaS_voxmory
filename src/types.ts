@@ -427,3 +427,23 @@ export interface Analytics {
     createdAt: string;
   }[];
 }
+
+/* ------------------------------------------------------------------ */
+/*  Vitrine : ce que le studio pilote depuis les réglages               */
+/* ------------------------------------------------------------------ */
+
+export interface HomeConfig {
+  hero: {
+    videoUrl: string;
+    webmUrl: string;
+    posterUrl: string;
+  };
+  promo: {
+    actif: boolean;
+    texte: string;
+    sousTexte: string;
+    forme: 'pastille' | 'ruban' | 'eclair';
+    couleur: 'vert' | 'rouge' | 'or' | 'bleu';
+    position: 'gauche' | 'droite';
+  };
+}

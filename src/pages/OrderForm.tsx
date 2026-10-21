@@ -1,23 +1,41 @@
 import { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
+  BookOpen,
   Check,
   ChevronLeft,
   ChevronRight,
+  ClipboardCheck,
   Loader2,
   Upload,
   Mic,
+  Music4,
   PenLine,
   MessageCircle,
   AlertCircle,
   Copy,
   CreditCard,
+  User,
 } from 'lucide-react';
 import { api } from '../lib/api.js';
 import { uploadFile } from '../lib/upload.js';
 import type { Order, Package } from '../types.js';
 
 const STEPS = ['Vous', 'L’histoire', 'La musique', 'Récapitulatif'];
+
+/**
+ * Chaque étape est annoncée par une image avant d'être nommée.
+ *
+ * Tout le monde ne lit pas couramment, et personne ne lit un formulaire
+ * avec attention. Le pictogramme et la phrase courte disent où l'on est
+ * avant même d'avoir déchiffré le titre.
+ */
+const ETAPES = [
+  { icone: User, titre: 'Vous', question: 'À qui appartient cette chanson ?', aide: 'Vos coordonnées, pour vous livrer.' },
+  { icone: BookOpen, titre: 'L’histoire', question: 'De qui parle-t-on ?', aide: 'Plus vous en dites, plus la chanson sonne juste.' },
+  { icone: Music4, titre: 'La musique', question: 'Quel son doit-elle avoir ?', aide: 'Une ambiance et un style suffisent.' },
+  { icone: ClipboardCheck, titre: 'Récapitulatif', question: 'Tout est-il correct ?', aide: 'Relisez, puis envoyez.' },
+] as const;
 
 const OCCASIONS = [
   'Anniversaire',
@@ -57,6 +75,7 @@ export default function OrderForm({ packages, onNavigate, onSubmitSuccess }: Pro
   const [submitting, setSubmitting] = useState(false);
   const [created, setCreated] = useState<Order | null>(null);
   const [uploading, setUploading] = useState<'audio' | 'photo' | null>(null);
+  const [consentement, setConsentement] = useState(false);
 
   const [form, setForm] = useState({
     customerName: '',
@@ -152,6 +171,19 @@ export default function OrderForm({ packages, onNavigate, onSubmitSuccess }: Pro
   };
 
   const submit = async () => {
+    /**
+     * On ne raccourcit pas : la dernière étape demande une confirmation
+     * explicite. Une commande envoyée par inadvertance coûte plus cher à
+     * défaire que le temps de cocher une case.
+     */
+    if (!consentement) {
+      setFieldErrors((e) => ({
+        ...e,
+        consentement: 'Cochez la case pour confirmer votre commande.',
+      }));
+      return;
+    }
+
     setSubmitting(true);
     setError('');
     try {
@@ -221,26 +253,26 @@ export default function OrderForm({ packages, onNavigate, onSubmitSuccess }: Pro
       </header>
 
       <div className="flex items-center justify-between mb-8">
-        {STEPS.map((label, i) => (
-          <div key={label} className="flex-1 flex items-center">
+        {ETAPES.map(({ icone: Icone, titre }, i) => (
+          <div key={titre} className="flex-1 flex items-center">
             <div className="flex flex-col items-center gap-1.5 flex-1">
               <div
-                className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                className={`w-11 h-11 rounded-full flex items-center justify-center transition-all ${
                   i < step
                     ? 'bg-emerald-500 text-black'
                     : i === step
-                      ? 'bg-[#A3FF12] text-black'
+                      ? 'bg-[#A3FF12] text-black ring-4 ring-[#A3FF12]/25'
                       : 'bg-white/10 text-[#8A949F]'
                 }`}
               >
-                {i < step ? <Check className="w-4 h-4" /> : i + 1}
+                {i < step ? <Check className="w-5 h-5" /> : <Icone className="w-5 h-5" />}
               </div>
               <span
-                className={`text-[10px] uppercase tracking-wide ${
-                  i === step ? 'text-[#A3FF12] font-bold' : 'text-[#6C7581]'
+                className={`text-[11px] font-bold ${
+                  i === step ? 'text-[#A3FF12]' : 'text-[#6C7581]'
                 }`}
               >
-                {label}
+                {titre}
               </span>
             </div>
             {i < STEPS.length - 1 && (
@@ -269,6 +301,24 @@ export default function OrderForm({ packages, onNavigate, onSubmitSuccess }: Pro
             transition={{ duration: 0.18 }}
             className="space-y-5"
           >
+            {/* Où en est-on ? Dit en image, puis en une phrase. */}
+            <div className="flex items-start gap-3 pb-4 mb-1 border-b border-white/[0.07]">
+              <span className="w-11 h-11 rounded-xl bg-[#A3FF12]/12 grid place-items-center flex-shrink-0">
+                {(() => {
+                  const Icone = ETAPES[step]?.icone ?? User;
+                  return <Icone className="w-5 h-5 text-[#A3FF12]" />;
+                })()}
+              </span>
+              <span>
+                <span className="block text-[16px] font-extrabold text-white leading-tight">
+                  {ETAPES[step]?.question}
+                </span>
+                <span className="block text-[12.5px] text-[#8A949F] mt-0.5 leading-relaxed">
+                  {ETAPES[step]?.aide}
+                </span>
+              </span>
+            </div>
+
             {step === 0 && (
               <>
                 <div className="grid sm:grid-cols-2 gap-4">
@@ -418,6 +468,31 @@ export default function OrderForm({ packages, onNavigate, onSubmitSuccess }: Pro
                       placeholder="Elle a élevé ses enfants seule à Goma, adore les fleurs et rit toujours en préparant le foufou…"
                     />
                   </Field>
+                )}
+
+                {/* Encouragement au fil de la frappe.
+                    On ne mesure pas pour contraindre, mais pour rassurer :
+                    « vous y êtes presque » se lit mieux qu'un compteur nu. */}
+                {form.storyOption === 'write' && form.storyText.trim().length > 0 && (
+                  <p
+                    className={`text-[12.5px] flex items-center gap-1.5 ${
+                      form.storyText.trim().length >= 15
+                        ? 'text-emerald-400'
+                        : 'text-[#8A949F]'
+                    }`}
+                  >
+                    {form.storyText.trim().length >= 15 ? (
+                      <>
+                        <Check className="w-3.5 h-3.5" />
+                        Parfait, nous avons de quoi travailler.
+                      </>
+                    ) : (
+                      <>
+                        Encore {15 - form.storyText.trim().length} caractères —
+                        décrivez un souvenir, même bref.
+                      </>
+                    )}
+                  </p>
                 )}
 
                 {form.storyOption === 'audio' && (
@@ -608,9 +683,39 @@ export default function OrderForm({ packages, onNavigate, onSubmitSuccess }: Pro
                   </span>
                 </div>
 
+                <label className="flex items-start gap-3 p-4 rounded-xl bg-black/40 border border-white/10 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={consentement}
+                    onChange={(e) => {
+                      setConsentement(e.target.checked);
+                      setFieldErrors((err) => {
+                        if (!('consentement' in err)) return err;
+                        const n = { ...err };
+                        delete n['consentement'];
+                        return n;
+                      });
+                    }}
+                    className="mt-0.5 w-5 h-5 accent-[#A3FF12] flex-shrink-0"
+                  />
+                  <span className="text-[13px] text-[#C3CAD2] leading-relaxed">
+                    J'ai tout relu et je confirme ma commande.
+                    <span className="block text-[#8A949F] text-[12px] mt-1">
+                      Vous réglerez à l'étape suivante, par mobile money ou
+                      carte. Rien n'est débité maintenant.
+                    </span>
+                  </span>
+                </label>
+
+                {fieldErrors.consentement && (
+                  <p className="text-[12.5px] text-red-300 flex items-center gap-1.5">
+                    <AlertCircle className="w-3.5 h-3.5" />
+                    {fieldErrors.consentement}
+                  </p>
+                )}
+
                 <p className="text-[11px] text-[#8A949F] leading-relaxed">
                   Le prix est calculé sur le serveur à partir de la formule choisie.
-                  Vous réglez à l'étape suivante par mobile money ou carte via SasPay.
                 </p>
               </div>
             )}
@@ -622,7 +727,7 @@ export default function OrderForm({ packages, onNavigate, onSubmitSuccess }: Pro
             type="button"
             onClick={() => setStep((s) => Math.max(0, s - 1))}
             disabled={step === 0}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-xs font-bold text-[#A2ABB5] hover:text-white disabled:opacity-30"
+            className="flex items-center gap-2 px-5 py-3.5 rounded-xl text-[14px] font-bold text-[#A2ABB5] hover:text-white disabled:opacity-30"
           >
             <ChevronLeft className="w-4 h-4" /> Retour
           </button>
@@ -631,7 +736,7 @@ export default function OrderForm({ packages, onNavigate, onSubmitSuccess }: Pro
             <button
               type="button"
               onClick={next}
-              className="flex items-center gap-1.5 px-5 py-2.5 rounded-lg bg-[#A3FF12] hover:bg-[#A3FF12] text-black text-xs font-black uppercase tracking-wide"
+              className="flex items-center gap-2 px-7 py-3.5 rounded-xl bg-[#A3FF12] hover:bg-[#8FE00F] text-black text-[14px] font-black transition-colors"
             >
               Continuer <ChevronRight className="w-4 h-4" />
             </button>
@@ -640,10 +745,10 @@ export default function OrderForm({ packages, onNavigate, onSubmitSuccess }: Pro
               type="button"
               onClick={() => void submit()}
               disabled={submitting}
-              className="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-[#A3FF12] hover:bg-[#A3FF12] text-black text-xs font-black uppercase tracking-wide disabled:opacity-50"
+              className="flex items-center gap-2 px-7 py-3.5 rounded-xl bg-[#A3FF12] hover:bg-[#8FE00F] text-black text-[14px] font-black transition-colors disabled:opacity-50"
             >
               {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
-              Envoyer ma commande
+              Confirmer et payer
             </button>
           )}
         </div>

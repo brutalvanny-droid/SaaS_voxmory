@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useReducedMotion } from 'motion/react';
+import { useHomeConfig } from '../hooks/useHomeConfig.js';
 
 /**
  * Vidéo d'accueil.
@@ -29,6 +30,17 @@ export default function HeroVideo({ className = '' }: { className?: string }) {
   const ref = useRef<HTMLVideoElement>(null);
   const [pret, setPret] = useState(false);
   const mouvementReduit = useReducedMotion();
+
+  /**
+   * Médias choisis depuis le studio.
+   *
+   * Lus en direct : une vidéo remplacée à l'instant apparaît sans que
+   * personne n'ait à recharger quoi que ce soit.
+   */
+  const home = useHomeConfig();
+  const affiche = home.hero.posterUrl || '/images/hero-poster.jpg';
+  const video = home.hero.videoUrl;
+  const webm = home.hero.webmUrl;
 
   useEffect(() => {
     // Rien ne sert de lancer le téléchargement avant que la page soit
@@ -70,7 +82,7 @@ export default function HeroVideo({ className = '' }: { className?: string }) {
         fetchPriority="high"
       />
 
-      {pret && (
+      {pret && video && (
         <video
           ref={ref}
           className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${className}`}
@@ -81,16 +93,19 @@ export default function HeroVideo({ className = '' }: { className?: string }) {
           loop
           playsInline
           preload="auto"
-          poster="/images/hero-poster.jpg"
+          poster={affiche}
           aria-hidden="true"
           tabIndex={-1}
           onCanPlay={(e) => {
             e.currentTarget.style.opacity = '1';
           }}
           style={{ opacity: 0 }}
+          // Le changement de clé force le rechargement quand le studio
+          // remplace la vidéo : sans cela, l'ancienne continuerait.
+          key={video}
         >
-          <source src="/images/hero.webm" type="video/webm" />
-          <source src="/images/hero.mp4" type="video/mp4" />
+          {webm && <source src={webm} type="video/webm" />}
+          {video && <source src={video} type="video/mp4" />}
         </video>
       )}
 

@@ -321,3 +321,54 @@ export const resetSchema = z.object({
   token: z.string().trim().min(20),
   password: z.string().min(8, 'Au moins 8 caractères.').max(200),
 });
+
+/* ------------------------------------------------------------------ */
+/*  Vitrine : ce que le studio peut changer sans toucher au code       */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Un média peut être déposé (adresse commençant par « / ») ou repris
+ * d'ailleurs (adresse complète). On accepte les deux : une vidéo déjà en
+ * ligne ne doit pas obliger à la retéléverser.
+ */
+const mediaUrl = z
+  .string()
+  .trim()
+  .max(600)
+  .refine(
+    (v) => v === '' || v.startsWith('/') || /^https?:\/\//i.test(v),
+    { message: 'Adresse invalide : elle doit commencer par « / » ou « https:// ».' },
+  );
+
+export const homeConfigSchema = z.object({
+  hero: z.object({
+    /** Vidéo d'accueil. Vide : on n'affiche que l'affiche. */
+    videoUrl: mediaUrl.default(''),
+    webmUrl: mediaUrl.default(''),
+    /** Image affichée avant et à la place de la vidéo. */
+    posterUrl: mediaUrl.default(''),
+  }),
+
+  /**
+   * Badge promotionnel.
+   *
+   * Volontairement très court : un badge se lit en une seconde, pas en
+   * une phrase. Au-delà de deux mots, il devient un bandeau — ce qui est
+   * un autre objet.
+   */
+  promo: z.object({
+    actif: z.boolean().default(false),
+    /** Le gros mot, celui qu'on voit de loin. */
+    texte: z.string().trim().max(24).default(''),
+    /** Précision courte, en dessous. */
+    sousTexte: z.string().trim().max(48).default(''),
+    /** Forme du badge. */
+    forme: z.enum(['pastille', 'ruban', 'eclair']).default('pastille'),
+    /** Teinte. */
+    couleur: z.enum(['vert', 'rouge', 'or', 'bleu']).default('vert'),
+    /** Position à l'écran. */
+    position: z.enum(['gauche', 'droite']).default('droite'),
+  }),
+});
+
+export type HomeConfig = z.infer<typeof homeConfigSchema>;

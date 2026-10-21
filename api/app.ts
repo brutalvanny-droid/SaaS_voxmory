@@ -57,6 +57,7 @@ import {
   updateOrderSchema,
   updatePackageSchema,
   updateReviewSchema,
+  homeConfigSchema,
 } from './_lib/validation.js';
 import {
   CLIENT_SESSION_COOKIE,
@@ -148,6 +149,22 @@ async function setSetting(key: string, value: unknown): Promise<void> {
       set: { value: value as Record<string, unknown>, updatedAt: new Date() },
     });
 }
+
+const HOME_DEFAUT = {
+  hero: {
+    videoUrl: '/images/hero.mp4',
+    webmUrl: '/images/hero.webm',
+    posterUrl: '/images/hero-poster.jpg',
+  },
+  promo: {
+    actif: false,
+    texte: '',
+    sousTexte: '',
+    forme: 'pastille',
+    couleur: 'vert',
+    position: 'droite',
+  },
+};
 
 /* ------------------------------------------------------------------ */
 /*  Sérialisation                                                       */
@@ -1936,6 +1953,47 @@ app.get(
 
       paiements: paiementsRecents,
     });
+  }),
+);
+
+
+/* --- Vitrine : page d'accueil ------------------------------------------ */
+
+/**
+ * Contenu de la page d'accueil.
+ *
+ * Le studio doit pouvoir changer sa vidéo ou lancer une promotion sans
+ * nous écrire ni redéployer le site. Tout passe par la table des réglages,
+ * sans migration ni colonne supplémentaire.
+ *
+ * Les libellés, eux, restent dans les traductions : un texte traduit en
+ * trois langues ne doit pas être écrasé par une saisie faite en français.
+ */
+app.get('/api/home', asyncHandler(async (_req, res) => {
+  res.json(await getSetting('home', HOME_DEFAUT));
+}));
+
+app.get(
+  '/api/admin/home',
+  asyncHandler(async (_req, res) => {
+    res.json(await getSetting('home', HOME_DEFAUT));
+  }),
+);
+
+app.put(
+  '/api/admin/home',
+  asyncHandler(async (req: AuthedRequest, res: Response) => {
+    const parsed = homeConfigSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({
+        error: 'Paramètres invalides.',
+        details: parsed.error.issues.map((i) => ({ field: i.path.join('.'), message: i.message })),
+      });
+      return;
+    }
+    await setSetting('home', parsed.data);
+    void logAudit(req, 'home.update', 'setting', null, null);
+    res.json(parsed.data);
   }),
 );
 

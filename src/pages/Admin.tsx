@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   LayoutDashboard,
   ShoppingBag,
+  Sparkles,
   Users2,
   Library,
   Megaphone,
@@ -22,11 +23,20 @@ import Catalog from '../admin/Catalog.js';
 import Outreach from '../admin/Outreach.js';
 import SettingsPanel from '../admin/Settings.js';
 import Clients from '../admin/Clients.js';
+import Vitrine from '../admin/Vitrine.js';
 
-type Tab = 'dashboard' | 'orders' | 'clients' | 'catalog' | 'outreach' | 'settings';
+type Tab =
+  | 'dashboard'
+  | 'vitrine'
+  | 'orders'
+  | 'clients'
+  | 'catalog'
+  | 'outreach'
+  | 'settings';
 
 const TABS: { id: Tab; label: string; icon: typeof LayoutDashboard; description: string }[] = [
   { id: 'dashboard', label: 'Tableau de bord', icon: LayoutDashboard, description: 'Vue d’ensemble de l’activité' },
+  { id: 'vitrine', label: 'Vitrine', icon: Sparkles, description: 'Page d’accueil, promo et à la une' },
   { id: 'orders', label: 'Commandes', icon: ShoppingBag, description: 'Produire et livrer les chansons' },
   { id: 'clients', label: 'Clients', icon: Users2, description: 'Comptes et carnet WhatsApp' },
   { id: 'catalog', label: 'Catalogue', icon: Library, description: 'Formules, extraits et avis' },
@@ -263,6 +273,7 @@ export default function Admin({ onNavigate, onPromotionChanged }: AdminProps) {
             {tab === 'dashboard' && (
               <Dashboard onOpenOrders={() => setTab('orders')} />
             )}
+            {tab === 'vitrine' && <Vitrine />}
             {tab === 'orders' && <Orders />}
             {tab === 'clients' && <Clients />}
             {tab === 'catalog' && <Catalog />}
