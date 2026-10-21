@@ -12,3 +12,5 @@ public/uploads/
 
 # Build Vercel
 .vercel/
+# Fichiers audio de démonstration (en production : Vercel Blob)
+public/audio/

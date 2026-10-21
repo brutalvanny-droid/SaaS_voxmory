@@ -1,0 +1,199 @@
+- generic [ref=e3]:
+  - generic [ref=e246]:
+    - generic [ref=e247]: "Offre spéciale : -15 % sur toutes les rumbas avec le code VOX15 !"
+    - link "En savoir plus" [ref=e252] [cursor=pointer]:
+      - /url: /tarifs
+  - navigation [ref=e4]:
+    - generic [ref=e6]:
+      - button "VOXMORY VOXMORY Studio" [ref=e7] [cursor=pointer]:
+        - img "VOXMORY" [ref=e10]
+        - generic [ref=e16]:
+          - generic [ref=e17]: VOXMORY
+          - generic [ref=e18]: Studio
+      - generic [ref=e19]:
+        - button "Accueil" [ref=e20] [cursor=pointer]
+        - button "Créer ma chanson" [ref=e21] [cursor=pointer]
+        - button "Écouter les exemples" [ref=e22] [cursor=pointer]
+        - button "Avis clients" [ref=e24] [cursor=pointer]
+        - button "Tarifs" [ref=e25] [cursor=pointer]
+        - button "Suivre ma commande" [ref=e26] [cursor=pointer]
+      - generic [ref=e27]:
+        - button "FR" [ref=e29] [cursor=pointer]
+        - button "Me connecter" [ref=e256] [cursor=pointer]:
+          - generic [ref=e260]: Connexion
+        - button "Créer ma chanson" [ref=e36] [cursor=pointer]
+  - main [ref=e40]:
+    - generic [ref=e262]:
+      - button "S'authentifier pour éditer/supprimer les chansons" [active] [ref=e264] [cursor=pointer]
+      - generic [ref=e268]:
+        - generic [ref=e270]:
+          - generic [ref=e271]: Galerie d'émotions
+          - heading "Écoutez les chansons qui ont déjà touché des cœurs" [level=1] [ref=e276]
+          - paragraph [ref=e277]: "Chaque chanson part d’une vraie histoire : une maman, un couple, une famille, un souvenir, une personne qu’on aime."
+        - generic [ref=e279]:
+          - textbox "Rechercher une chanson, un prénom, une histoire..." [ref=e285]
+          - generic [ref=e286]:
+            - combobox [ref=e287] [cursor=pointer]:
+              - option "Toutes les occasions" [selected]
+              - option "Anniversaire"
+              - option "Mariage"
+              - option "Hommage / Deuil"
+              - option "Déclaration d'amour"
+              - option "Collation / Diplôme"
+              - option "Naissance"
+            - generic: ▼
+          - generic [ref=e288]:
+            - combobox [ref=e289] [cursor=pointer]:
+              - option "Tous les rythmes" [selected]
+              - option "Rumba congolaise"
+              - option "Afrobeat"
+              - option "Acoustique émotionnel"
+              - option "Gospel"
+              - option "Zouk"
+            - generic: ▼
+        - generic [ref=e291]:
+          - generic [ref=e292]:
+            - generic [ref=e293]:
+              - generic [ref=e294]:
+                - generic [ref=e295]: Anniversaire
+                - generic [ref=e296]: ✨ Vedette
+              - generic [ref=e297]: Rumba congolaise
+            - generic [ref=e305]:
+              - generic [ref=e306]:
+                - heading "Extrait de démonstration" [level=4] [ref=e307]
+                - text: Français • Chaleureux
+              - generic [ref=e308]:
+                - generic "Aller à 0%" [ref=e309] [cursor=pointer]
+                - generic "Aller à 3%" [ref=e310] [cursor=pointer]
+                - generic "Aller à 6%" [ref=e311] [cursor=pointer]
+                - generic "Aller à 10%" [ref=e312] [cursor=pointer]
+                - generic "Aller à 13%" [ref=e313] [cursor=pointer]
+                - generic "Aller à 16%" [ref=e314] [cursor=pointer]
+                - generic "Aller à 19%" [ref=e315] [cursor=pointer]
+                - generic "Aller à 23%" [ref=e316] [cursor=pointer]
+                - generic "Aller à 26%" [ref=e317] [cursor=pointer]
+                - generic "Aller à 29%" [ref=e318] [cursor=pointer]
+                - generic "Aller à 32%" [ref=e319] [cursor=pointer]
+                - generic "Aller à 35%" [ref=e320] [cursor=pointer]
+                - generic "Aller à 39%" [ref=e321] [cursor=pointer]
+                - generic "Aller à 42%" [ref=e322] [cursor=pointer]
+                - generic "Aller à 45%" [ref=e323] [cursor=pointer]
+                - generic "Aller à 48%" [ref=e324] [cursor=pointer]
+                - generic "Aller à 52%" [ref=e325] [cursor=pointer]
+                - generic "Aller à 55%" [ref=e326] [cursor=pointer]
+                - generic "Aller à 58%" [ref=e327] [cursor=pointer]
+                - generic "Aller à 61%" [ref=e328] [cursor=pointer]
+                - generic "Aller à 65%" [ref=e329] [cursor=pointer]
+                - generic "Aller à 68%" [ref=e330] [cursor=pointer]
+                - generic "Aller à 71%" [ref=e331] [cursor=pointer]
+                - generic "Aller à 74%" [ref=e332] [cursor=pointer]
+                - generic "Aller à 77%" [ref=e333] [cursor=pointer]
+                - generic "Aller à 81%" [ref=e334] [cursor=pointer]
+                - generic "Aller à 84%" [ref=e335] [cursor=pointer]
+                - generic "Aller à 87%" [ref=e336] [cursor=pointer]
+                - generic "Aller à 90%" [ref=e337] [cursor=pointer]
+                - generic "Aller à 94%" [ref=e338] [cursor=pointer]
+                - generic "Aller à 97%" [ref=e339] [cursor=pointer]
+                - generic "Aller à 100%" [ref=e340] [cursor=pointer]
+              - generic [ref=e341]:
+                - generic [ref=e342]: 0:00
+                - slider [ref=e343] [cursor=pointer]: "0"
+                - generic [ref=e344]: 0:00
+              - generic [ref=e345]:
+                - generic [ref=e346]:
+                  - button "Reset" [ref=e347] [cursor=pointer]
+                  - button [ref=e350] [cursor=pointer]
+                  - generic [ref=e353]: Prêt
+                - slider [ref=e359] [cursor=pointer]: "0.8"
+            - paragraph [ref=e361]: "\"Extrait à remplacer par vos vraies créations.\""
+          - generic [ref=e362]:
+            - generic [ref=e363]:
+              - generic [ref=e364]: "Partager le souvenir :"
+              - generic [ref=e365]:
+                - button "WhatsApp" [ref=e366] [cursor=pointer]
+                - button "Copier le lien" [ref=e370] [cursor=pointer]
+            - button "Commander une chanson similaire" [ref=e377] [cursor=pointer]
+      - generic [ref=e379]:
+        - button "Fermer" [ref=e380]
+        - generic [ref=e384]:
+          - heading "Console d'Édition Galerie" [level=3] [ref=e389]
+          - paragraph [ref=e390]: Accès sécurisé pour l'équipe Studio VOXMORY.
+        - paragraph [ref=e391]: Connectez-vous au studio VOXMORY pour modifier la galerie. La vérification se fait côté serveur, aucune clé n'est conservée dans le navigateur.
+        - generic [ref=e392]:
+          - button "Annuler" [ref=e393] [cursor=pointer]
+          - button "Déverrouiller" [ref=e394] [cursor=pointer]
+  - contentinfo [ref=e154]:
+    - generic [ref=e156]:
+      - generic [ref=e157]:
+        - generic [ref=e159]:
+          - button "VOXMORY VOXMORY Studio" [ref=e160] [cursor=pointer]:
+            - img "VOXMORY" [ref=e162]
+            - generic [ref=e168]:
+              - generic [ref=e169]: VOXMORY
+              - generic [ref=e170]: Studio
+          - paragraph [ref=e171]: « Votre histoire. Votre chanson. » Nous transformons vos plus précieux moments de vie en chansons personnalisées, qualité studio.
+          - generic [ref=e172]: Garantie d'émotion & confidentialité
+        - generic [ref=e176]:
+          - heading "Navigation" [level=3] [ref=e177]
+          - list [ref=e178]:
+            - listitem [ref=e179]:
+              - button "→ Accueil" [ref=e180] [cursor=pointer]:
+                - generic: →
+                - generic [ref=e181]: Accueil
+            - listitem [ref=e182]:
+              - button "→ Créer ma chanson" [ref=e183] [cursor=pointer]:
+                - generic: →
+                - generic [ref=e184]: Créer ma chanson
+            - listitem [ref=e185]:
+              - button "→ Écouter les exemples" [ref=e186] [cursor=pointer]:
+                - generic: →
+                - generic [ref=e187]: Écouter les exemples
+            - listitem [ref=e188]:
+              - button "→ Avis clients" [ref=e189] [cursor=pointer]:
+                - generic: →
+                - generic [ref=e190]: Avis clients
+            - listitem [ref=e191]:
+              - button "→ Nos tarifs" [ref=e192] [cursor=pointer]:
+                - generic: →
+                - generic [ref=e193]: Nos tarifs
+            - listitem [ref=e194]:
+              - button "→ Suivre ma commande" [ref=e195] [cursor=pointer]:
+                - generic: →
+                - generic [ref=e196]: Suivre ma commande
+        - generic [ref=e197]:
+          - heading "Service client" [level=3] [ref=e198]
+          - list [ref=e199]:
+            - listitem [ref=e200]:
+              - generic [ref=e204]:
+                - generic [ref=e205]: WhatsApp 24/7
+                - link "+243 978 508 099" [ref=e206] [cursor=pointer]:
+                  - /url: https://wa.me/243978508099
+            - listitem [ref=e210]:
+              - generic [ref=e215]:
+                - generic [ref=e216]: E-mail
+                - link "voxmory@gmail.com" [ref=e217] [cursor=pointer]:
+                  - /url: mailto:voxmory@gmail.com
+            - listitem [ref=e218]:
+              - generic [ref=e222]:
+                - generic [ref=e223]: Contact direct
+                - text: +243 978 508 099
+        - generic [ref=e225]:
+          - heading "Paiements mobiles" [level=3] [ref=e226]
+          - paragraph [ref=e227]: "Nous acceptons Airtel Money & Orange Money :"
+          - generic [ref=e228]:
+            - generic [ref=e229]:
+              - generic [ref=e230]:
+                - generic [ref=e231]: Airtel Money
+                - generic [ref=e232]: VANNY irung
+              - generic [ref=e233]: +243 978 508 099
+            - generic [ref=e234]:
+              - generic [ref=e235]:
+                - generic [ref=e236]: Orange Money
+                - generic [ref=e237]: VANNY KAYEMB
+              - generic [ref=e238]: +243 891 170 023
+          - paragraph [ref=e239]: "* Envoyez la preuve de paiement sur WhatsApp pour validation immédiate."
+      - generic [ref=e240]:
+        - paragraph [ref=e241]: © 2026 VOXMORY. Tous droits réservés. Kinshasa, RDC.
+        - generic [ref=e242]:
+          - generic [ref=e243]: « Votre histoire. Votre chanson. »
+          - button "[Espace Studio]" [ref=e244]
