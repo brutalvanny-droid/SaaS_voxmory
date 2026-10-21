@@ -72,6 +72,7 @@ import {
 import * as saspay from './_lib/saspay.js';
 import * as whatsapp from './_lib/whatsapp.js';
 import { handleClientUpload, isBlobConfigured, uploadMode } from './_lib/storage.js';
+import { adresseSignee, blobAccess, cheminEstSur } from './_lib/media.js';
 import { runAi } from './_lib/ai.js';
 
 const app = express();
@@ -488,8 +489,66 @@ app.get('/api/health', (_req, res) => {
 });
 
 app.get('/api/config', (_req, res) => {
-  res.json({ uploadMode: uploadMode() });
+  res.json({ uploadMode: uploadMode(), blobAccess: blobAccess() });
 });
+
+/**
+ * Lecture d'un fichier stocké.
+ *
+ * Le magasin Blob étant privé, l'adresse directe d'un fichier répond 403.
+ * On fabrique ici une adresse signée valable une heure et on y redirige le
+ * navigateur : le fichier est toujours servi par le réseau de Vercel, nous
+ * ne faisons que l'aiguiller.
+ *
+ * Aucune authentification n'est exigée — les pages souvenir sont faites
+ * pour être ouvertes depuis un lien envoyé à un proche. La sécurité repose
+ * sur le caractère imprévisible du chemin (suffixe aléatoire à l'envoi) et
+ * sur la courte durée de validité de l'adresse.
+ */
+app.get(
+  '/api/media/*path',
+  asyncHandler(async (req: Request, res: Response) => {
+    const brut = (req.params as { path?: string[] }).path;
+    const pathname = Array.isArray(brut) ? brut.join('/') : String(brut ?? '');
+
+    if (!pathname || !cheminEstSur(pathname)) {
+      res.status(400).json({ error: 'Chemin de fichier invalide.' });
+      return;
+    }
+
+    // Accès public : l'adresse directe suffit, inutile de signer.
+    if (blobAccess() === 'public') {
+      const store = process.env.BLOB_STORE_ID;
+      if (!store) {
+        res.status(500).json({ error: 'Stockage non configuré.' });
+        return;
+      }
+      res.redirect(302, `https://${store}.public.blob.vercel-storage.com/${pathname}`);
+      return;
+    }
+
+    let url: string | null;
+    try {
+      url = await adresseSignee(pathname, {
+        telechargement: req.query.download === '1',
+      });
+    } catch (err) {
+      console.error('[Media] Signature impossible :', err);
+      res.status(502).json({ error: 'Fichier momentanément indisponible.' });
+      return;
+    }
+
+    if (!url) {
+      res.status(400).json({ error: 'Chemin de fichier invalide.' });
+      return;
+    }
+
+    // L'adresse signée change à chaque appel : on autorise la mise en cache
+    // une heure au plus, jamais au-delà de sa propre expiration.
+    res.set('Cache-Control', 'public, max-age=3600');
+    res.redirect(302, url);
+  }),
+);
 
 /* ================================================================== */
 /*  AUTHENTIFICATION                                                    */

@@ -10,6 +10,8 @@
  */
 
 let cachedMode: 'blob' | 'local' | null = null;
+/** `null` tant que le serveur ne l'a pas dit. */
+let cachedAccess: 'public' | 'private' | null = null;
 
 async function uploadMode(): Promise<'blob' | 'local'> {
   if (cachedMode) return cachedMode;
@@ -21,6 +23,25 @@ async function uploadMode(): Promise<'blob' | 'local'> {
     cachedMode = 'local';
   }
   return cachedMode;
+}
+
+/**
+ * Accès à demander à l'envoi.
+ *
+ * Le magasin Vercel Blob de ce projet est privé : demander un accès public
+ * fait échouer l'envoi avec « Cannot use public access on a private
+ * store ». On suit donc ce que le serveur annonce.
+ */
+async function blobAccess(): Promise<'public' | 'private'> {
+  if (cachedAccess) return cachedAccess;
+  try {
+    const res = await fetch('/api/config');
+    const cfg = (await res.json()) as { blobAccess?: 'public' | 'private' };
+    cachedAccess = cfg.blobAccess === 'public' ? 'public' : 'private';
+  } catch {
+    cachedAccess = 'private';
+  }
+  return cachedAccess;
 }
 
 export async function uploadFile(file: File, admin = false): Promise<string> {
@@ -46,11 +67,22 @@ export async function uploadFile(file: File, admin = false): Promise<string> {
   }
 
   const { upload } = await import('@vercel/blob/client');
+  const access = await blobAccess();
   try {
     const blob = await upload(file.name, file, {
-      access: 'public',
+      access,
       handleUploadUrl: admin ? '/api/uploads?scope=admin' : '/api/uploads',
     });
+
+    /**
+     * Avec un magasin privé, l'adresse renvoyée répond 403 : on stocke à la
+     * place le chemin vers notre route de lecture, qui fabriquera une
+     * adresse signée à la demande. Le reste du site continue d'utiliser
+     * l'adresse sans rien savoir de tout ceci.
+     */
+    if (access === 'private') {
+      return `/api/media/${blob.pathname}`;
+    }
     return blob.url;
   } catch (err) {
     // Les messages du service Blob sont en anglais et parlent de « jeton » :
@@ -81,6 +113,9 @@ function expliquerEchec(err: unknown, file: File): string {
   }
   if (m.includes('network') || m.includes('fetch') || m.includes('failed')) {
     return "Votre connexion a été interrompue pendant l'envoi. Réessayez.";
+  }
+  if (m.includes('private store') || m.includes('public access')) {
+    return "Le stockage du site refuse cet envoi. Le problème a été signalé à l'équipe.";
   }
 
   return "L'envoi du fichier a échoué. Vérifiez votre connexion, puis réessayez.";
