@@ -61,16 +61,16 @@ const PACK_SEO: Record<string, RouteSeo> = {
 
 const ROUTES: Record<string, RouteSeo> = {
   home: {
-    title: 'VOXMORY | Chansons Personnalisées Poétiques & Rumba sur-mesure',
+    title: 'Chanson personnalisée & jingle entreprise | VOXMORY',
     description:
-      "VOXMORY transforme vos plus belles histoires d'amour, de mariage, d'anniversaire ou d'hommage en chansons professionnelles personnalisées. Commandez votre Rumba ou Afrobeat unique.",
+      "Offrez une chanson écrite avec votre histoire : mariage, anniversaire, hommage. Nous créons aussi votre chanson publicitaire d'entreprise dès 35 $. Rumba, Afrobeat, Gospel. Livraison sur WhatsApp en RDC.",
     path: '/',
     h1: 'Votre histoire mérite une chanson',
   },
   order: {
     title: 'Commander ma Chanson Personnalisée | VOXMORY',
     description:
-      "Racontez votre histoire en deux minutes : texte, audio ou WhatsApp. Nos paroliers et compositeurs s'occupent du reste. Paiement Mobile Money sécurisé.",
+      "Racontez votre histoire en deux minutes : texte, audio ou WhatsApp. Nos paroliers et compositeurs s'occupent du reste. Chanson publicitaire pour entreprise dès 35 $. Paiement Mobile Money sécurisé.",
     path: '/commander',
     h1: 'Racontez-nous votre histoire',
   },

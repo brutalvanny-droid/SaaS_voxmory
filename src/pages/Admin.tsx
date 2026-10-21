@@ -24,6 +24,7 @@ import Outreach from '../admin/Outreach.js';
 import SettingsPanel from '../admin/Settings.js';
 import Clients from '../admin/Clients.js';
 import Vitrine from '../admin/Vitrine.js';
+import ClocheNotifications from '../admin/ClocheNotifications.js';
 
 type Tab =
   | 'dashboard'
@@ -212,14 +213,18 @@ export default function Admin({ onNavigate, onPromotionChanged }: AdminProps) {
                 </p>
               </div>
 
-              {/* Bascule du menu — mobile */}
-              <button
-                onClick={() => setMenuOuvert((v) => !v)}
-                className="lg:hidden p-2 rounded-lg border border-white/10 text-[#A2ABB5] hover:text-white flex-shrink-0"
-                aria-label="Menu"
-              >
-                {menuOuvert ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
-              </button>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <ClocheNotifications onAllerCommandes={() => aller('orders')} />
+
+                {/* Bascule du menu — mobile */}
+                <button
+                  onClick={() => setMenuOuvert((v) => !v)}
+                  className="lg:hidden p-2 rounded-lg border border-white/10 text-[#A2ABB5] hover:text-white flex-shrink-0"
+                  aria-label="Menu"
+                >
+                  {menuOuvert ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+                </button>
+              </div>
             </header>
 
             {/* Menu déroulant — mobile */}

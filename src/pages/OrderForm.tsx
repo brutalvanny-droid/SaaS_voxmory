@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   BookOpen,
@@ -7,6 +7,7 @@ import {
   ChevronRight,
   ClipboardCheck,
   Loader2,
+  Megaphone,
   Upload,
   Mic,
   Music4,
@@ -19,6 +20,7 @@ import {
 } from 'lucide-react';
 import { api } from '../lib/api.js';
 import { uploadFile } from '../lib/upload.js';
+import { useNotifier, useNotifications } from '../components/Notifications.js';
 import type { Order, Package } from '../types.js';
 
 const STEPS = ['Vous', 'L’histoire', 'La musique', 'Récapitulatif'];
@@ -37,6 +39,12 @@ const ETAPES = [
   { icone: ClipboardCheck, titre: 'Récapitulatif', question: 'Tout est-il correct ?', aide: 'Relisez, puis envoyez.' },
 ] as const;
 
+/**
+ * Le tarif publicitaire est annoncé par le serveur, pas décidé ici.
+ * Le formulaire ne fait que l'afficher — c'est le serveur qui l'applique.
+ */
+export const OCCASION_PUB = 'PUB — Chanson pour entreprises';
+
 const OCCASIONS = [
   'Anniversaire',
   'Mariage',
@@ -45,6 +53,7 @@ const OCCASIONS = [
   'Déclaration',
   'Remise de diplôme',
   'Départ à la retraite',
+  OCCASION_PUB,
   'Autre',
 ];
 
@@ -76,6 +85,26 @@ export default function OrderForm({ packages, onNavigate, onSubmitSuccess }: Pro
   const [created, setCreated] = useState<Order | null>(null);
   const [uploading, setUploading] = useState<'audio' | 'photo' | null>(null);
   const [consentement, setConsentement] = useState(false);
+
+  /**
+   * Tarif publicitaire, annoncé par le serveur.
+   *
+   * Il pourrait être écrit en dur ici, mais alors le jour où le studio
+   * change son prix, le formulaire afficherait l'ancien et le serveur
+   * facturerait le nouveau. Une seule source fait foi : le serveur.
+   */
+  const [prixPubCents, setPrixPubCents] = useState(3_500);
+  useEffect(() => {
+    fetch('/api/config')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((c: { prixPubCents?: number } | null) => {
+        if (c?.prixPubCents) setPrixPubCents(c.prixPubCents);
+      })
+      .catch(() => {
+        /* On garde la valeur par défaut : mieux vaut un prix approchant
+           qu'un formulaire cassé. */
+      });
+  }, []);
 
   const [form, setForm] = useState({
     customerName: '',
@@ -119,7 +148,10 @@ export default function OrderForm({ packages, onNavigate, onSubmitSuccess }: Pro
     [packages, form.packageId],
   );
 
-  const totalCents = (selected?.priceCents ?? 0) + (form.vipCardSelected ? 200 : 0);
+  const estPub = form.occasion === OCCASION_PUB;
+  const totalCents = estPub
+    ? prixPubCents
+    : (selected?.priceCents ?? 0) + (form.vipCardSelected ? 200 : 0);
 
   const set = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) => {
     setForm((f) => ({ ...f, [key]: value }));
@@ -424,6 +456,30 @@ export default function OrderForm({ packages, onNavigate, onSubmitSuccess }: Pro
                     </select>
                   </Field>
                 </div>
+
+                {/* Le forfait publicitaire remplace le prix de la formule :
+                    il faut le dire avant le récapitulatif, sinon le client
+                    découvre un montant inattendu à la dernière étape. */}
+                {estPub && (
+                  <div className="flex items-start gap-3 p-4 rounded-xl bg-[#A3FF12]/10 border border-[#A3FF12]/30">
+                    <Megaphone className="w-5 h-5 text-[#A3FF12] flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-[14px] font-bold text-white">
+                        Chanson publicitaire — forfait entreprise
+                      </p>
+                      <p className="text-[13px] text-[#C3CAD2] mt-1 leading-relaxed">
+                        Un jingle écrit pour votre marque, votre slogan et
+                        votre activité. Livré prêt à diffuser.
+                      </p>
+                      <p className="text-[20px] font-black text-[#A3FF12] mt-2">
+                        {(prixPubCents / 100).toLocaleString('fr-FR')} $
+                        <span className="text-[12px] font-normal text-[#8A949F] ml-2">
+                          forfait unique, quelle que soit la formule
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                )}
 
                 <div>
                   <p className="text-[10px] font-semibold uppercase tracking-wider text-[#A2ABB5] mb-2">
@@ -800,10 +856,29 @@ export function OrderSuccess({
   const [error, setError] = useState('');
   const [paid, setPaid] = useState(false);
   const [copied, setCopied] = useState(false);
+  const { succes, erreur, attention, attente } = useNotifier();
+  const { maj, fermer } = useNotifications();
 
   useEffect(() => {
     api.networks('CD').then((r) => setNetworks(r.networks)).catch(() => {});
   }, []);
+
+  /**
+   * Confirmation sonore et visuelle dès l'arrivée.
+   *
+   * La page dit déjà l'essentiel ; la notification le répète là où l'œil
+   * se porte, et reste affichée assez longtemps pour être lue même si le
+   * client regardait ailleurs une seconde plus tôt.
+   */
+  const annonceFaite = useRef(false);
+  useEffect(() => {
+    if (annonceFaite.current) return;
+    annonceFaite.current = true;
+    succes(
+      'Commande enregistrée',
+      `Référence ${reference} — un compositeur s'y met maintenant.`,
+    );
+  }, [reference, succes]);
 
   const pay = async () => {
     setBusy(true);
@@ -817,12 +892,15 @@ export function OrderSuccess({
       });
       if (res.checkoutUrl) {
         window.open(res.checkoutUrl, '_blank', 'noopener');
+        attente('Paiement en cours — nous surveillons la confirmation…');
       } else if (method === 'softpay') {
         setError('Invitation envoyée sur votre téléphone : validez-la pour confirmer.');
       }
       void poll();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Paiement impossible.');
+      const message = err instanceof Error ? err.message : 'Paiement impossible.';
+      setError(message);
+      erreur('Le paiement n’a pas abouti', message);
     } finally {
       setBusy(false);
     }
@@ -835,6 +913,10 @@ export function OrderSuccess({
         const s = await api.paymentStatus(reference);
         if (s.status === 'Paid') {
           setPaid(true);
+          succes(
+            'Paiement reçu — merci !',
+            'Nos compositeurs commencent votre chanson tout de suite.',
+          );
           return;
         }
       } catch {
@@ -850,9 +932,21 @@ export function OrderSuccess({
           <Check className="w-8 h-8 text-emerald-400" />
         </div>
 
-        <h1 className="text-[clamp(1.7rem,4vw,2.4rem)] font-extrabold text-white tracking-[-0.035em]">Commande enregistrée</h1>
-        <p className="text-sm text-[#A2ABB5] mt-2">
-          Conservez précieusement votre référence de commande.
+        {/**
+         * Le client vient de raconter une histoire qui compte pour lui.
+         * Le remercier d'abord, lui dire ensuite ce qui va se passer :
+         * c'est l'ordre qui le rassure. Un message purement administratif
+         * (« commande enregistrée ») le laisse sans nouvelles.
+         */}
+        <h1 className="text-[clamp(1.7rem,4vw,2.4rem)] font-extrabold text-white tracking-[-0.035em]">
+          C'est noté. <span className="text-[#A3FF12]">Votre histoire est entre de bonnes mains.</span>
+        </h1>
+        <p className="text-sm text-[#A2ABB5] mt-3 leading-relaxed">
+          Un compositeur la lit dès maintenant et se met au travail.
+          Vous recevrez votre chanson sur WhatsApp.
+        </p>
+        <p className="text-[13px] text-[#8A949F] mt-2">
+          Conservez votre référence : elle vous servira à suivre l'avancement.
         </p>
 
         <div className="mt-6 p-4 rounded-xl bg-black/50 border border-white/10">
@@ -964,7 +1058,7 @@ function storySummary(form: { storyOption: string; storyText: string }): string 
 }
 
 const inputClass =
-  'w-full bg-black/60 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#1D2229] focus:outline-none focus:border-[#A3FF12]/60 transition-colors';
+  'w-full bg-[#14181D] border border-white/20 rounded-xl px-4 py-3.5 text-[15px] text-white placeholder:text-[#8A949F] cursor-text hover:border-white/30 focus:outline-none focus:border-[#A3FF12] focus:ring-2 focus:ring-[#A3FF12]/25 focus:bg-[#171C22] transition-colors';
 
 function Field({
   label,

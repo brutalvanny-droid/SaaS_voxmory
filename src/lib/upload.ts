@@ -44,9 +44,12 @@ async function blobAccess(): Promise<'public' | 'private'> {
   return cachedAccess;
 }
 
-export async function uploadFile(file: File, admin = false): Promise<string> {
-  if (file.size > 25 * 1024 * 1024) {
-    throw new Error('Fichier trop volumineux (25 Mo maximum).');
+export async function uploadFile(file: File, admin = false, estVideo = false): Promise<string> {
+  // Une vidéo de fond est lourde : le studio dispose d'une enveloppe plus
+  // large que celle d'un visiteur qui dépose une note vocale.
+  const limite = admin && estVideo ? 80 : 25;
+  if (file.size > limite * 1024 * 1024) {
+    throw new Error(`Fichier trop volumineux (${limite} Mo maximum).`);
   }
 
   if ((await uploadMode()) === 'local') {

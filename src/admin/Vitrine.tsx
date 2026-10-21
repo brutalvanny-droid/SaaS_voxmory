@@ -16,6 +16,7 @@ import { api } from '../lib/api.js';
 import { uploadFile } from '../lib/upload.js';
 import type { ClientReview, GallerySong, HomeConfig } from '../types.js';
 import BadgePromo, { COULEURS_PROMO } from '../components/BadgePromo.js';
+import { useNotifier, useNotifications } from '../components/Notifications.js';
 import { Button, Card, ErrorNote, Field, Input } from './ui.js';
 
 /**
@@ -88,7 +89,9 @@ export default function Vitrine() {
 
       {onglet === 'hero' && <Hero config={config} onSave={enregistrer} />}
       {onglet === 'promo' && <Promo config={config} onSave={enregistrer} />}
-      {onglet === 'alaffiche' && <ALaUne />}
+      {onglet === 'alaffiche' && (
+        <ALaUne config={config} onSave={enregistrer} />
+      )}
     </div>
   );
 }
@@ -109,13 +112,27 @@ function Hero({
   const [etat, setEtat] = useState<'idle' | 'ok' | 'erreur'>('idle');
   const [message, setMessage] = useState('');
   const videoRef = useRef<HTMLVideoElement>(null);
+  const { attente, succes } = useNotifier();
+  const { maj } = useNotifications();
 
   async function deposer(fichier: File, champ: 'videoUrl' | 'posterUrl' | 'webmUrl') {
     setEnvoi(champ);
     setMessage('');
     try {
-      const url = await uploadFile(fichier, true);
+      const estVideo = champ !== 'posterUrl';
+      const url = await uploadFile(fichier, true, estVideo);
       setHero((h) => ({ ...h, [champ]: url }));
+      setEtat('ok');
+      setMessage(
+        estVideo
+          ? 'Vidéo envoyée. Enregistrez pour la mettre en ligne.'
+          : 'Image envoyée. Enregistrez pour la mettre en ligne.',
+      );
+      // Faire défiler jusqu'à l'aperçu : sinon le succès reste invisible
+      // en bas de l'écran alors que l'œil est sur le bouton.
+      document
+        .getElementById('apercu-hero')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     } catch (e) {
       setEtat('erreur');
       setMessage(e instanceof Error ? e.message : 'Envoi impossible.');
@@ -126,13 +143,21 @@ function Hero({
 
   async function sauver() {
     setEtat('idle');
+    const id = attente('Enregistrement…');
     try {
       await onSave({ ...config, hero });
       setEtat('ok');
       setMessage('Enregistré. La page d’accueil utilise maintenant ces médias.');
+      maj(id, {
+        ton: 'succes',
+        titre: 'Médias enregistrés',
+        detail: 'La page d’accueil affiche déjà la nouvelle version.',
+        duree: 4000,
+      });
     } catch (e) {
       setEtat('erreur');
       setMessage(e instanceof Error ? e.message : 'Enregistrement impossible.');
+      maj(id, { ton: 'erreur', titre: 'Enregistrement impossible', duree: 0 });
     }
   }
 
@@ -234,6 +259,7 @@ function Hero({
       </Card>
 
       {/* Aperçu */}
+      <div id="apercu-hero">
       <Card title="Aperçu" subtitle="Exactement ce que verra le visiteur">
         <div className="relative aspect-video rounded-xl overflow-hidden border border-white/10 bg-[#07080A]">
           {hero.posterUrl ? (
@@ -275,6 +301,7 @@ function Hero({
           trois langues du site.
         </p>
       </Card>
+      </div>
     </div>
   );
 }
@@ -301,16 +328,28 @@ function Promo({
   const [promo, setPromo] = useState(config.promo);
   const [etat, setEtat] = useState<'idle' | 'ok' | 'erreur'>('idle');
   const [message, setMessage] = useState('');
+  const { attente, succes } = useNotifier();
+  const { maj } = useNotifications();
 
   async function sauver() {
     setEtat('idle');
+    const id = attente('Enregistrement…');
     try {
       await onSave({ ...config, promo });
       setEtat('ok');
       setMessage('Enregistré.');
+      maj(id, {
+        ton: 'succes',
+        titre: promo.actif ? 'Promotion en ligne' : 'Promotion retirée',
+        detail: promo.actif
+          ? 'Le badge est visible sur la page d’accueil.'
+          : 'La page d’accueil s’affiche normalement.',
+        duree: 4000,
+      });
     } catch (e) {
       setEtat('erreur');
       setMessage(e instanceof Error ? e.message : 'Enregistrement impossible.');
+      maj(id, { ton: 'erreur', titre: 'Enregistrement impossible', duree: 0 });
     }
   }
 
@@ -497,7 +536,13 @@ function Promo({
 /*  À la une                                                            */
 /* ------------------------------------------------------------------ */
 
-function ALaUne() {
+function ALaUne({
+  config,
+  onSave,
+}: {
+  config: HomeConfig;
+  onSave: (c: HomeConfig) => Promise<HomeConfig>;
+}) {
   const [chansons, setChansons] = useState<GallerySong[]>([]);
   const [avis, setAvis] = useState<ClientReview[]>([]);
   const [chargement, setChargement] = useState(true);
@@ -547,6 +592,8 @@ function ALaUne() {
 
   return (
     <div className="space-y-4">
+      <Quantites config={config} onSave={onSave} />
+
       <Card
         title="Chansons à la une"
         subtitle="Cliquez sur une vignette pour la mettre en avant sur la page d'accueil"
@@ -741,5 +788,100 @@ function FormeBadge({
     >
       {miniature ? '' : 'PROMO'}
     </span>
+  );
+}
+
+
+/* ------------------------------------------------------------------ */
+/*  Quantités affichées                                                */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Combien d'exemples et d'avis montrer.
+ *
+ * Trois gros blocs chiffrés valent mieux qu'un champ à remplir : on
+ * choisit d'un coup d'œil, et l'on ne peut pas se tromper en tapant
+ * « 100 » là où dix suffisent.
+ */
+function Quantites({
+  config,
+  onSave,
+}: {
+  config: HomeConfig;
+  onSave: (c: HomeConfig) => Promise<HomeConfig>;
+}) {
+  const [etat, setEtat] = useState<'idle' | 'ok' | 'erreur'>('idle');
+
+  async function choisir(cle: 'chansons' | 'avis', valeur: number) {
+    setEtat('idle');
+    try {
+      await onSave({
+        ...config,
+        vitrine: { ...config.vitrine, [cle]: valeur },
+      } as HomeConfig);
+      setEtat('ok');
+    } catch {
+      setEtat('erreur');
+    }
+  }
+
+  return (
+    <Card
+      title="Combien en montrer ?"
+      subtitle="Sur la page d'accueil, pour les chansons et les avis"
+    >
+      <div className="space-y-5">
+        <div>
+          <p className="text-[12px] font-semibold text-[#C2CAD3] mb-2">
+            Chansons en exemple
+          </p>
+          <div className="flex gap-2">
+            {[3, 6, 10].map((n) => (
+              <button
+                key={n}
+                onClick={() => void choisir('chansons', n)}
+                className={`flex-1 py-4 rounded-xl text-[20px] font-black border transition-colors ${
+                  config.vitrine.chansons === n
+                    ? 'border-[#A3FF12] bg-[#A3FF12]/12 text-[#A3FF12]'
+                    : 'border-white/[0.08] text-[#8A949F] hover:text-white hover:border-white/25'
+                }`}
+              >
+                {n}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <p className="text-[12px] font-semibold text-[#C2CAD3] mb-2">
+            Avis clients
+          </p>
+          <div className="flex gap-2">
+            {[3, 6].map((n) => (
+              <button
+                key={n}
+                onClick={() => void choisir('avis', n)}
+                className={`flex-1 py-4 rounded-xl text-[20px] font-black border transition-colors ${
+                  config.vitrine.avis === n
+                    ? 'border-[#A3FF12] bg-[#A3FF12]/12 text-[#A3FF12]'
+                    : 'border-white/[0.08] text-[#8A949F] hover:text-white hover:border-white/25'
+                }`}
+              >
+                {n}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <p className="text-[11.5px] text-[#6C7581] leading-relaxed">
+          Le changement est immédiat : inutile d'enregistrer quoi que ce
+          soit d'autre.
+        </p>
+
+        {etat === 'erreur' && (
+          <p className="text-[12.5px] text-red-400">Enregistrement impossible.</p>
+        )}
+      </div>
+    </Card>
   );
 }

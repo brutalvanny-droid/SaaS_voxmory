@@ -107,7 +107,7 @@ export default function Tracking({ initialOrderId, onNavigate }: Props) {
           value={key}
           onChange={(e) => setKey(e.target.value)}
           placeholder="VOX-2026-…"
-          className="flex-1 bg-black/60 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-[#1D2229] focus:outline-none focus:border-[#A3FF12]/60 font-mono"
+          className="flex-1 bg-[#14181D] border border-white/20 rounded-xl px-4 py-3 text-[15px] text-white placeholder:text-[#8A949F] cursor-text hover:border-white/30 focus:outline-none focus:border-[#A3FF12] focus:ring-2 focus:ring-[#A3FF12]/25 font-mono transition-colors"
         />
         <button
           type="submit"

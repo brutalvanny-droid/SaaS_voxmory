@@ -115,7 +115,7 @@ export function Field({
 }
 
 export const inputClass =
-  'w-full bg-black/60 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-[#1D2229] focus:outline-none focus:border-[#A3FF12]/60 transition-colors';
+  'w-full bg-[#14181D] border border-white/20 rounded-lg px-3 py-2 text-sm text-white placeholder:text-[#8A949F] cursor-text hover:border-white/30 focus:outline-none focus:border-[#A3FF12] focus:ring-2 focus:ring-[#A3FF12]/25 focus:bg-[#171C22] transition-colors';
 
 export function Input(props: InputHTMLAttributes<HTMLInputElement>) {
   return <input {...props} className={`${inputClass} ${props.className ?? ''}`} />;

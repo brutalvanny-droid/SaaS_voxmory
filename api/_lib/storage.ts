@@ -31,7 +31,24 @@ export const ALLOWED_UPLOAD_TYPES = [
   'image/png',
   'image/webp',
   'image/gif',
+  // Vidéos : la page d'accueil en diffuse une en boucle, et le studio doit
+  // pouvoir la remplacer. Sans ces lignes, le stockage refusait l'envoi et
+  // le studio voyait « erreur de téléversement » sans plus d'explication.
+  'video/mp4',
+  'video/webm',
+  'video/ogg',
+  'video/quicktime',
+  'video/x-msvideo',
+  'video/x-matroska',
 ];
+
+/**
+ * Une vidéo de fond est lourde : quelques secondes en haute définition
+ * dépassent vite les 25 Mo accordés à un fichier audio. Le studio dispose
+ * donc d'une enveloppe plus large, réservée aux comptes connectés —
+ * les visiteurs gardent la leur.
+ */
+export const MAX_ADMIN_VIDEO_BYTES = 80 * 1024 * 1024; // 80 Mo — vidéos du studio
 
 export function isBlobConfigured(): boolean {
   return Boolean(process.env.BLOB_READ_WRITE_TOKEN);
@@ -63,7 +80,9 @@ export async function handleClientUpload(
 
   // Un visiteur est limité à un fichier raisonnable ; le studio peut
   // déposer une chanson finalisée de plus longue durée.
-  const maxBytes = isAdmin ? MAX_UPLOAD_BYTES : MAX_PUBLIC_UPLOAD_BYTES;
+  // Le studio peut déposer une vidéo de fond, qui pèse bien plus qu'une
+  // chanson. Les visiteurs restent limités à un fichier raisonnable.
+  const maxBytes = isAdmin ? MAX_ADMIN_VIDEO_BYTES : MAX_PUBLIC_UPLOAD_BYTES;
 
   let result: HandledUploadResult;
   try {

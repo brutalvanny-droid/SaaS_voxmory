@@ -446,4 +446,17 @@ export interface HomeConfig {
     couleur: 'vert' | 'rouge' | 'or' | 'bleu';
     position: 'gauche' | 'droite';
   };
+  vitrine: {
+    chansons: 3 | 6 | 10;
+    avis: 3 | 6;
+  };
+}
+
+export interface NotificationStudio {
+  id: string;
+  type: 'commande' | 'paiement' | 'avis';
+  titre: string;
+  detail: string;
+  date: string;
+  lien?: string;
 }

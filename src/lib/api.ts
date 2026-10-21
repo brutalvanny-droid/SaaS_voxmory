@@ -2,6 +2,7 @@ import type {
   AdminSession,
   Analytics,
   HomeConfig,
+  NotificationStudio,
   BroadcastCampaign,
   BroadcastList,
   ClientOrder,
@@ -266,6 +267,10 @@ export const api = {
       }),
 
     home: () => request<HomeConfig>('/api/admin/home'),
+    notifications: (depuis: string) =>
+      request<{ evenements: NotificationStudio[]; nonVus: number }>(
+        `/api/admin/notifications?since=${encodeURIComponent(depuis)}`,
+      ),
     saveHome: (config: HomeConfig) =>
       request<HomeConfig>('/api/admin/home', { method: 'PUT', ...body(config) }),
 

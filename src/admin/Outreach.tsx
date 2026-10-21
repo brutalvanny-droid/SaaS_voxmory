@@ -323,7 +323,7 @@ function Campaigns({ lists }: { lists: BroadcastList[] }) {
           </Field>
           <Field label="Liste cible">
             <select
-              className="w-full bg-black/60 border border-white/10 rounded-lg px-3 py-2 text-sm text-white"
+              className="w-full bg-[#14181D] border border-white/20 rounded-lg px-3 py-2 text-sm text-white placeholder:text-[#8A949F] cursor-text hover:border-white/30 focus:outline-none focus:border-[#A3FF12] focus:ring-2 focus:ring-[#A3FF12]/25 transition-colors"
               value={form.targetListId}
               onChange={(e) => setForm((f) => ({ ...f, targetListId: e.target.value }))}
             >

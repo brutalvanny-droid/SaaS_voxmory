@@ -14,6 +14,7 @@ import { signalerVue } from './lib/visiteur.js';
 import WhatsAppButton from './components/WhatsAppButton.js';
 import { api } from './lib/api.js';
 import { memeContenu } from './lib/egalite.js';
+import { FournisseurNotifications } from './components/Notifications.js';
 import {
   PAGE_PATHS,
   pathToPage,
@@ -135,6 +136,123 @@ export default function App() {
   }, [featuredReviews]);
 
   useJsonLd('voxmory-reviews', reviewLd);
+
+  /**
+   * Données structurées « service » et « questions fréquentes ».
+   *
+   * Ce sont ces blocs qui font apparaître, sous le lien dans Google, les
+   * questions dépliables et les informations de service. Deux pages
+   * concurrentes à contenu égal se départagent souvent là-dessus.
+   *
+   * Elles décrivent des prestations réellement proposées : les formules
+   * viennent du serveur, et le tarif publicitaire est celui que le serveur
+   * applique. Une réponse inventée serait une promesse non tenue.
+   */
+  const serviceLd = useMemo(
+    () => ({
+      '@context': 'https://schema.org',
+      '@type': 'Service',
+      name: 'Chanson personnalisée VOXMORY',
+      serviceType: 'Création musicale sur-mesure',
+      provider: {
+        '@type': 'LocalBusiness',
+        name: 'VOXMORY Studio',
+        areaServed: 'République démocratique du Congo',
+      },
+      areaServed: { '@type': 'Country', name: 'République démocratique du Congo' },
+      offers: packages.map((p) => ({
+        '@type': 'Offer',
+        name: p.name,
+        description: `${p.promise} — livraison : ${p.deliveryTime}.`,
+        price: (p.priceCents / 100).toFixed(2),
+        priceCurrency: p.currency || 'USD',
+        availability: 'https://schema.org/InStock',
+      })),
+      hasOfferCatalog: {
+        '@type': 'OfferCatalog',
+        name: 'Chanson publicitaire pour entreprises',
+        itemListElement: [
+          {
+            '@type': 'Offer',
+            name: 'PUB — Chanson pour entreprises',
+            description:
+              'Jingle de marque écrit sur mesure : votre slogan, votre activité, livré prêt à diffuser.',
+            price: '35.00',
+            priceCurrency: 'USD',
+          },
+        ],
+      },
+    }),
+    [packages],
+  );
+
+  const faqLd = useMemo(() => {
+    const laMoinsChere = packages.reduce(
+      (min, p) => (p.priceCents < min ? p.priceCents : min),
+      packages[0]?.priceCents ?? 0,
+    );
+
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'Combien coûte une chanson personnalisée ?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text:
+              laMoinsChere > 0
+                ? `Nos formules commencent à ${(laMoinsChere / 100).toLocaleString('fr-FR')} $. La chanson publicitaire pour entreprises est un forfait unique de 35 $.`
+                : 'Consultez la page Tarifs : quatre formules, du simple au live.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Combien de temps faut-il pour recevoir ma chanson ?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Selon la formule choisie, la livraison intervient en quelques jours. Vous suivez l’avancement à chaque étape depuis votre numéro de commande.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Comment raconter mon histoire ?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Trois moyens : écrivez-la, déposez une note vocale, ou dites-la de vive voix sur WhatsApp. Le plus court chemin est souvent la voix.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Comment vais-je recevoir ma chanson ?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Par WhatsApp, le moyen le plus simple en RDC. Sans WhatsApp, nous l’envoyons par e-mail.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Puis-je commander une chanson pour mon entreprise ?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Oui. Choisissez l’occasion « PUB — Chanson pour entreprises » : nous écrivons un jingle pour votre marque, au forfait de 35 $.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Comment payer ?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Par Mobile Money ou par carte bancaire, via une page de paiement sécurisée.',
+          },
+        },
+      ],
+    };
+  }, [packages]);
+
+  useJsonLd('voxmory-service', serviceLd);
+  useJsonLd('voxmory-faq', faqLd);
   const [promotion, setPromotion] = useState<PromotionSettings | null>(null);
 
   // Dynamically initialize Google Analytics from environment variables
@@ -248,7 +366,7 @@ export default function App() {
     setPackages((actuel) => (memeContenu(actuel, pkgs) ? actuel : pkgs));
     setGallerySongs((actuel) => (memeContenu(actuel, chansons) ? actuel : chansons));
 
-    const visibles = avis.filter((r) => r.approved === true).slice(0, 3);
+    const visibles = avis.filter((r) => r.approved === true).slice(0, 6);
     setFeaturedReviews((actuel) => (memeContenu(actuel, visibles) ? actuel : visibles));
 
     setPromotion((actuel) => (memeContenu(actuel, promo) ? actuel : promo));
@@ -324,12 +442,20 @@ export default function App() {
     window.scrollTo(0, 0);
   };
 
+  /**
+   * Chansons proposées à la page d'accueil.
+   *
+   * On transmet jusqu'à dix titres : c'est le studio qui décide combien en
+   * montrer. Couper ici à trois rendait le réglage « dix » inopérant — la
+   * page n'aurait jamais eu assez de matière.
+   */
   const getFeaturedSongs = () => {
     const featured = gallerySongs.filter((s) => s.isFeatured);
-    return featured.length > 0 ? featured : gallerySongs.slice(0, 3);
+    return featured.length > 0 ? featured : gallerySongs.slice(0, 10);
   };
 
   return (
+    <FournisseurNotifications>
     <div className="relative min-h-screen bg-[#07080A] text-white flex flex-col justify-between selection:bg-[#A3FF12] selection:text-[#06080A] grain">
       {/* Fond ambiant : deux halos fixes donnent de la profondeur à chaque page */}
       <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
@@ -485,5 +611,6 @@ export default function App() {
         )}
       </AnimatePresence>
     </div>
+    </FournisseurNotifications>
   );
 }

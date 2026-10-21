@@ -26,6 +26,10 @@ const DEFAUT: HomeConfig = {
     couleur: 'vert',
     position: 'droite',
   },
+  vitrine: {
+    chansons: 3,
+    avis: 3,
+  },
 };
 
 export function useHomeConfig() {

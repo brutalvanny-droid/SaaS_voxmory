@@ -369,6 +369,19 @@ export const homeConfigSchema = z.object({
     /** Position à l'écran. */
     position: z.enum(['gauche', 'droite']).default('droite'),
   }),
+
+  /**
+   * Combien d'exemples montrer sur la page d'accueil.
+   *
+   * Un studio qui n'a que deux chansons ne veut pas trois emplacements
+   * vides ; un studio fourni veut en montrer dix pour prouver son savoir-
+   * faire. Trois crans suffisent, et évitent de transformer ce réglage en
+   * champ de saisie où l'on se trompe.
+   */
+  vitrine: z.object({
+    chansons: z.union([z.literal(3), z.literal(6), z.literal(10)]).default(3),
+    avis: z.union([z.literal(3), z.literal(6)]).default(3),
+  }),
 });
 
 export type HomeConfig = z.infer<typeof homeConfigSchema>;

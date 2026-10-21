@@ -104,6 +104,17 @@ const asyncHandler =
   };
 
 /** Les fichiers passent par Vercel Blob : 1 Mo suffit largement pour l'API. */
+/**
+ * Chanson publicitaire pour les entreprises.
+ *
+ * Tarif forfaitaire, distinct des formules : c'est un jingle de marque, pas
+ * un souvenir personnalisé. Le libellé est défini ici pour que le serveur
+ * et le formulaire parlent exactement de la même chose — une divergence
+ * d'orthographe ferait perdre le tarif sans prévenir.
+ */
+export const OCCASION_PUB = 'PUB — Chanson pour entreprises';
+const PRIX_PUB_CENTS = 3_500; // 35 $
+
 const JSON_LIMIT = '1mb';
 
 function newId(): string {
@@ -163,6 +174,10 @@ const HOME_DEFAUT = {
     forme: 'pastille',
     couleur: 'vert',
     position: 'droite',
+  },
+  vitrine: {
+    chansons: 3,
+    avis: 3,
   },
 };
 
@@ -526,7 +541,14 @@ app.get('/api/health', (_req, res) => {
 });
 
 app.get('/api/config', (_req, res) => {
-  res.json({ uploadMode: uploadMode(), blobAccess: blobAccess() });
+  res.json({
+    uploadMode: uploadMode(),
+    blobAccess: blobAccess(),
+    // Le tarif publicitaire est annoncé par le serveur : le formulaire
+    // l'affiche sans pouvoir le fixer lui-même.
+    occasionPub: OCCASION_PUB,
+    prixPubCents: PRIX_PUB_CENTS,
+  });
 });
 
 /**
@@ -843,7 +865,18 @@ app.post(
 
     // Le prix est figé côté serveur : jamais celui envoyé par le client.
     const vipFeeCents = data.vipCardSelected ? 200 : 0;
-    const amountCents = pkg.priceCents + vipFeeCents;
+
+    /**
+     * Une chanson publicitaire obéit à un tarif à part.
+     *
+     * Ce n'est pas un souvenir personnalisé : c'est un jingle commandé par
+     * une entreprise pour sa marque. Le forfait est donc unique, quelle que
+     * soit la formule cochée. On l'applique ici, et nulle part ailleurs,
+     * pour qu'un client ne puisse pas l'annoncer lui-même depuis son
+     * navigateur.
+     */
+    const estPub = data.occasion === OCCASION_PUB;
+    const amountCents = estPub ? PRIX_PUB_CENTS : pkg.priceCents + vipFeeCents;
 
     const id = newId();
     const reference = `VOX-${new Date().getFullYear()}-${randomHex(8)}`;
@@ -1994,6 +2027,105 @@ app.put(
     await setSetting('home', parsed.data);
     void logAudit(req, 'home.update', 'setting', null, null);
     res.json(parsed.data);
+  }),
+);
+
+
+/* --- Vitrine : notifications du studio -------------------------------- */
+
+/**
+ * Ce qui s'est passé depuis la dernière fois que le studio a regardé.
+ *
+ * Un studio qui vend ne peut pas passer sa journée à recharger son
+ * tableau de bord : il doit être averti. On lui renvoie donc les événements
+ * récents — nouvelle commande, paiement reçu, avis déposé — et le compte
+ * de ceux qu'il n'a pas encore vus.
+ *
+ * La mémorisation du « déjà vu » reste dans le navigateur du studio, et non
+ * dans la base : c'est une préférence d'affichage, pas une donnée
+ * métier. Aucune table supplémentaire n'est donc nécessaire, et deux
+ * personnes travaillant sur le même compte gardent chacune la leur.
+ */
+app.get(
+  '/api/admin/notifications',
+  requireAdmin,
+  asyncHandler(async (req: AuthedRequest, res: Response) => {
+    const depuisRaw = String(req.query.since ?? '');
+    const depuis = depuisRaw ? new Date(depuisRaw) : new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const borneValide = !Number.isNaN(depuis.getTime());
+    const borne = borneValide ? depuis : new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+    const [commandes, avis] = await Promise.all([
+      db
+        .select({
+          id: orders.id,
+          reference: orders.reference,
+          client: orders.customerName,
+          montant: orders.amountCents,
+          devise: orders.currency,
+          statutPaiement: orders.paymentStatus,
+          occasion: orders.occasion,
+          createdAt: orders.createdAt,
+        })
+        .from(orders)
+        .orderBy(desc(orders.createdAt))
+        .limit(20),
+      db
+        .select({
+          id: reviews.id,
+          client: reviews.clientName,
+          note: reviews.rating,
+          approuve: reviews.approved,
+          createdAt: reviews.createdAt,
+        })
+        .from(reviews)
+        .orderBy(desc(reviews.createdAt))
+        .limit(20),
+    ]);
+
+    const evenements: {
+      id: string;
+      type: 'commande' | 'paiement' | 'avis';
+      titre: string;
+      detail: string;
+      date: string;
+      lien?: string;
+    }[] = [];
+
+    for (const c of commandes) {
+      const date = c.createdAt instanceof Date ? c.createdAt : new Date(c.createdAt);
+      const paye = c.statutPaiement === 'Paid';
+      evenements.push({
+        id: `c-${c.id}`,
+        type: paye ? 'paiement' : 'commande',
+        titre: paye
+          ? `Paiement reçu — ${((c.montant ?? 0) / 100).toLocaleString('fr-FR')} ${c.devise ?? ''}`
+          : 'Nouvelle commande',
+        detail: `${c.client ?? 'Client'}${c.occasion ? ` · ${c.occasion}` : ''} · ${c.reference}`,
+        date: date.toISOString(),
+        lien: `/admin/orders`,
+      });
+    }
+
+    for (const a of avis) {
+      const date = a.createdAt instanceof Date ? a.createdAt : new Date(a.createdAt);
+      evenements.push({
+        id: `a-${a.id}`,
+        type: 'avis',
+        titre: a.approuve ? 'Avis publié' : 'Avis en attente de validation',
+        detail: `${a.client ?? 'Client'} · ${a.note ?? 0}/5`,
+        date: date.toISOString(),
+      });
+    }
+
+    evenements.sort((x, y) => y.date.localeCompare(x.date));
+
+    const nonVus = evenements.filter((e) => new Date(e.date) > borne);
+
+    res.json({
+      evenements: evenements.slice(0, 20),
+      nonVus: nonVus.length,
+    });
   }),
 );
 

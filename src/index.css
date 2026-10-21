@@ -98,6 +98,12 @@
     from { opacity: 0; transform: translate3d(0, 8px, 0); }
     to { opacity: 1; transform: none; }
   }
+
+  /* Entrée d'une notification : elle arrive de la droite, sans secousse. */
+  @keyframes notif {
+    from { opacity: 0; transform: translate3d(1.5rem, 0, 0) scale(0.96); }
+    to { opacity: 1; transform: none; }
+  }
 }
 
 /* ================================================================== */

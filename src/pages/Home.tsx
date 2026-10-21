@@ -2,13 +2,15 @@ import { useEffect, useState } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import {
   ArrowRight,
-  MessageCircle,
-  Sparkles,
   Headphones,
-  ShieldCheck,
-  Zap,
+  MessageCircle,
+  Music4,
   Play,
+  ShieldCheck,
+  Smartphone,
+  Sparkles,
   Star,
+  Zap,
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext.js';
 import { whatsappUrl } from '../lib/contact.js';
@@ -189,6 +191,51 @@ export default function Home({
             </motion.div>
           </div>
 
+          {/**
+           * VOXMORY en trois images.
+           *
+           * Le visiteur qui arrive ne lira pas le paragraphe
+           * d'explication : il regardera. Trois pictogrammes et trois
+           * verbes suffisent à faire comprendre le métier, sans une ligne
+           * de texte à déchiffrer. C'est ce qu'on retient en cinq
+           * secondes, et c'est ce qui donne envie de continuer.
+           */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            className="mt-10 grid grid-cols-3 gap-2 sm:gap-3 max-w-2xl"
+          >
+            {[
+              { icone: MessageCircle, verbe: 'Vous racontez', precision: 'Texte, audio ou WhatsApp' },
+              { icone: Music4, verbe: 'Nous créons', precision: 'Écriture, musique, studio' },
+              { icone: Smartphone, verbe: 'Vous recevez', precision: 'Sur votre téléphone' },
+            ].map(({ icone: Icone, verbe, precision }, i) => (
+              <div
+                key={verbe}
+                className="relative rounded-2xl border border-white/[0.08] bg-white/[0.03] backdrop-blur-sm px-3 py-4 text-center"
+              >
+                <span className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-[#A3FF12]/12 mb-2">
+                  <Icone className="w-5 h-5 text-[#A3FF12]" />
+                </span>
+                <p className="text-[13.5px] sm:text-[15px] font-extrabold text-white leading-tight">
+                  {verbe}
+                </p>
+                <p className="text-[10.5px] sm:text-[11.5px] text-[#8A949F] mt-1 leading-snug">
+                  {precision}
+                </p>
+
+                {/* La flèche qui lie les étapes : on comprend le sens de
+                    lecture sans avoir à deviner. */}
+                {i < 2 && (
+                  <span className="hidden sm:grid absolute -right-2 top-1/2 -translate-y-1/2 z-10 w-5 h-5 rounded-full bg-[#0B0D10] border border-white/10 place-items-center">
+                    <ArrowRight className="w-3 h-3 text-[#A3FF12]" />
+                  </span>
+                )}
+              </div>
+            ))}
+          </motion.div>
+
           {/* Compteurs */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}
@@ -365,7 +412,7 @@ export default function Home({
             </Reveal>
 
             <div className="mt-14 grid lg:grid-cols-3 gap-4">
-              {featuredSongs.slice(0, 3).map((song, i) => (
+              {featuredSongs.slice(0, home.vitrine.chansons).map((song, i) => (
                 <Reveal key={song.id} delay={i * 100}>
                   <div className="lift rounded-2xl border border-white/[0.07] bg-[#0E1114] overflow-hidden">
                     <div className="h-32 relative overflow-hidden">
@@ -421,7 +468,7 @@ export default function Home({
             </Reveal>
 
             <div className="mt-14 grid md:grid-cols-3 gap-4">
-              {featuredReviews.slice(0, 3).map((review, i) => (
+              {featuredReviews.slice(0, home.vitrine.avis).map((review, i) => (
                 <Reveal key={review.id} delay={i * 100}>
                   <figure className="lift h-full rounded-2xl border border-white/[0.07] bg-gradient-to-b from-white/[0.035] to-transparent p-6 flex flex-col">
                     <div className="flex gap-0.5 mb-4">
