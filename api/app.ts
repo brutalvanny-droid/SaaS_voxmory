@@ -506,10 +506,14 @@ app.get('/api/config', (_req, res) => {
  * sur la courte durée de validité de l'adresse.
  */
 app.get(
-  '/api/media/*path',
+  '/api/media/*',
   asyncHandler(async (req: Request, res: Response) => {
-    const brut = (req.params as { path?: string[] }).path;
-    const pathname = Array.isArray(brut) ? brut.join('/') : String(brut ?? '');
+    /**
+     * Express 4 place la partie joker dans `params[0]`, pas dans un
+     * paramètre nommé : `/api/media/audio/x.mp3` donne bien « audio/x.mp3 ».
+     */
+    const brut = (req.params as Record<string, unknown>)[0];
+    const pathname = decodeURIComponent(Array.isArray(brut) ? brut.join('/') : String(brut ?? ''));
 
     if (!pathname || !cheminEstSur(pathname)) {
       res.status(400).json({ error: 'Chemin de fichier invalide.' });
