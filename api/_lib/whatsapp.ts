@@ -135,3 +135,88 @@ export function deliveryMessage(
     "— L'équipe VOXMORY",
   ].join('\n');
 }
+
+/**
+ * État de la configuration.
+ *
+ * Sert au studio à savoir pourquoi un message ne part pas, sans avoir à
+ * ouvrir les journaux du serveur. On indique précisément ce qui manque —
+ * « non configuré » seul laisserait chercher à l'aveugle.
+ */
+export interface WhatsappStatus {
+  configure: boolean;
+  manquants: string[];
+  url?: string;
+  sessionId?: string;
+  numeroAdmin?: boolean;
+}
+
+export function whatsappStatus(): WhatsappStatus {
+  const { OPENWA_URL, OPENWA_API_KEY, OPENWA_SESSION_ID, ADMIN_WHATSAPP_NUMBER } = process.env;
+
+  const manquants: string[] = [];
+  if (!OPENWA_URL) manquants.push('OPENWA_URL');
+  if (!OPENWA_API_KEY) manquants.push('OPENWA_API_KEY');
+  if (!OPENWA_SESSION_ID) manquants.push('OPENWA_SESSION_ID');
+
+  return {
+    configure: manquants.length === 0 && isWhatsappConfigured(),
+    manquants,
+    ...(OPENWA_URL ? { url: OPENWA_URL } : {}),
+    ...(OPENWA_SESSION_ID ? { sessionId: OPENWA_SESSION_ID } : {}),
+    numeroAdmin: Boolean(ADMIN_WHATSAPP_NUMBER),
+  };
+}
+
+/**
+ * Vérifie que la passerelle répond et que la session est bien connectée.
+ *
+ * Une passerelle joignable mais déconnectée ne sert à rien : c'est le cas
+ * le plus fréquent après un redémarrage du serveur, quand il faut
+ * rescanner le QR code.
+ */
+export async function testerConnexion(): Promise<{ ok: boolean; detail: string }> {
+  if (!isWhatsappConfigured()) {
+    const s = whatsappStatus();
+    return {
+      ok: false,
+      detail: s.manquants.length
+        ? `Variables manquantes : ${s.manquants.join(', ')}.`
+        : 'Passerelle non configurée.',
+    };
+  }
+
+  const base = (process.env.OPENWA_URL as string).replace(/\/$/, '');
+  const endpoint = `${base}/sessions/${process.env.OPENWA_SESSION_ID}`;
+
+  const controller = new AbortController();
+  const delai = setTimeout(() => controller.abort(), 8_000);
+
+  try {
+    const res = await fetch(endpoint, {
+      headers: { 'X-API-Key': process.env.OPENWA_API_KEY as string },
+      signal: controller.signal,
+    });
+
+    if (!res.ok) {
+      return { ok: false, detail: `La passerelle a répondu ${res.status}.` };
+    }
+
+    const data = (await res.json().catch(() => null)) as
+      | { status?: string; state?: string }
+      | null;
+
+    // OpenWA nomme l'état de la session « status » ou « state » selon les
+    // versions : on accepte les deux plutôt que de se tromper.
+    const etat = (data?.status ?? data?.state ?? '').toUpperCase();
+    if (etat && etat !== 'CONNECTED' && etat !== 'AUTHENTICATED') {
+      return { ok: false, detail: `Session non connectée (${etat}). Rescannez le QR code.` };
+    }
+
+    return { ok: true, detail: 'Passerelle joignable et session connectée.' };
+  } catch {
+    return { ok: false, detail: 'Passerelle injoignable depuis le serveur.' };
+  } finally {
+    clearTimeout(delai);
+  }
+}

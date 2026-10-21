@@ -10,6 +10,7 @@ import PromotionBanner from './components/PromotionBanner.js';
 
 import { Package, GallerySong, ClientReview, PromotionSettings } from './types.js';
 import { useSEO, useJsonLd } from './hooks/useSEO.js';
+import WhatsAppButton from './components/WhatsAppButton.js';
 import { api } from './lib/api.js';
 import {
   PAGE_PATHS,
@@ -400,6 +401,13 @@ export default function App() {
 
       {/* Global Footer Block */}
       <Footer onNavigate={(page) => handleNavigate(page)} />
+
+      {/*
+        Bouton flottant. Retiré du studio et de l'espace client : là, le
+        visiteur est déjà en train de faire quelque chose, et un bouton qui
+        discute n'aide personne.
+      */}
+      <WhatsAppButton masquer={currentPage === 'admin'} />
 
       {/* Mobile Sticky CTA */}
       <AnimatePresence>

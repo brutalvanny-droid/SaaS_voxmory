@@ -11,6 +11,7 @@ import {
   Star,
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext.js';
+import { whatsappUrl } from '../lib/contact.js';
 import AudioPlayer from '../components/AudioPlayer.js';
 import Reveal from '../components/Reveal.js';
 import MeshBackground from '../components/MeshBackground.js';
@@ -471,7 +472,7 @@ export default function Home({
                 <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
               </button>
               <a
-                href="https://wa.me/243978508099"
+                href={whatsappUrl()}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl border border-white/[0.12] bg-white/[0.03] hover:bg-white/[0.07] text-white font-semibold text-[15px] transition-all duration-300"

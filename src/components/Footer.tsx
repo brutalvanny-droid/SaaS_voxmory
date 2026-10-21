@@ -2,6 +2,7 @@ import { MessageCircle, Mail, Phone, ShieldCheck, ArrowUpRight } from 'lucide-re
 import InstallButton from './InstallButton.js';
 import { LogoMark } from './Logo.js';
 import Reveal from './Reveal.js';
+import { whatsappUrl } from '../lib/contact.js';
 
 interface FooterProps {
   onNavigate: (page: string) => void;
@@ -105,7 +106,7 @@ export default function Footer({ onNavigate }: FooterProps) {
                     WhatsApp 24/7
                   </span>
                   <a
-                    href="https://wa.me/243978508099"
+                    href={whatsappUrl()}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-[13.5px] text-white hover:text-[#A3FF12] transition-colors font-semibold whitespace-nowrap inline-flex items-center gap-1"

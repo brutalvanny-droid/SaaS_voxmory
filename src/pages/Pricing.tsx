@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import Reveal from '../components/Reveal.js';
 import { Package } from '../types.js';
 import { PACK_SLUGS } from '../seo/routes.js';
+import { whatsappUrl } from '../lib/contact.js';
 
 interface PricingProps {
   packages: Package[];
@@ -497,7 +498,7 @@ export default function Pricing({ packages, onNavigate }: PricingProps) {
             </div>
 
             <a
-              href="https://wa.me/243978508099?text=Bonjour%20VOXMORY%2C%20je%20souhaite%20valider%20le%20paiement%20de%20ma%20chanson."
+              href={whatsappUrl("Bonjour VOXMORY, je souhaite valider le paiement de ma chanson.")}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full py-2.5 bg-green-600 hover:bg-green-500 text-white rounded-lg font-sans font-bold text-[10px] uppercase tracking-wider text-center flex items-center justify-center gap-1.5 transition-all"

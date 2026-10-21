@@ -246,8 +246,21 @@ export const api = {
         method: 'POST',
         ...body({ phone, message }),
       }),
-    testWhatsapp: () =>
-      request<{ ok: boolean; reason?: string }>('/api/whatsapp/test', { method: 'POST' }),
+    whatsappStatus: () =>
+      request<{
+        configure: boolean;
+        manquants: string[];
+        url?: string;
+        sessionId?: string;
+        numeroAdmin: boolean;
+        joignable: boolean | null;
+        detail?: string;
+      }>('/api/whatsapp/status'),
+    testWhatsapp: (phone?: string) =>
+      request<{ ok: boolean; reason?: string }>('/api/whatsapp/test', {
+        method: 'POST',
+        ...body(phone ? { phone } : {}),
+      }),
 
     ai: (payload: Record<string, unknown>) =>
       request<{ text: string; degraded: boolean; error?: string }>('/api/admin/ai', {

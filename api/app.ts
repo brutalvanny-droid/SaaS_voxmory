@@ -2309,18 +2309,45 @@ app.post(
   }),
 );
 
+/**
+ * État de la passerelle.
+ *
+ * Permet au studio de voir, sans ouvrir les journaux, si les variables sont
+ * en place et si la session est connectée — les deux causes d'un message
+ * qui ne part pas.
+ */
+app.get(
+  '/api/whatsapp/status',
+  asyncHandler(async (_req: AuthedRequest, res: Response) => {
+    const etat = whatsapp.whatsappStatus();
+    const sonde = etat.configure ? await whatsapp.testerConnexion() : null;
+    res.json({
+      ...etat,
+      joignable: sonde?.ok ?? null,
+      detail: sonde?.detail ?? (etat.configure ? undefined : 'Configuration incomplète.'),
+    });
+  }),
+);
+
 app.post(
   '/api/whatsapp/test',
   asyncHandler(async (req: AuthedRequest, res: Response) => {
-    const adminNumber = process.env.ADMIN_WHATSAPP_NUMBER;
-    if (!adminNumber) {
-      res.status(400).json({ error: 'ADMIN_WHATSAPP_NUMBER n’est pas configuré.' });
+    const cible =
+      (typeof req.body?.phone === 'string' && req.body.phone.trim()) ||
+      process.env.ADMIN_WHATSAPP_NUMBER;
+
+    if (!cible) {
+      res.status(400).json({
+        error: 'Indiquez un numéro, ou configurez ADMIN_WHATSAPP_NUMBER.',
+      });
       return;
     }
+
     const result = await whatsapp.sendWhatsAppMessage(
-      adminNumber,
+      cible,
       `[VOXMORY] Test d'intégration réussi — ${new Date().toLocaleString('fr-FR')}`,
     );
+    void logAudit(req, 'whatsapp.test', 'order', null, { phone: cible });
     res.json(result);
   }),
 );

@@ -1,10 +1,18 @@
-import { useEffect, useState } from 'react';
-import { Save, Loader2, ShieldCheck, Settings as SettingsIcon, Megaphone } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
+import {
+  Save,
+  Loader2,
+  ShieldCheck,
+  Settings as SettingsIcon,
+  Megaphone,
+  MessageCircle,
+} from 'lucide-react';
 import { api } from '../lib/api.js';
 import type { Package, PromotionSettings } from '../types.js';
+import type { ReactNode } from 'react';
 import { Badge, Button, Card, Empty, ErrorNote, Field, Input, Select, TextArea } from './ui.js';
 
-type Tab = 'packages' | 'promotion' | 'audit';
+type Tab = 'packages' | 'promotion' | 'whatsapp' | 'audit';
 
 export default function SettingsPanel({ onPromotionChanged }: { onPromotionChanged: () => void }) {
   const [tab, setTab] = useState<Tab>('packages');
@@ -16,6 +24,7 @@ export default function SettingsPanel({ onPromotionChanged }: { onPromotionChang
           [
             ['packages', 'Tarifs'],
             ['promotion', 'Bandeau promo'],
+            ['whatsapp', 'WhatsApp'],
             ['audit', 'Journal'],
           ] as const
         ).map(([id, label]) => (
@@ -35,6 +44,7 @@ export default function SettingsPanel({ onPromotionChanged }: { onPromotionChang
 
       {tab === 'packages' && <Packages />}
       {tab === 'promotion' && <Promotion onChanged={onPromotionChanged} />}
+      {tab === 'whatsapp' && <Whatsapp />}
       {tab === 'audit' && <Audit />}
     </div>
   );
@@ -276,6 +286,157 @@ function Spinner() {
   return (
     <div className="flex items-center justify-center py-16 text-[#8A949F] gap-2 text-sm">
       <Loader2 className="w-4 h-4 animate-spin" /> Chargement…
+    </div>
+  );
+}
+
+/* ---------------------------- WhatsApp ------------------------------ */
+
+/**
+ * État de la passerelle WhatsApp.
+ *
+ * « Ça ne marche pas » est un diagnostic difficile à exploiter. Cet écran
+ * répond à la seule question utile : où est le blocage ? Les variables
+ * manquantes, la passerelle injoignable et la session déconnectée sont
+ * trois pannes différentes, qui ne se réparent pas de la même façon —
+ * notamment la troisième, qui réclame simplement de rescanner le QR code.
+ */
+function Whatsapp() {
+  const [etat, setEtat] = useState<Awaited<
+    ReturnType<typeof api.admin.whatsappStatus>
+  > | null>(null);
+  const [erreur, setErreur] = useState('');
+  const [numero, setNumero] = useState('');
+  const [envoi, setEnvoi] = useState(false);
+  const [resultat, setResultat] = useState<string>('');
+
+  const charger = useCallback(() => {
+    setErreur('');
+    api.admin
+      .whatsappStatus()
+      .then(setEtat)
+      .catch((e) => setErreur(e instanceof Error ? e.message : 'Diagnostic indisponible.'));
+  }, []);
+
+  useEffect(charger, [charger]);
+
+  async function tester() {
+    setEnvoi(true);
+    setResultat('');
+    try {
+      const r = await api.admin.testWhatsapp(numero.trim() || undefined);
+      setResultat(r.ok ? 'Message envoyé. Vérifiez votre téléphone.' : r.reason ?? 'Échec.');
+    } catch (e) {
+      setResultat(e instanceof Error ? e.message : 'Échec de l’envoi.');
+    } finally {
+      setEnvoi(false);
+    }
+  }
+
+  if (erreur) return <ErrorNote message={erreur} />;
+  if (!etat) return <Spinner />;
+
+  return (
+    <div className="space-y-4">
+      <Card title="Passerelle WhatsApp" subtitle="OpenWA — messages envoyés depuis le site">
+        <div className="space-y-3">
+          <Ligne
+            label="Configuration"
+            valeur={
+              etat.configure ? (
+                <span className="text-emerald-400 font-bold">Complète</span>
+              ) : (
+                <span className="text-amber-400 font-bold">Incomplète</span>
+              )
+            }
+          />
+
+          {etat.manquants.length > 0 && (
+            <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
+              <p className="text-[12.5px] font-bold text-amber-300 mb-1.5">
+                Variables à renseigner sur Vercel
+              </p>
+              <ul className="space-y-1">
+                {etat.manquants.map((v) => (
+                  <li key={v} className="text-[12px] text-[#C2CAD3] font-mono">
+                    {v}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {etat.url && <Ligne label="Adresse" valeur={etat.url} mono />}
+          {etat.sessionId && <Ligne label="Session" valeur={etat.sessionId} mono />}
+
+          <Ligne
+            label="Connexion"
+            valeur={
+              etat.joignable === null ? (
+                <span className="text-[#8A949F]">Non testée</span>
+              ) : etat.joignable ? (
+                <span className="text-emerald-400 font-bold">Session connectée</span>
+              ) : (
+                <span className="text-red-400 font-bold">Rupture</span>
+              )
+            }
+          />
+
+          {etat.detail && (
+            <p className="text-[12.5px] text-[#8A949F] leading-relaxed">{etat.detail}</p>
+          )}
+        </div>
+
+        <div className="mt-4 pt-4 border-t border-white/[0.06]">
+          <Field label="Envoyer un message de test à">
+            <Input
+              value={numero}
+              onChange={(e) => setNumero(e.target.value)}
+              placeholder="+243 97 000 00 00"
+            />
+          </Field>
+          <p className="text-[11.5px] text-[#6C7581] mt-1.5">
+            Laissez vide pour utiliser le numéro du studio.
+          </p>
+
+          <div className="flex items-center gap-3 mt-3">
+            <Button onClick={() => void tester()} disabled={envoi}>
+              {envoi && <Loader2 className="w-3.5 h-3.5 inline mr-1.5 animate-spin" />}
+              Envoyer le test
+            </Button>
+            {resultat && (
+              <span
+                className={`text-[12.5px] ${
+                  resultat.includes('envoyé') ? 'text-emerald-400' : 'text-red-400'
+                }`}
+              >
+                {resultat}
+              </span>
+            )}
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+function Ligne({
+  label,
+  valeur,
+  mono = false,
+}: {
+  label: string;
+  valeur: ReactNode;
+  mono?: boolean;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-4 py-2 border-b border-white/[0.05] last:border-0">
+      <span className="text-[12.5px] text-[#8A949F]">{label}</span>
+      <span
+        className={`text-[12.5px] text-right text-[#E8ECEF] ${mono ? 'font-mono text-[11.5px]' : ''}`}
+      >
+        {valeur}
+      </span>
     </div>
   );
 }
