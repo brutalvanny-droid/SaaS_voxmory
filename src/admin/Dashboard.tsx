@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
-  AlertCircle,
   ArrowUpRight,
-  CreditCard,
   Globe2,
   Loader2,
   Monitor,

@@ -1,5 +1,5 @@
 import { useState, useEffect, FormEvent } from 'react';
-import { Star, MessageCircle, Sparkles, Check, Send } from 'lucide-react';
+import { Star, Sparkles, Check, Send } from 'lucide-react';
 import { ClientReview } from '../types.js';
 import Reveal from '../components/Reveal.js';
 
@@ -8,7 +8,7 @@ interface ReviewsProps {
   onNavigate: (page: string) => void;
 }
 
-export default function Reviews({ initialReviews, onNavigate }: ReviewsProps) {
+export default function Reviews({ initialReviews }: ReviewsProps) {
   const [reviews, setReviews] = useState<ClientReview[]>(initialReviews);
   const [isLoading, setIsLoading] = useState(true);
   

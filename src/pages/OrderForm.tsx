@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { api } from '../lib/api.js';
 import { uploadFile } from '../lib/upload.js';
-import { useNotifier, useNotifications } from '../components/Notifications.js';
+import { useNotifier } from '../components/Notifications.js';
 import type { Order, Package } from '../types.js';
 
 const STEPS = ['Vous', 'L’histoire', 'La musique', 'Récapitulatif'];
@@ -856,8 +856,7 @@ export function OrderSuccess({
   const [error, setError] = useState('');
   const [paid, setPaid] = useState(false);
   const [copied, setCopied] = useState(false);
-  const { succes, erreur, attention, attente } = useNotifier();
-  const { maj, fermer } = useNotifications();
+  const { succes, erreur, attente } = useNotifier();
 
   useEffect(() => {
     api.networks('CD').then((r) => setNetworks(r.networks)).catch(() => {});

@@ -5,10 +5,8 @@ import {
   Sparkles,
   Loader2,
   Music,
-  MessageCircle,
   FileText,
   ExternalLink,
-  Send,
 } from 'lucide-react';
 import { api } from '../lib/api.js';
 import { ORDER_STATUSES, PAYMENT_STATUSES, type Order, type PaymentInfo } from '../types.js';

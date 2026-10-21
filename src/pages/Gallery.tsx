@@ -1,5 +1,5 @@
 import { useState, useEffect, ChangeEvent, FormEvent } from 'react';
-import { Search, Sparkles, Filter, Music, Lock, Unlock, Pencil, Trash2, X, Upload, Eye, EyeOff, Check, AlertCircle, Share2, MessageCircle } from 'lucide-react';
+import { Search, Sparkles, Music, Lock, Unlock, Pencil, Trash2, X, Check, AlertCircle, Share2, MessageCircle } from 'lucide-react';
 import AudioPlayer from '../components/AudioPlayer.js';
 import { api } from '../lib/api.js';
 import { GallerySong } from '../types.js';
@@ -20,8 +20,8 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
   // Administrative Lock and Modal States
   const [isAdminUnlocked, setIsAdminUnlocked] = useState(false);
   const [showUnlockModal, setShowUnlockModal] = useState(false);
-  const [adminPassword, setAdminPassword] = useState('');
-  const [unlockError, setUnlockError] = useState(false);
+  // La saisie du mot de passe a été déplacée vers l'écran du studio : un
+  // champ posé au milieu d'une galerie publique invitait à s'y tromper.
 
   // Deletion States
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);

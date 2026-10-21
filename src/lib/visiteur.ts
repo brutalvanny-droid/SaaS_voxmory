@@ -17,8 +17,6 @@ const CLE = 'voxmory_vid';
  * traitée comme nouvelle, ce qui est honnête puisqu'on ne peut pas
  * raisonnablement affirmer le contraire après si longtemps.
  */
-const DUREE_JOURS = 365;
-
 export function identifiantVisiteur(): string {
   try {
     const existant = localStorage.getItem(CLE);

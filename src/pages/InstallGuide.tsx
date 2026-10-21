@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Smartphone, Download, Share, HelpCircle, ChevronRight, Check, ArrowDown, Sparkles, Music } from 'lucide-react';
+import { Smartphone, Download, Share, HelpCircle, Check, Sparkles } from 'lucide-react';
 
 interface InstallGuideProps {
   onNavigate: (page: string) => void;

@@ -3,9 +3,7 @@ import {
   Save,
   Loader2,
   ShieldCheck,
-  Settings as SettingsIcon,
   Megaphone,
-  MessageCircle,
 } from 'lucide-react';
 import { api } from '../lib/api.js';
 import type { Package, PromotionSettings } from '../types.js';

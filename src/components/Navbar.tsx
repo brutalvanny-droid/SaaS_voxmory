@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Menu, X, MessageCircle, Music, Globe, ChevronDown, ArrowRight, User } from 'lucide-react';
+import { Menu, X, Globe, ChevronDown, ArrowRight, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useLanguage } from '../context/LanguageContext.js';
 import { useScrollLock } from '../hooks/useScrollLock.js';

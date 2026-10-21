@@ -53,7 +53,6 @@ export default function AudioPlayer({ audioUrl, title, subtitle, coverUrl, start
       setIsPlaying(false);
     } else {
       // If current time is out of range, reset it to minTime
-      const maxTime = endTime && endTime < duration ? endTime : duration;
       if (audioRef.current.currentTime < minTime || (endTime && audioRef.current.currentTime >= endTime)) {
         audioRef.current.currentTime = minTime;
         setCurrentTime(minTime);

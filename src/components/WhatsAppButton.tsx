@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { MessageCircle, X } from 'lucide-react';
-import { WHATSAPP_NUMBER, whatsappUrl } from '../lib/contact.js';
+import { whatsappUrl } from '../lib/contact.js';
 
 /**
  * Bouton WhatsApp flottant.

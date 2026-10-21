@@ -14,7 +14,9 @@
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
   /* ---- Surfaces ---- */
-  --color-ink-950: #06070900;
+  /* Huit chiffres valaient « transparent » : la surface disparaissait.
+     Sept chiffres, comme ses voisines. */
+  --color-ink-950: #060709;
   --color-ink: #07080A;
   --color-ink-800: #0B0D10;
   --color-ink-700: #101317;

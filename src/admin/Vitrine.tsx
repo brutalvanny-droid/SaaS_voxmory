@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Check,
-  Eye,
   Film,
   Image as ImageIcon,
   Loader2,
@@ -112,7 +111,7 @@ function Hero({
   const [etat, setEtat] = useState<'idle' | 'ok' | 'erreur'>('idle');
   const [message, setMessage] = useState('');
   const videoRef = useRef<HTMLVideoElement>(null);
-  const { attente, succes } = useNotifier();
+  const { attente } = useNotifier();
   const { maj } = useNotifications();
 
   async function deposer(fichier: File, champ: 'videoUrl' | 'posterUrl' | 'webmUrl') {
@@ -328,7 +327,7 @@ function Promo({
   const [promo, setPromo] = useState(config.promo);
   const [etat, setEtat] = useState<'idle' | 'ok' | 'erreur'>('idle');
   const [message, setMessage] = useState('');
-  const { attente, succes } = useNotifier();
+  const { attente } = useNotifier();
   const { maj } = useNotifications();
 
   async function sauver() {

@@ -7,13 +7,9 @@ import { LanguageProvider } from './context/LanguageContext.tsx';
 // Register offline service worker
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then((registration) => {
-        console.log('[Service Worker] Registered successfully:', registration.scope);
-      })
-      .catch((error) => {
-        console.error('[Service Worker] Registration failed:', error);
-      });
+    navigator.serviceWorker.register('/sw.js').catch((error) => {
+      console.error('[Service Worker] Registration failed:', error);
+    });
   });
 }
 

@@ -4,7 +4,6 @@ import {
   Loader2,
   MessageCircle,
   Search,
-  UserPlus,
   Users2,
   Check,
 } from 'lucide-react';

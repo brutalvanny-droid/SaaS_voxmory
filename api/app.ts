@@ -60,7 +60,6 @@ import {
   homeConfigSchema,
 } from './_lib/validation.js';
 import {
-  CLIENT_SESSION_COOKIE,
   createClientSessionToken,
   clearClientSessionCookie,
   generateResetToken,
@@ -389,7 +388,7 @@ app.post(
       if (eventType === 'transaction.success') {
         await markPaymentSucceeded(providerRef, providerReference, data);
       } else if (eventType === 'transaction.failed' || eventType === 'transaction.cancelled') {
-        await markPaymentFailed(providerRef, providerReference);
+        await markPaymentFailed(providerRef);
       }
 
       await db
@@ -1255,10 +1254,7 @@ async function markPaymentSucceeded(
   await markOrderPaid(payment.orderId, payment.id, data);
 }
 
-async function markPaymentFailed(
-  providerRef: string | null,
-  providerReference: string | null,
-): Promise<void> {
+async function markPaymentFailed(providerRef: string | null): Promise<void> {
   const [payment] = providerRef
     ? await db.select().from(payments).where(eq(payments.providerRef, providerRef)).limit(1)
     : [];
@@ -1587,6 +1583,26 @@ app.post(
   '/api/account/reset',
   asyncHandler(async (req: Request, res: Response) => {
     maybePurge();
+
+    /**
+     * Limite d'essais sur la réinitialisation.
+     *
+     * Le jeton est imprévisible — 256 bits d'aléa — donc une recherche
+     * exhaustive n'aboutira pas. Mais rien n'empêchait auparavant de
+     * soumettre des milliers de jetons à la seconde : la base encaissait
+     * une requête par essai, et l'absence de plafond facilitait
+     * l'observation des temps de réponse. La limite coûte peu et ferme
+     * cette porte, sans gêner un client légitime qui n'a qu'un jeton.
+     */
+    const limit = await rateLimit(`reset:${clientIp(req)}`, 10, 15 * 60 * 1000);
+    if (!limit.ok) {
+      res
+        .status(429)
+        .set('Retry-After', String(limit.retryAfter))
+        .json({ error: 'Trop d’essais. Patientez un instant, puis réessayez.' });
+      return;
+    }
+
     const parsed = resetSchema.safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({
@@ -2827,7 +2843,7 @@ app.get(
 /*  Gestion des erreurs                                                  */
 /* ================================================================== */
 
-app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   // Un corps trop volumineux est une erreur client, pas une panne serveur.
   if (err && (err as { type?: string }).type === 'entity.too.large') {
     res.status(413).json({ error: 'Requête trop volumineuse.' });

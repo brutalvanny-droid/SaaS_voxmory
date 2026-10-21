@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { HelpCircle, ChevronDown, ChevronUp, MessageCircle, Sparkles, Coins, Smartphone, Check, ShieldCheck, Heart, Gift, Users, Eye, Star } from 'lucide-react';
+import { HelpCircle, ChevronDown, ChevronUp, MessageCircle, Sparkles, Coins, Smartphone, ShieldCheck, Heart, Gift, Users, Eye, Star } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import Reveal from '../components/Reveal.js';
 import { Package } from '../types.js';
