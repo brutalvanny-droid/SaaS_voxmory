@@ -1,8 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
+  ArrowDown,
+  ArrowUp,
   Check,
+  Eye,
+  EyeOff,
   Film,
   Image as ImageIcon,
+  LayoutList,
   Loader2,
   RotateCcw,
   Save,
@@ -13,7 +18,7 @@ import {
 } from 'lucide-react';
 import { api } from '../lib/api.js';
 import { uploadFile } from '../lib/upload.js';
-import type { ClientReview, GallerySong, HomeConfig } from '../types.js';
+import type { ClientReview, GallerySong, HomeConfig, SectionAccueil } from '../types.js';
 import BadgePromo, { COULEURS_PROMO } from '../components/BadgePromo.js';
 import { useNotifier, useNotifications } from '../components/Notifications.js';
 import { Button, Card, ErrorNote, Field, Input } from './ui.js';
@@ -32,12 +37,13 @@ import { Button, Card, ErrorNote, Field, Input } from './ui.js';
  * au clavier expose des états intermédiaires à ses visiteurs.
  */
 
-type Onglet = 'hero' | 'promo' | 'alaffiche';
+type Onglet = 'hero' | 'promo' | 'alaffiche' | 'emplacements';
 
 const ONGLETS: { id: Onglet; libelle: string; icone: typeof Film }[] = [
   { id: 'hero', libelle: 'Héros', icone: Film },
   { id: 'promo', libelle: 'Promo', icone: Zap },
   { id: 'alaffiche', libelle: 'À la une', icone: Star },
+  { id: 'emplacements', libelle: 'Emplacements', icone: LayoutList },
 ];
 
 export default function Vitrine() {
@@ -90,6 +96,9 @@ export default function Vitrine() {
       {onglet === 'promo' && <Promo config={config} onSave={enregistrer} />}
       {onglet === 'alaffiche' && (
         <ALaUne config={config} onSave={enregistrer} />
+      )}
+      {onglet === 'emplacements' && (
+        <Emplacements config={config} onSave={enregistrer} />
       )}
     </div>
   );
@@ -881,6 +890,158 @@ function Quantites({
           <p className="text-[12.5px] text-red-400">Enregistrement impossible.</p>
         )}
       </div>
+    </Card>
+  );
+}
+
+
+/* ------------------------------------------------------------------ */
+/*  Emplacements : où chaque section apparaît                          */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Les sections de la page d'accueil, nommées pour le studio.
+ *
+ * Les identifiants techniques ne servent qu'au code ; ici, on annonce ce
+ * que le visiteur verra vraiment.
+ */
+const NOMS_SECTIONS: Record<SectionAccueil, { titre: string; precision: string }> = {
+  processus: { titre: 'Comment ça marche', precision: 'Les trois étapes, en images' },
+  formules: { titre: 'Nos formules', precision: 'Les tarifs et ce qu\'ils contiennent' },
+  ecouter: { titre: 'Écouter des exemples', precision: 'Les chansons déjà livrées' },
+  avis: { titre: 'Avis clients', precision: 'Ce que disent ceux qui ont offert' },
+  tranquillite: { titre: 'Votre tranquillité', precision: 'Les garanties qui rassurent' },
+  cta: { titre: 'Appel à commander', precision: 'Le grand bouton, en bas de page' },
+};
+
+function Emplacements({
+  config,
+  onSave,
+}: {
+  config: HomeConfig;
+  onSave: (c: HomeConfig) => Promise<HomeConfig>;
+}) {
+  const { attente } = useNotifier();
+  const { maj } = useNotifications();
+  const [erreur, setErreur] = useState('');
+
+  const liste = config.emplacements?.length
+    ? config.emplacements
+    : (Object.keys(NOMS_SECTIONS) as SectionAccueil[]).map((id) => ({ id, visible: true }));
+
+  async function appliquer(nouvelle: HomeConfig['emplacements']) {
+    setErreur('');
+    const id = attente('Enregistrement…');
+    try {
+      await onSave({ ...config, emplacements: nouvelle });
+      maj(id, { ton: 'succes', titre: 'Emplacements enregistrés', duree: 3500 });
+    } catch {
+      maj(id, { ton: 'erreur', titre: 'Enregistrement impossible', duree: 0 });
+      setErreur('Impossible d\'enregistrer. Réessayez.');
+    }
+  }
+
+  const basculer = (idCible: SectionAccueil) =>
+    void appliquer(
+      liste.map((s) => (s.id === idCible ? { ...s, visible: !s.visible } : s)),
+    );
+
+  function deplacer(index: number, sens: -1 | 1) {
+    const cible = index + sens;
+    if (cible < 0 || cible >= liste.length) return;
+    const copie = [...liste];
+    [copie[index], copie[cible]] = [copie[cible], copie[index]];
+    void appliquer(copie);
+  }
+
+  return (
+    <Card
+      title="Où chaque chose apparaît"
+      subtitle="L'ordre de la page d'accueil, de haut en bas"
+    >
+      <div className="space-y-2">
+        {liste.map((section, i) => {
+          const nom = NOMS_SECTIONS[section.id];
+          if (!nom) return null;
+
+          return (
+            <div
+              key={section.id}
+              className={`flex items-center gap-3 p-3.5 rounded-xl border transition-colors ${
+                section.visible
+                  ? 'border-white/[0.09] bg-white/[0.03]'
+                  : 'border-white/[0.05] bg-transparent opacity-55'
+              }`}
+            >
+              {/* Rang : on voit tout de suite dans quel ordre ça tombe */}
+              <span className="w-6 text-center text-[12px] font-black text-[#6C7581] tabular-nums flex-shrink-0">
+                {i + 1}
+              </span>
+
+              <span className="flex-1 min-w-0">
+                <span className="block text-[13.5px] font-bold text-white truncate">
+                  {nom.titre}
+                </span>
+                <span className="block text-[11.5px] text-[#8A949F] truncate">
+                  {nom.precision}
+                </span>
+              </span>
+
+              {/* Monter / descendre */}
+              <span className="flex flex-col gap-0.5 flex-shrink-0">
+                <button
+                  onClick={() => deplacer(i, -1)}
+                  disabled={i === 0}
+                  aria-label={`Monter ${nom.titre}`}
+                  className="w-7 h-6 rounded-md bg-white/[0.05] hover:bg-white/[0.12] disabled:opacity-25 grid place-items-center transition-colors"
+                >
+                  <ArrowUp className="w-3 h-3 text-[#C2CAD3]" />
+                </button>
+                <button
+                  onClick={() => deplacer(i, 1)}
+                  disabled={i === liste.length - 1}
+                  aria-label={`Descendre ${nom.titre}`}
+                  className="w-7 h-6 rounded-md bg-white/[0.05] hover:bg-white/[0.12] disabled:opacity-25 grid place-items-center transition-colors"
+                >
+                  <ArrowDown className="w-3 h-3 text-[#C2CAD3]" />
+                </button>
+              </span>
+
+              {/* Afficher / masquer */}
+              <button
+                onClick={() => basculer(section.id)}
+                aria-label={section.visible ? `Masquer ${nom.titre}` : `Afficher ${nom.titre}`}
+                className={`w-11 h-11 rounded-xl flex-shrink-0 grid place-items-center border transition-colors ${
+                  section.visible
+                    ? 'border-[#A3FF12]/40 bg-[#A3FF12]/12 text-[#A3FF12]'
+                    : 'border-white/[0.09] text-[#6C7581] hover:text-white'
+                }`}
+              >
+                {section.visible ? (
+                  <Eye className="w-4 h-4" />
+                ) : (
+                  <EyeOff className="w-4 h-4" />
+                )}
+              </button>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="mt-4 p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+        <p className="text-[12px] text-[#8A949F] leading-relaxed">
+          <span className="font-bold text-[#C2CAD3]">Comment faire :</span> les
+          flèches déplacent une section, l'œil l'affiche ou la masque. Le
+          changement est immédiat sur le site — inutile d'enregistrer quoi
+          que ce soit d'autre.
+        </p>
+        <p className="text-[12px] text-[#6C7581] mt-2 leading-relaxed">
+          Le grand bandeau du haut (« Héros ») reste toujours en place :
+          c'est la première chose que voit le visiteur.
+        </p>
+      </div>
+
+      {erreur && <p className="text-[12.5px] text-red-400 mt-3">{erreur}</p>}
     </Card>
   );
 }

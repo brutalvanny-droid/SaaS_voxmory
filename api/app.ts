@@ -178,6 +178,10 @@ const HOME_DEFAUT = {
     chansons: 3,
     avis: 3,
   },
+  emplacements: ['processus', 'formules', 'ecouter', 'avis', 'tranquillite', 'cta'].map((id) => ({
+    id,
+    visible: true,
+  })),
 };
 
 /* ------------------------------------------------------------------ */

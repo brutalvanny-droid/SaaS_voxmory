@@ -30,6 +30,10 @@ const DEFAUT: HomeConfig = {
     chansons: 3,
     avis: 3,
   },
+  emplacements: ['processus', 'formules', 'ecouter', 'avis', 'tranquillite', 'cta'].map((id) => ({
+    id,
+    visible: true,
+  })) as HomeConfig['emplacements'],
 };
 
 export function useHomeConfig() {

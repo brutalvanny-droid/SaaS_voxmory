@@ -450,7 +450,16 @@ export interface HomeConfig {
     chansons: 3 | 6 | 10;
     avis: 3 | 6;
   };
+  emplacements: { id: SectionAccueil; visible: boolean }[];
 }
+
+export type SectionAccueil =
+  | 'processus'
+  | 'formules'
+  | 'ecouter'
+  | 'avis'
+  | 'tranquillite'
+  | 'cta';
 
 export interface NotificationStudio {
   id: string;

@@ -340,6 +340,22 @@ const mediaUrl = z
     { message: 'Adresse invalide : elle doit commencer par « / » ou « https:// ».' },
   );
 
+/**
+ * Les sections de la page d'accueil, dans l'ordre d'origine.
+ *
+ * Cette liste est la référence : le studio ne peut pas inventer une
+ * section qui n'existe pas, et le serveur comme le navigateur parlent
+ * exactement des mêmes.
+ */
+export const SECTIONS_ACCUEIL = [
+  'processus',
+  'formules',
+  'ecouter',
+  'avis',
+  'tranquillite',
+  'cta',
+] as const;
+
 export const homeConfigSchema = z.object({
   hero: z.object({
     /** Vidéo d'accueil. Vide : on n'affiche que l'affiche. */
@@ -382,6 +398,26 @@ export const homeConfigSchema = z.object({
     chansons: z.union([z.literal(3), z.literal(6), z.literal(10)]).default(3),
     avis: z.union([z.literal(3), z.literal(6)]).default(3),
   }),
+
+  /**
+   * Où chaque chose apparaît sur la page d'accueil.
+   *
+   * Une liste ordonnée plutôt qu'un catalogue de cases : l'ordre d'une
+   * page se lit de haut en bas, et c'est ainsi qu'on a envie de le
+   * régler. Masquer une section revient à la retirer de la liste, ce qui
+   * évite d'avoir deux réglages à faire coïncider.
+   *
+   * Le héros n'en fait pas partie : c'est le haut de la page, il est
+   * toujours là.
+   */
+  emplacements: z
+    .array(
+      z.object({
+        id: z.enum(SECTIONS_ACCUEIL),
+        visible: z.boolean(),
+      }),
+    )
+    .default(SECTIONS_ACCUEIL.map((id) => ({ id, visible: true }))),
 });
 
 export type HomeConfig = z.infer<typeof homeConfigSchema>;
