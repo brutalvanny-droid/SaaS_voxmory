@@ -1,0 +1,142 @@
+- generic [ref=e3]:
+  - generic [ref=e274]:
+    - generic [ref=e275]: "Offre spéciale : -15 % sur toutes les rumbas avec le code VOX15 !"
+    - link "PROFITE maintenant" [ref=e280] [cursor=pointer]:
+      - /url: /tarifs
+  - navigation [ref=e4]:
+    - generic [ref=e6]:
+      - button "VOXMORY VOXMORY Studio" [ref=e7] [cursor=pointer]:
+        - img "VOXMORY" [ref=e10]
+        - generic [ref=e16]:
+          - generic [ref=e17]: VOXMORY
+          - generic [ref=e18]: Studio
+      - generic [ref=e19]:
+        - button "Accueil" [ref=e20] [cursor=pointer]
+        - button "Créer ma chanson" [ref=e21] [cursor=pointer]
+        - button "Écouter les exemples" [ref=e22] [cursor=pointer]
+        - button "Avis clients" [ref=e24] [cursor=pointer]
+        - button "Tarifs" [ref=e25] [cursor=pointer]
+        - button "Suivre ma commande" [ref=e26] [cursor=pointer]
+      - generic [ref=e27]:
+        - button "FR" [ref=e29] [cursor=pointer]
+        - button "Me connecter" [ref=e284] [cursor=pointer]:
+          - generic [ref=e288]: Connexion
+        - button "Créer ma chanson" [ref=e36] [cursor=pointer]
+  - main [ref=e40]:
+    - generic [ref=e290]:
+      - button "S'authentifier pour éditer/supprimer les chansons" [active] [ref=e292] [cursor=pointer]
+      - generic [ref=e296]:
+        - generic [ref=e298]:
+          - generic [ref=e299]: Galerie d'émotions
+          - heading "Écoutez les chansons qui ont déjà touché des cœurs" [level=1] [ref=e304]
+          - paragraph [ref=e305]: "Chaque chanson part d’une vraie histoire : une maman, un couple, une famille, un souvenir, une personne qu’on aime."
+        - generic [ref=e307]:
+          - textbox "Rechercher une chanson, un prénom, une histoire..." [ref=e313]
+          - generic [ref=e314]:
+            - combobox [ref=e315] [cursor=pointer]:
+              - option "Toutes les occasions" [selected]
+              - option "Anniversaire"
+              - option "Mariage"
+              - option "Hommage / Deuil"
+              - option "Déclaration d'amour"
+              - option "Collation / Diplôme"
+              - option "Naissance"
+            - generic: ▼
+          - generic [ref=e316]:
+            - combobox [ref=e317] [cursor=pointer]:
+              - option "Tous les rythmes" [selected]
+              - option "Rumba congolaise"
+              - option "Afrobeat"
+              - option "Acoustique émotionnel"
+              - option "Gospel"
+              - option "Zouk"
+            - generic: ▼
+        - generic [ref=e318]:
+          - generic [ref=e324]:
+            - heading "Aucun exemple trouvé" [level=3] [ref=e325]
+            - paragraph [ref=e326]: Essayez de modifier vos critères de recherche ou sélectionnez d'autres options de filtre.
+          - button "Réinitialiser les filtres" [ref=e327] [cursor=pointer]
+      - generic [ref=e329]:
+        - button "Fermer" [ref=e330]
+        - generic [ref=e334]:
+          - heading "Console d'Édition Galerie" [level=3] [ref=e339]
+          - paragraph [ref=e340]: Accès sécurisé pour l'équipe Studio VOXMORY.
+        - paragraph [ref=e341]: Connectez-vous au studio VOXMORY pour modifier la galerie. La vérification se fait côté serveur, aucune clé n'est conservée dans le navigateur.
+        - generic [ref=e342]:
+          - button "Annuler" [ref=e343] [cursor=pointer]
+          - button "Déverrouiller" [ref=e344] [cursor=pointer]
+  - contentinfo [ref=e182]:
+    - generic [ref=e184]:
+      - generic [ref=e185]:
+        - generic [ref=e187]:
+          - button "VOXMORY VOXMORY Studio" [ref=e188] [cursor=pointer]:
+            - img "VOXMORY" [ref=e190]
+            - generic [ref=e196]:
+              - generic [ref=e197]: VOXMORY
+              - generic [ref=e198]: Studio
+          - paragraph [ref=e199]: « Votre histoire. Votre chanson. » Nous transformons vos plus précieux moments de vie en chansons personnalisées, qualité studio.
+          - generic [ref=e200]: Garantie d'émotion & confidentialité
+        - generic [ref=e204]:
+          - heading "Navigation" [level=3] [ref=e205]
+          - list [ref=e206]:
+            - listitem [ref=e207]:
+              - button "→ Accueil" [ref=e208] [cursor=pointer]:
+                - generic: →
+                - generic [ref=e209]: Accueil
+            - listitem [ref=e210]:
+              - button "→ Créer ma chanson" [ref=e211] [cursor=pointer]:
+                - generic: →
+                - generic [ref=e212]: Créer ma chanson
+            - listitem [ref=e213]:
+              - button "→ Écouter les exemples" [ref=e214] [cursor=pointer]:
+                - generic: →
+                - generic [ref=e215]: Écouter les exemples
+            - listitem [ref=e216]:
+              - button "→ Avis clients" [ref=e217] [cursor=pointer]:
+                - generic: →
+                - generic [ref=e218]: Avis clients
+            - listitem [ref=e219]:
+              - button "→ Nos tarifs" [ref=e220] [cursor=pointer]:
+                - generic: →
+                - generic [ref=e221]: Nos tarifs
+            - listitem [ref=e222]:
+              - button "→ Suivre ma commande" [ref=e223] [cursor=pointer]:
+                - generic: →
+                - generic [ref=e224]: Suivre ma commande
+        - generic [ref=e225]:
+          - heading "Service client" [level=3] [ref=e226]
+          - list [ref=e227]:
+            - listitem [ref=e228]:
+              - generic [ref=e232]:
+                - generic [ref=e233]: WhatsApp 24/7
+                - link "+243 978 508 099" [ref=e234] [cursor=pointer]:
+                  - /url: https://wa.me/243978508099
+            - listitem [ref=e238]:
+              - generic [ref=e243]:
+                - generic [ref=e244]: E-mail
+                - link "voxmory@gmail.com" [ref=e245] [cursor=pointer]:
+                  - /url: mailto:voxmory@gmail.com
+            - listitem [ref=e246]:
+              - generic [ref=e250]:
+                - generic [ref=e251]: Contact direct
+                - text: +243 978 508 099
+        - generic [ref=e253]:
+          - heading "Paiements mobiles" [level=3] [ref=e254]
+          - paragraph [ref=e255]: "Nous acceptons Airtel Money & Orange Money :"
+          - generic [ref=e256]:
+            - generic [ref=e257]:
+              - generic [ref=e258]:
+                - generic [ref=e259]: Airtel Money
+                - generic [ref=e260]: VANNY irung
+              - generic [ref=e261]: +243 978 508 099
+            - generic [ref=e262]:
+              - generic [ref=e263]:
+                - generic [ref=e264]: Orange Money
+                - generic [ref=e265]: VANNY KAYEMB
+              - generic [ref=e266]: +243 891 170 023
+          - paragraph [ref=e267]: "* Envoyez la preuve de paiement sur WhatsApp pour validation immédiate."
+      - generic [ref=e268]:
+        - paragraph [ref=e269]: © 2026 VOXMORY. Tous droits réservés. Kinshasa, RDC.
+        - generic [ref=e270]:
+          - generic [ref=e271]: « Votre histoire. Votre chanson. »
+          - button "[Espace Studio]" [ref=e272]

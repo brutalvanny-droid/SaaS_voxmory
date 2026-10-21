@@ -1,0 +1,304 @@
+- generic [ref=e3]:
+  - generic [ref=e274]:
+    - generic [ref=e275]: "Offre spéciale : -15 % sur toutes les rumbas avec le code VOX15 !"
+    - link "PROFITE maintenant" [ref=e280] [cursor=pointer]:
+      - /url: /tarifs
+  - navigation [ref=e4]:
+    - generic [ref=e6]:
+      - button "VOXMORY VOXMORY Studio" [ref=e7] [cursor=pointer]:
+        - img "VOXMORY" [ref=e10]
+        - generic [ref=e16]:
+          - generic [ref=e17]: VOXMORY
+          - generic [ref=e18]: Studio
+      - generic [ref=e19]:
+        - button "Accueil" [ref=e20] [cursor=pointer]
+        - button "Créer ma chanson" [ref=e21] [cursor=pointer]
+        - button "Écouter les exemples" [ref=e22] [cursor=pointer]
+        - button "Avis clients" [ref=e24] [cursor=pointer]
+        - button "Tarifs" [ref=e25] [cursor=pointer]
+        - button "Suivre ma commande" [ref=e26] [cursor=pointer]
+      - generic [ref=e27]:
+        - button "FR" [ref=e29] [cursor=pointer]
+        - button "Me connecter" [ref=e284] [cursor=pointer]:
+          - generic [ref=e288]: Connexion
+        - button "Créer ma chanson" [ref=e36] [cursor=pointer]
+  - main [ref=e40]:
+    - generic [ref=e378]:
+      - complementary [ref=e379]:
+        - generic [ref=e380]:
+          - generic [ref=e381]:
+            - img "VOXMORY" [ref=e383]
+            - generic [ref=e389]:
+              - paragraph [ref=e390]: Studio
+              - paragraph [ref=e391]: VOXMORY
+          - navigation [ref=e392]:
+            - button "Tableau de bord" [ref=e393]
+            - button "Vitrine" [ref=e400]
+            - button "Commandes 2" [ref=e405]:
+              - generic [ref=e409]: Commandes
+              - generic [ref=e410]: "2"
+            - button "Clients" [ref=e411]
+            - button "Catalogue" [ref=e417]
+            - button "Diffusion" [ref=e421]
+            - button "Réglages" [ref=e426]
+          - generic [ref=e431]:
+            - button "Voir le site" [ref=e432]
+            - generic [ref=e437]:
+              - paragraph [ref=e438]: vannyirung5@gmail.com
+              - button "Se déconnecter" [ref=e439]
+      - main [ref=e443]:
+        - generic [ref=e444]:
+          - generic [ref=e445]:
+            - heading "Tableau de bord" [level=1] [ref=e446]
+            - paragraph [ref=e447]: Vue d’ensemble de l’activité
+          - button "Notifications" [ref=e450]
+        - generic [ref=e454]:
+          - generic [ref=e455]:
+            - generic [ref=e456]:
+              - button "7 jours" [ref=e457]
+              - button "30 jours" [ref=e458]
+              - button "90 jours" [ref=e459]
+            - button "2 chansons à produire" [ref=e460]
+          - generic [ref=e464]:
+            - generic [ref=e465]:
+              - paragraph [ref=e471]: Visiteurs
+              - paragraph [ref=e472]: "34"
+              - paragraph [ref=e473]: 34 nouveaux · 0 revenu
+            - generic [ref=e474]:
+              - paragraph [ref=e481]: Pages vues
+              - paragraph [ref=e482]: "62"
+              - paragraph [ref=e483]: 1.8 pages par visite
+            - generic [ref=e484]:
+              - paragraph [ref=e489]: Chiffre d'affaires
+              - paragraph [ref=e490]: 0 $
+              - paragraph [ref=e491]: 0 $ ce mois-ci
+            - generic [ref=e492]:
+              - paragraph [ref=e497]: Panier moyen
+              - paragraph [ref=e498]: 0 $
+              - paragraph [ref=e499]: "Conversion : 5.9 %"
+          - generic [ref=e500]:
+            - generic [ref=e502]:
+              - heading "Fréquentation" [level=3] [ref=e503]
+              - paragraph [ref=e504]: Visiteurs et pages vues — 30 derniers jours
+            - generic [ref=e505]:
+              - img "Visiteurs et Pages vues sur la période" [ref=e506]
+              - generic [ref=e510]:
+                - generic [ref=e511]: Visiteurs
+                - generic [ref=e513]: Pages vues
+                - generic [ref=e515]: "Maximum : 62 · Total : 34"
+          - generic [ref=e516]:
+            - generic [ref=e517]:
+              - generic [ref=e519]:
+                - heading "Ventes" [level=3] [ref=e520]
+                - paragraph [ref=e521]: Chiffre d'affaires encaissé — 30 jours
+              - paragraph [ref=e522]: Aucun encaissement sur la période. Les ventes apparaîtront ici dès la première commande payée.
+            - generic [ref=e523]:
+              - generic [ref=e525]:
+                - heading "État des commandes" [level=3] [ref=e526]
+                - paragraph [ref=e527]: Toutes périodes
+              - generic [ref=e530]:
+                - generic [ref=e531]: Nouvelle
+                - generic [ref=e532]: 2 · 100 %
+          - generic [ref=e535]:
+            - generic [ref=e536]:
+              - generic [ref=e538]:
+                - heading "Pages les plus vues" [level=3] [ref=e539]
+                - paragraph [ref=e540]: Ce qui intéresse
+              - generic [ref=e541]:
+                - generic [ref=e543]:
+                  - generic [ref=e544]: /
+                  - generic [ref=e545]: 35 · 56 %
+                - generic [ref=e549]:
+                  - generic [ref=e550]: /exemples
+                  - generic [ref=e551]: 10 · 16 %
+                - generic [ref=e555]:
+                  - generic [ref=e556]: /admin
+                  - generic [ref=e557]: 10 · 16 %
+                - generic [ref=e561]:
+                  - generic [ref=e562]: /commander
+                  - generic [ref=e563]: 5 · 8 %
+                - generic [ref=e567]:
+                  - generic [ref=e568]: /tarifs
+                  - generic [ref=e569]: 1 · 2 %
+                - generic [ref=e573]:
+                  - generic [ref=e574]: /avis
+                  - generic [ref=e575]: 1 · 2 %
+            - generic [ref=e578]:
+              - generic [ref=e580]:
+                - heading "Provenance" [level=3] [ref=e581]
+                - paragraph [ref=e582]: D'où arrivent les visiteurs
+              - generic [ref=e583]:
+                - generic [ref=e585]:
+                  - generic [ref=e586]: direct
+                  - generic [ref=e587]: 52 · 84 %
+                - generic [ref=e591]:
+                  - generic [ref=e592]: vercel.com
+                  - generic [ref=e593]: 8 · 13 %
+                - generic [ref=e597]:
+                  - generic [ref=e598]: bing.com
+                  - generic [ref=e599]: 2 · 3 %
+            - generic [ref=e602]:
+              - generic [ref=e604]:
+                - heading "Appareils" [level=3] [ref=e605]
+                - paragraph [ref=e606]: Téléphone, tablette, ordinateur
+              - generic [ref=e609]:
+                - generic [ref=e610]: Ordinateur
+                - generic [ref=e613]: 100 %
+            - generic [ref=e616]:
+              - generic [ref=e618]:
+                - heading "Pays" [level=3] [ref=e619]
+                - paragraph [ref=e620]: D'après l'en-tête réseau
+              - generic [ref=e621]:
+                - generic [ref=e623]:
+                  - generic [ref=e624]: US
+                  - generic [ref=e625]: 41 · 66 %
+                - generic [ref=e629]:
+                  - generic [ref=e630]: CD
+                  - generic [ref=e631]: 21 · 34 %
+          - generic [ref=e634]:
+            - generic [ref=e635]:
+              - generic [ref=e637]:
+                - heading "Dernières commandes" [level=3] [ref=e638]
+                - paragraph [ref=e639]: Les plus récentes d'abord
+              - table [ref=e641]:
+                - rowgroup [ref=e642]:
+                  - row [ref=e643]:
+                    - columnheader "Référence" [ref=e644]
+                    - columnheader "Client" [ref=e645]
+                    - columnheader "Étape" [ref=e646]
+                    - columnheader "Montant" [ref=e647]
+                - rowgroup [ref=e648]:
+                  - row [ref=e649]:
+                    - cell "VOX-2026-CFC174C8" [ref=e650]
+                    - cell "vann" [ref=e651]
+                    - cell "Nouvelle" [ref=e652]
+                    - cell "22 $" [ref=e653]
+                  - row [ref=e654]:
+                    - cell "VOX-2026-CC04962D" [ref=e655]
+                    - cell "VANNY irung" [ref=e656]
+                    - cell "Nouvelle" [ref=e657]
+                    - cell "22 $" [ref=e658]
+            - generic [ref=e659]:
+              - generic [ref=e660]:
+                - generic [ref=e662]:
+                  - heading "Comptes clients" [level=3] [ref=e663]
+                  - paragraph [ref=e664]: 2 inscrits
+                - generic [ref=e665]:
+                  - generic [ref=e666]:
+                    - generic [ref=e667]:
+                      - paragraph [ref=e668]: Verif
+                      - paragraph [ref=e669]: verif.2781@example.com
+                    - generic [ref=e670]: 20 oct.
+                  - generic [ref=e671]:
+                    - generic [ref=e672]:
+                      - paragraph [ref=e673]: Client Test
+                      - paragraph [ref=e674]: test.voxmory.4795@example.com
+                    - generic [ref=e675]: 20 oct.
+              - generic [ref=e676]:
+                - generic [ref=e678]:
+                  - heading "Aujourd'hui" [level=3] [ref=e679]
+                  - paragraph [ref=e680]: Depuis minuit
+                - generic [ref=e681]:
+                  - generic [ref=e682]:
+                    - paragraph [ref=e683]: Visiteurs
+                    - paragraph [ref=e684]: "34"
+                  - generic [ref=e685]:
+                    - paragraph [ref=e686]: Pages vues
+                    - paragraph [ref=e687]: "62"
+          - generic [ref=e688]:
+            - generic [ref=e690]:
+              - heading "Derniers paiements" [level=3] [ref=e691]
+              - paragraph [ref=e692]: Transactions reçues
+            - table [ref=e694]:
+              - rowgroup [ref=e695]:
+                - row [ref=e696]:
+                  - columnheader "Date" [ref=e697]
+                  - columnheader "Référence" [ref=e698]
+                  - columnheader "Statut" [ref=e699]
+                  - columnheader "Montant" [ref=e700]
+              - rowgroup [ref=e701]:
+                - row [ref=e702]:
+                  - cell "21 oct." [ref=e703]
+                  - cell "c51c9406-24e…" [ref=e704]
+                  - cell "PENDING" [ref=e705]
+                  - cell "22 USD" [ref=e706]
+                - row [ref=e707]:
+                  - cell "20 oct." [ref=e708]
+                  - cell "0035bd5e-dcf…" [ref=e709]
+                  - cell "PENDING" [ref=e710]
+                  - cell "22 USD" [ref=e711]
+  - contentinfo [ref=e182]:
+    - generic [ref=e184]:
+      - generic [ref=e185]:
+        - generic [ref=e187]:
+          - button "VOXMORY VOXMORY Studio" [ref=e188] [cursor=pointer]:
+            - img "VOXMORY" [ref=e190]
+            - generic [ref=e196]:
+              - generic [ref=e197]: VOXMORY
+              - generic [ref=e198]: Studio
+          - paragraph [ref=e199]: « Votre histoire. Votre chanson. » Nous transformons vos plus précieux moments de vie en chansons personnalisées, qualité studio.
+          - generic [ref=e200]: Garantie d'émotion & confidentialité
+        - generic [ref=e204]:
+          - heading "Navigation" [level=3] [ref=e205]
+          - list [ref=e206]:
+            - listitem [ref=e207]:
+              - button "→ Accueil" [ref=e208] [cursor=pointer]:
+                - generic: →
+                - generic [ref=e209]: Accueil
+            - listitem [ref=e210]:
+              - button "→ Créer ma chanson" [ref=e211] [cursor=pointer]:
+                - generic: →
+                - generic [ref=e212]: Créer ma chanson
+            - listitem [ref=e213]:
+              - button "→ Écouter les exemples" [ref=e214] [cursor=pointer]:
+                - generic: →
+                - generic [ref=e215]: Écouter les exemples
+            - listitem [ref=e216]:
+              - button "→ Avis clients" [ref=e217] [cursor=pointer]:
+                - generic: →
+                - generic [ref=e218]: Avis clients
+            - listitem [ref=e219]:
+              - button "→ Nos tarifs" [ref=e220] [cursor=pointer]:
+                - generic: →
+                - generic [ref=e221]: Nos tarifs
+            - listitem [ref=e222]:
+              - button "→ Suivre ma commande" [ref=e223] [cursor=pointer]:
+                - generic: →
+                - generic [ref=e224]: Suivre ma commande
+        - generic [ref=e225]:
+          - heading "Service client" [level=3] [ref=e226]
+          - list [ref=e227]:
+            - listitem [ref=e228]:
+              - generic [ref=e232]:
+                - generic [ref=e233]: WhatsApp 24/7
+                - link "+243 978 508 099" [ref=e234] [cursor=pointer]:
+                  - /url: https://wa.me/243978508099
+            - listitem [ref=e238]:
+              - generic [ref=e243]:
+                - generic [ref=e244]: E-mail
+                - link "voxmory@gmail.com" [ref=e245] [cursor=pointer]:
+                  - /url: mailto:voxmory@gmail.com
+            - listitem [ref=e246]:
+              - generic [ref=e250]:
+                - generic [ref=e251]: Contact direct
+                - text: +243 978 508 099
+        - generic [ref=e253]:
+          - heading "Paiements mobiles" [level=3] [ref=e254]
+          - paragraph [ref=e255]: "Nous acceptons Airtel Money & Orange Money :"
+          - generic [ref=e256]:
+            - generic [ref=e257]:
+              - generic [ref=e258]:
+                - generic [ref=e259]: Airtel Money
+                - generic [ref=e260]: VANNY irung
+              - generic [ref=e261]: +243 978 508 099
+            - generic [ref=e262]:
+              - generic [ref=e263]:
+                - generic [ref=e264]: Orange Money
+                - generic [ref=e265]: VANNY KAYEMB
+              - generic [ref=e266]: +243 891 170 023
+          - paragraph [ref=e267]: "* Envoyez la preuve de paiement sur WhatsApp pour validation immédiate."
+      - generic [ref=e268]:
+        - paragraph [ref=e269]: © 2026 VOXMORY. Tous droits réservés. Kinshasa, RDC.
+        - generic [ref=e270]:
+          - generic [ref=e271]: « Votre histoire. Votre chanson. »
+          - button "[Espace Studio]" [ref=e272]

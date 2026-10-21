@@ -1,0 +1,164 @@
+- generic [ref=e3]:
+  - generic [ref=e274]:
+    - generic [ref=e275]: "Offre spéciale : -15 % sur toutes les rumbas avec le code VOX15 !"
+    - link "PROFITE maintenant" [ref=e280] [cursor=pointer]:
+      - /url: /tarifs
+  - navigation [ref=e4]:
+    - generic [ref=e6]:
+      - button "VOXMORY VOXMORY Studio" [ref=e7] [cursor=pointer]:
+        - img "VOXMORY" [ref=e10]
+        - generic [ref=e16]:
+          - generic [ref=e17]: VOXMORY
+          - generic [ref=e18]: Studio
+      - generic [ref=e19]:
+        - button "Accueil" [ref=e20] [cursor=pointer]
+        - button "Créer ma chanson" [ref=e21] [cursor=pointer]
+        - button "Écouter les exemples" [ref=e23] [cursor=pointer]
+        - button "Avis clients" [ref=e24] [cursor=pointer]
+        - button "Tarifs" [ref=e25] [cursor=pointer]
+        - button "Suivre ma commande" [ref=e26] [cursor=pointer]
+      - generic [ref=e27]:
+        - button "FR" [ref=e29] [cursor=pointer]
+        - button "Me connecter" [ref=e284] [cursor=pointer]:
+          - generic [ref=e288]: Connexion
+        - button "Créer ma chanson" [ref=e36] [cursor=pointer]
+  - main [ref=e40]:
+    - generic [ref=e290]:
+      - generic [ref=e291]:
+        - heading "Commander une chanson" [level=1] [ref=e292]
+        - paragraph [ref=e293]: Quelques minutes suffisent pour nous raconter l'essentiel.
+      - generic [ref=e294]:
+        - generic [ref=e295]: Vous
+        - generic [ref=e303]: L’histoire
+        - generic [ref=e310]: La musique
+        - generic [ref=e320]: Récapitulatif
+      - generic [ref=e328]:
+        - generic [ref=e367]:
+          - generic [ref=e372]:
+            - generic [ref=e373]: De qui parle-t-on ?
+            - generic [ref=e374]: Plus vous en dites, plus la chanson sonne juste.
+          - generic [ref=e375]:
+            - generic [ref=e376]:
+              - generic [ref=e377]: Pour qui ? *
+              - textbox "Pour qui ? *" [ref=e378]:
+                - /placeholder: Georgette
+            - generic [ref=e379]:
+              - generic [ref=e380]: Votre lien *
+              - textbox "Votre lien *" [ref=e381]:
+                - /placeholder: Ma maman
+            - generic [ref=e382]:
+              - generic [ref=e383]: Âge (facultatif)
+              - textbox "Âge (facultatif)" [ref=e384]
+            - generic [ref=e385]:
+              - generic [ref=e386]: Occasion *
+              - combobox "Occasion *" [ref=e387]:
+                - option "Anniversaire" [selected]
+                - option "Mariage"
+                - option "Naissance"
+                - option "Hommage"
+                - option "Déclaration"
+                - option "Remise de diplôme"
+                - option "Départ à la retraite"
+                - option "PUB — Chanson pour entreprises"
+                - option "Autre"
+          - generic [ref=e388]:
+            - paragraph [ref=e389]: Comment nous raconter son histoire ?
+            - generic [ref=e390]:
+              - button "Écrire" [ref=e391]
+              - button "Note vocale" [ref=e394]
+              - button "Sur WhatsApp" [ref=e398]
+          - generic [ref=e401]:
+            - generic [ref=e402]: Son histoire *
+            - 'textbox "Son histoire * Souvenirs, anecdotes, petits détails du quotidien : tout ce qui rendra la chanson unique." [ref=e403]':
+              - /placeholder: Elle a élevé ses enfants seule à Goma, adore les fleurs et rit toujours en préparant le foufou…
+            - generic [ref=e404]: "Souvenirs, anecdotes, petits détails du quotidien : tout ce qui rendra la chanson unique."
+          - generic [ref=e405]:
+            - generic [ref=e406]:
+              - generic [ref=e407]: Mots à inclure
+              - textbox "Mots à inclure Séparés par des virgules" [ref=e408]
+              - generic [ref=e409]: Séparés par des virgules
+            - generic [ref=e410]:
+              - generic [ref=e411]: Sujets à éviter
+              - textbox "Sujets à éviter" [ref=e412]
+          - generic [ref=e413]:
+            - generic [ref=e414]: Photo du destinataire (facultatif)
+            - generic [ref=e415] [cursor=pointer]: Ajouter une photo
+        - generic [ref=e358]:
+          - button "Retour" [ref=e359]
+          - button "Continuer" [active] [ref=e362]
+  - contentinfo [ref=e182]:
+    - generic [ref=e184]:
+      - generic [ref=e185]:
+        - generic [ref=e187]:
+          - button "VOXMORY VOXMORY Studio" [ref=e188] [cursor=pointer]:
+            - img "VOXMORY" [ref=e190]
+            - generic [ref=e196]:
+              - generic [ref=e197]: VOXMORY
+              - generic [ref=e198]: Studio
+          - paragraph [ref=e199]: « Votre histoire. Votre chanson. » Nous transformons vos plus précieux moments de vie en chansons personnalisées, qualité studio.
+          - generic [ref=e200]: Garantie d'émotion & confidentialité
+        - generic [ref=e204]:
+          - heading "Navigation" [level=3] [ref=e205]
+          - list [ref=e206]:
+            - listitem [ref=e207]:
+              - button "→ Accueil" [ref=e208] [cursor=pointer]:
+                - generic: →
+                - generic [ref=e209]: Accueil
+            - listitem [ref=e210]:
+              - button "→ Créer ma chanson" [ref=e211] [cursor=pointer]:
+                - generic: →
+                - generic [ref=e212]: Créer ma chanson
+            - listitem [ref=e213]:
+              - button "→ Écouter les exemples" [ref=e214] [cursor=pointer]:
+                - generic: →
+                - generic [ref=e215]: Écouter les exemples
+            - listitem [ref=e216]:
+              - button "→ Avis clients" [ref=e217] [cursor=pointer]:
+                - generic: →
+                - generic [ref=e218]: Avis clients
+            - listitem [ref=e219]:
+              - button "→ Nos tarifs" [ref=e220] [cursor=pointer]:
+                - generic: →
+                - generic [ref=e221]: Nos tarifs
+            - listitem [ref=e222]:
+              - button "→ Suivre ma commande" [ref=e223] [cursor=pointer]:
+                - generic: →
+                - generic [ref=e224]: Suivre ma commande
+        - generic [ref=e225]:
+          - heading "Service client" [level=3] [ref=e226]
+          - list [ref=e227]:
+            - listitem [ref=e228]:
+              - generic [ref=e232]:
+                - generic [ref=e233]: WhatsApp 24/7
+                - link "+243 978 508 099" [ref=e234] [cursor=pointer]:
+                  - /url: https://wa.me/243978508099
+            - listitem [ref=e238]:
+              - generic [ref=e243]:
+                - generic [ref=e244]: E-mail
+                - link "voxmory@gmail.com" [ref=e245] [cursor=pointer]:
+                  - /url: mailto:voxmory@gmail.com
+            - listitem [ref=e246]:
+              - generic [ref=e250]:
+                - generic [ref=e251]: Contact direct
+                - text: +243 978 508 099
+        - generic [ref=e253]:
+          - heading "Paiements mobiles" [level=3] [ref=e254]
+          - paragraph [ref=e255]: "Nous acceptons Airtel Money & Orange Money :"
+          - generic [ref=e256]:
+            - generic [ref=e257]:
+              - generic [ref=e258]:
+                - generic [ref=e259]: Airtel Money
+                - generic [ref=e260]: VANNY irung
+              - generic [ref=e261]: +243 978 508 099
+            - generic [ref=e262]:
+              - generic [ref=e263]:
+                - generic [ref=e264]: Orange Money
+                - generic [ref=e265]: VANNY KAYEMB
+              - generic [ref=e266]: +243 891 170 023
+          - paragraph [ref=e267]: "* Envoyez la preuve de paiement sur WhatsApp pour validation immédiate."
+      - generic [ref=e268]:
+        - paragraph [ref=e269]: © 2026 VOXMORY. Tous droits réservés. Kinshasa, RDC.
+        - generic [ref=e270]:
+          - generic [ref=e271]: « Votre histoire. Votre chanson. »
+          - button "[Espace Studio]" [ref=e272]
+  - button "Nous écrire sur WhatsApp" [ref=e421] [cursor=pointer]
