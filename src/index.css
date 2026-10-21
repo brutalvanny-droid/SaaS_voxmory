@@ -116,6 +116,15 @@
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
+
+  /* Le menu du site reste collé en haut. Sans cette marge, une section
+     atteinte par une ancre se glisserait dessous et son titre serait
+     masqué — on réserve donc la hauteur du menu. */
+  scroll-padding-top: 5.5rem;
+
+  /* Empêche le « rebord élastique » : sur iOS, arriver en bas de page
+     fait déborder tout l'écran. On borne l'effet à la page elle-même. */
+  overscroll-behavior-y: none;
 }
 
 body {
@@ -126,7 +135,14 @@ body {
   font-variant-ligatures: contextual;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+
+  /* Aucun défilement latéral : un élément un peu trop large ne doit pas
+     permettre de glisser la page de gauche à droite. */
   overflow-x: hidden;
+
+  /* Le défilement reste dans le sens de lecture, sans effet de chaîne
+     quand on atteint un bord. */
+  overscroll-behavior: none;
 }
 
 ::selection {

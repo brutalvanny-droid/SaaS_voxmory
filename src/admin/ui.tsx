@@ -4,6 +4,8 @@ import type {
   SelectHTMLAttributes,
   TextareaHTMLAttributes,
 } from 'react';
+import { useEffect } from 'react';
+import { useScrollLock } from '../hooks/useScrollLock.js';
 
 /* Petits composants d'interface partagés par le studio d'administration. */
 
@@ -165,6 +167,23 @@ export function Modal({
   children: ReactNode;
   wide?: boolean;
 }) {
+  /**
+   * Les crochets doivent être appelés avant tout retour anticipé, sinon
+   * React perd le fil entre deux rendus.
+   */
+  useScrollLock(open);
+
+  // Échap ferme la fenêtre : sur ordinateur, c'est le geste attendu et
+  // chercher la croix pour sortir est agaçant.
+  useEffect(() => {
+    if (!open) return;
+    const surTouche = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', surTouche);
+    return () => window.removeEventListener('keydown', surTouche);
+  }, [open, onClose]);
+
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">

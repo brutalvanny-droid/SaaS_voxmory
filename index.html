@@ -18,6 +18,20 @@
     <link rel="canonical" href="https://saa-s-voxmory.vercel.app/" />
 
     <!-- ============================================================
+         FAVICONS
+         Sans eux, l'onglet du navigateur affiche une icône grise
+         anonyme. Le format .ico couvre les navigateurs anciens, les
+         PNG les tailles modernes, et apple-touch-icon l'ajout à
+         l'écran d'accueil d'un iPhone.
+         ============================================================ -->
+    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="mask-icon" href="/icon.svg" color="#A3FF12" />
+    <meta name="theme-color" content="#07080A" />
+
+    <!-- ============================================================
          OPEN GRAPH (Facebook, WhatsApp, LinkedIn)
          Sans og:image, un lien partagé s'affiche sans aucune vignette.
          ============================================================ -->
@@ -28,6 +42,17 @@
     <meta property="og:site_name" content="VOXMORY" />
     <meta property="og:locale" content="fr_FR" />
     <meta property="og:image" content="https://saa-s-voxmory.vercel.app/og-image.jpg" />
+
+    <!-- ============================================================
+         VIDÉO D'ACCUEIL
+         Déclarer la vidéo permet à Google de l'afficher dans les
+         résultats. Le navigateur, lui, choisit le format qu'il sait
+         lire : WebM en priorité (plus léger), MP4 en repli.
+         ============================================================ -->
+    <meta property="og:video" content="https://saa-s-voxmory.vercel.app/images/hero.mp4" />
+    <meta property="og:video:type" content="video/mp4" />
+    <meta property="og:video:width" content="1280" />
+    <meta property="og:video:height" content="720" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="VOXMORY — Votre histoire, votre chanson" />
@@ -47,6 +72,22 @@
          Permettent à Google d'afficher le nom, le prix et les avis
          directement dans les résultats de recherche.
          ============================================================ -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "VideoObject",
+        "name": "VOXMORY — Votre histoire, votre chanson",
+        "description": "Plongée dans le studio VOXMORY, où vos histoires de vie deviennent des chansons personnalisées enregillées par des musiciens professionnels.",
+        "thumbnailUrl": ["https://saa-s-voxmory.vercel.app/images/hero-poster.jpg"],
+        "uploadDate": "2026-10-21",
+        "contentUrl": "https://saa-s-voxmory.vercel.app/images/hero.mp4",
+        "embedUrl": "https://saa-s-voxmory.vercel.app/",
+        "duration": "PT12S",
+        "width": 1280,
+        "height": 720
+      }
+    </script>
+
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",

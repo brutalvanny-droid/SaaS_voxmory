@@ -10,9 +10,9 @@ import {
   Menu,
   X,
   ArrowUpRight,
-  Music4,
 } from 'lucide-react';
 import { api } from '../lib/api.js';
+import { LogoMark } from '../components/Logo.js';
 import type { AdminSession } from '../types.js';
 import Login from '../admin/Login.js';
 import Dashboard from '../admin/Dashboard.js';
@@ -123,8 +123,8 @@ export default function Admin({ onNavigate, onPromotionChanged }: AdminProps) {
             <div className="sticky top-6 space-y-4">
               {/* Marque */}
               <div className="flex items-center gap-2.5 px-1">
-                <span className="w-9 h-9 rounded-xl bg-[#A3FF12] grid place-items-center flex-shrink-0">
-                  <Music4 className="w-4.5 h-4.5 text-black" strokeWidth={2.5} />
+                <span className="w-9 h-9 rounded-xl bg-[#07080A] border border-white/10 grid place-items-center flex-shrink-0">
+                  <LogoMark size={22} />
                 </span>
                 <div className="min-w-0">
                   <p className="text-[13px] font-black text-white leading-tight">Studio</p>

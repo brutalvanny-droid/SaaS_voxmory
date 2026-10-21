@@ -21,6 +21,14 @@ export interface SeoData {
   /** Image de partage. Reprend l'image du site par défaut. */
   image?: string;
   type?: string;
+  /**
+   * Demande aux moteurs de ne pas référencer la page.
+   *
+   * À réserver aux écrans personnels : un espace client n'a aucune raison
+   * d'apparaître dans des résultats de recherche, et son indexation
+   * exposerait des adresses qui n'ont de sens que pour leur propriétaire.
+   */
+  noindex?: boolean;
 }
 
 const SITE = 'https://saa-s-voxmory.vercel.app';
@@ -55,7 +63,14 @@ function upsertLink(rel: string, href: string): void {
   el.setAttribute('href', href);
 }
 
-export function useSEO({ title, description, path, image, type = 'website' }: SeoData): void {
+export function useSEO({
+  title,
+  description,
+  path,
+  image,
+  type = 'website',
+  noindex = false,
+}: SeoData): void {
   useEffect(() => {
     const url = `${SITE}${path === '/' ? '' : path}`;
     const img = image ?? DEFAULT_IMAGE;
@@ -64,6 +79,14 @@ export function useSEO({ title, description, path, image, type = 'website' }: Se
 
     upsertMeta('name', 'description', description);
     upsertLink('canonical', url);
+
+    // Une page retirée de l'index conserve son adresse canonique : les
+    // moteurs savent ainsi quelle adresse retenir s'ils la rencontrent.
+    upsertMeta(
+      'name',
+      'robots',
+      noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large',
+    );
 
     // Open Graph — vignette et titre lors d'un partage
     upsertMeta('property', 'og:title', title);
@@ -79,7 +102,7 @@ export function useSEO({ title, description, path, image, type = 'website' }: Se
     upsertMeta('property', 'twitter:url', url);
     upsertMeta('property', 'twitter:image', img);
     upsertMeta('property', 'twitter:card', 'summary_large_image');
-  }, [title, description, path, image, type]);
+  }, [title, description, path, image, type, noindex]);
 }
 
 /**

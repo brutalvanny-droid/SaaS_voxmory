@@ -14,6 +14,7 @@ import { useLanguage } from '../context/LanguageContext.js';
 import AudioPlayer from '../components/AudioPlayer.js';
 import Reveal from '../components/Reveal.js';
 import MeshBackground from '../components/MeshBackground.js';
+import HeroVideo from '../components/HeroVideo.js';
 import type { ClientReview, GallerySong, Package } from '../types.js';
 import { PACK_SLUGS } from '../seo/routes.js';
 
@@ -86,7 +87,9 @@ export default function Home({
     <div className="relative">
       {/* ================= HÉROS ================= */}
       <section className="relative overflow-hidden">
-        <MeshBackground />
+        {/* La vidéo prend la place du fond animé : un vrai studio, plutôt
+            qu'un dégradé abstrait. Elle se glisse sous le contenu. */}
+        <HeroVideo />
 
         <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pt-16 pb-24 sm:pt-24 sm:pb-32">
           <div className="max-w-4xl">

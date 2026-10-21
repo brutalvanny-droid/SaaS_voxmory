@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react';
 import { Menu, X, MessageCircle, Music, Globe, ChevronDown, ArrowRight, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useLanguage } from '../context/LanguageContext.js';
+import { useScrollLock } from '../hooks/useScrollLock.js';
 import InstallButton from './InstallButton.js';
+import { LogoMark } from './Logo.js';
 
 interface NavbarProps {
   currentPage: string;
@@ -42,6 +44,14 @@ export default function Navbar({ currentPage, onNavigate, clientConnecte }: Navb
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  /**
+   * Menu ouvert, page gelée.
+   *
+   * Sans cela, faire défiler derrière le menu déplace la page entière et,
+   * à la fermeture, on atterrit ailleurs que là où l'on était.
+   */
+  useScrollLock(isOpen);
+
   const langLabel = language === 'fr' ? 'FR' : language === 'sw' ? 'SW' : 'EN';
 
   return (
@@ -59,12 +69,11 @@ export default function Navbar({ currentPage, onNavigate, clientConnecte }: Navb
             onClick={() => handleNav('home')}
             className="flex items-center gap-2.5 group cursor-pointer"
           >
-            <div className="relative w-9 h-9 shrink-0">
-              <div className="absolute inset-0 rounded-[11px] bg-gradient-to-br from-[#C8FF4D] to-[#7ACC00] opacity-90 transition-opacity duration-300 group-hover:opacity-100" />
-              <div className="absolute inset-0 rounded-[11px] bg-[#07080A] m-[1.5px] flex items-center justify-center">
-                <Music className="w-4 h-4 text-[#A3FF12]" strokeWidth={2.5} />
-              </div>
-            </div>
+            <span className="relative grid place-items-center w-9 h-9 shrink-0 rounded-[11px] bg-gradient-to-br from-[#C8FF4D] to-[#7ACC00] opacity-95 transition-opacity duration-300 group-hover:opacity-100">
+              <span className="grid place-items-center w-[34px] h-[34px] rounded-[9.5px] bg-[#07080A]">
+                <LogoMark size={21} />
+              </span>
+            </span>
             <div className="text-left">
               <span className="block text-[19px] font-extrabold tracking-[-0.02em] text-white leading-none">
                 VOXMORY

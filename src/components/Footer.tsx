@@ -1,5 +1,6 @@
-import { Music, MessageCircle, Mail, Phone, ShieldCheck, ArrowUpRight } from 'lucide-react';
+import { MessageCircle, Mail, Phone, ShieldCheck, ArrowUpRight } from 'lucide-react';
 import InstallButton from './InstallButton.js';
+import { LogoMark } from './Logo.js';
 import Reveal from './Reveal.js';
 
 interface FooterProps {
@@ -42,8 +43,8 @@ export default function Footer({ onNavigate }: FooterProps) {
                 onClick={() => handleNav('home')}
                 className="flex items-center gap-3 cursor-pointer group"
               >
-                <span className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-b from-[#C8FF4D] to-[#96F00A] shrink-0">
-                  <Music className="w-5 h-5 text-[#06080A]" />
+                <span className="relative grid place-items-center w-10 h-10 rounded-xl bg-gradient-to-b from-[#C8FF4D] to-[#96F00A] shrink-0">
+                  <LogoMark size={22} className="text-[#06080A]" />
                 </span>
                 <span className="text-left">
                   <span className="block text-[19px] font-extrabold tracking-[0.16em] text-white leading-none">

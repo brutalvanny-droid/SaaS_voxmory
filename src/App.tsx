@@ -72,10 +72,18 @@ export default function App() {
   const seoPack = packIdForSeo ? getPackSeo(packIdForSeo) : undefined;
   const seo = seoPack ?? getRouteSeo(currentPage);
 
+  /**
+   * Les écrans de compte sont personnels : les laisser dans les résultats
+   * de recherche n'apporterait aucun visiteur et exposerait des adresses
+   * qui n'ont de sens que pour la personne connectée.
+   */
+  const ecranPrive = currentPage === 'account' || currentPage === 'myaccount';
+
   useSEO({
     title: seo.title,
     description: seo.description,
     path: seo.path,
+    noindex: ecranPrive,
   });
 
   // Shared Data States fetched from server
