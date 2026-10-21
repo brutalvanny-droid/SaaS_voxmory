@@ -331,6 +331,56 @@ export const dailyStats = pgTable('daily_stats', {
   orders: integer('orders').notNull().default(0),
 });
 
+/**
+ * Visiteurs.
+ *
+ * Un visiteur est identifié par un identifiant anonyme tiré au hasard et
+ * conservé dans le navigateur — jamais par son adresse IP, ni par un
+ * témoin tiers. On sait donc « cette personne est revenue » sans savoir
+ * qui elle est. Les adresses IP sont volontairement absentes de la base :
+ * ce sont des données personnelles, et rien dans un tableau de bord ne
+ * justifie de les conserver.
+ */
+export const visitors = pgTable('visitors', {
+  /** Identifiant anonyme, généré côté navigateur. */
+  anonymousId: text('anonymous_id').primaryKey(),
+  firstSeenAt: timestamp('first_seen_at', { withTimezone: true }).notNull().defaultNow(),
+  lastSeenAt: timestamp('last_seen_at', { withTimezone: true }).notNull().defaultNow(),
+  /** Nombre de visites distinctes (séparées par plus de 30 minutes). */
+  visits: integer('visits').notNull().default(1),
+  /** Famille d'appareil, déduite de l'agent utilisateur. */
+  device: text('device').notNull().default('desktop'),
+  /** Pays, d'après l'en-tête fourni par Vercel. Vide si absent. */
+  country: text('country'),
+  /** Domaine d'origine du tout premier passage. */
+  referrerDomain: text('referrer_domain'),
+});
+
+/**
+ * Pages vues.
+ *
+ * Une ligne par page affichée. C'est cette table qui permet de répondre à
+ * « quelle page intéresse les gens ? », question à laquelle un simple
+ * compteur de visites ne répond pas.
+ */
+export const pageViews = pgTable('page_views', {
+  id: text('id').primaryKey(),
+  anonymousId: text('anonymous_id')
+    .notNull()
+    .references(() => visitors.anonymousId, { onDelete: 'cascade' }),
+  path: text('path').notNull(),
+  /** Domaine d'origine, sans le chemin : « google.com », « direct »… */
+  referrerDomain: text('referrer_domain').notNull().default('direct'),
+  device: text('device').notNull().default('desktop'),
+  country: text('country'),
+  /**
+   * Durée écoulée depuis la vue précédente du même visiteur, en secondes.
+   * Sert à repérer les parcours réels plutôt que les simples clics.
+   */
+  secondsSinceLastView: integer('seconds_since_last_view'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
 /** Réglages divers (bandeau promo, compteurs globaux…) en clé/valeur. */
 export const settings = pgTable('settings', {
   key: text('key').primaryKey(),

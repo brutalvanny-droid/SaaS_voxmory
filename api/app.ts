@@ -73,6 +73,17 @@ import * as saspay from './_lib/saspay.js';
 import * as whatsapp from './_lib/whatsapp.js';
 import { handleClientUpload, isBlobConfigured, uploadMode } from './_lib/storage.js';
 import { adresseSignee, blobAccess, cheminEstSur } from './_lib/media.js';
+import {
+  enregistrerVue,
+  domaineOrigine,
+  typeAppareil,
+  resumeAudience,
+  serieQuotidienne,
+  pagesLesPlusVues,
+  sourcesDeTrafic,
+  appareils as statsAppareils,
+  pays as statsPays,
+} from './_lib/analytics.js';
 import { runAi } from './_lib/ai.js';
 
 const app = express();
@@ -909,16 +920,47 @@ app.post(
   '/api/stats/visit',
   asyncHandler(async (req: Request, res: Response) => {
     const ip = clientIp(req);
-    const limit = await rateLimit(`visit:${ip}`, 60, 10 * 60 * 1000);
+    const limit = await rateLimit(`visit:${ip}`, 120, 10 * 60 * 1000);
     if (!limit.ok) {
       res.json({ ok: true, throttled: true });
       return;
     }
-    const count = await getSetting<number>('visitsCount', 0);
-    const next = count + 1;
-    await setSetting('visitsCount', next);
+
+    const corps = (req.body ?? {}) as {
+      anonymousId?: unknown;
+      path?: unknown;
+      referrer?: unknown;
+    };
+
+    const anonymousId = typeof corps.anonymousId === 'string' ? corps.anonymousId.trim() : '';
+    if (!anonymousId || anonymousId.length > 64) {
+      // Sans identifiant, impossible de distinguer deux personnes : on
+      // compte la visite globalement, sans l'attribuer.
+      await bumpDailyStat('visits');
+      res.json({ ok: true, anonymous: false });
+      return;
+    }
+
+    const hote = req.headers.host ?? '';
+    await enregistrerVue({
+      anonymousId,
+      path: typeof corps.path === 'string' ? corps.path : '/',
+      referrer: domaineOrigine(
+        typeof corps.referrer === 'string' ? corps.referrer : String(req.headers.referer ?? ''),
+        hote,
+      ),
+      device: typeAppareil(String(req.headers['user-agent'] ?? '')),
+      // Vercel fournit le pays sans qu'on ait à géolocaliser quoi que ce
+      // soit. On ne conserve pas l'adresse IP, seulement cette information
+      // déjà agrégée.
+      country:
+        typeof req.headers['x-vercel-ip-country'] === 'string'
+          ? String(req.headers['x-vercel-ip-country'])
+          : null,
+    });
+
     await bumpDailyStat('visits');
-    res.json({ ok: true, visitsCount: next });
+    res.json({ ok: true, anonymous: true });
   }),
 );
 
@@ -1695,6 +1737,204 @@ app.get(
         listens: s.listens,
         orders: s.orders,
       })),
+    });
+  }),
+);
+
+/* --- Analyse complète --------------------------------------------------- */
+
+/**
+ * Toutes les mesures du studio en une seule requête.
+ *
+ * Le tableau de bord ouvre sept onglets ; les alimenter un par un ferait
+ * sept allers-retours et sept états de chargement à gérer. On préfère une
+ * réponse unique, quitte à ce qu'elle soit un peu plus lourde.
+ */
+app.get(
+  '/api/admin/analytics',
+  asyncHandler(async (req: Request, res: Response) => {
+    const jours = Math.min(
+      365,
+      Math.max(1, Number.parseInt(String(req.query.days ?? '30'), 10) || 30),
+    );
+
+    const [orderRows, userRows, paymentRows] = await Promise.all([
+      db.select().from(orders),
+      db.select().from(users),
+      db.select().from(payments),
+    ]);
+
+    const [audience, audience7, audience1, serie, pages, sources, appareils, paysRows] =
+      await Promise.all([
+        resumeAudience(jours),
+        resumeAudience(7),
+        resumeAudience(1),
+        serieQuotidienne(jours),
+        pagesLesPlusVues(jours),
+        sourcesDeTrafic(jours),
+        statsAppareils(jours),
+        statsPays(jours),
+      ]);
+
+    /* ---- Ventes ---- */
+    const payees = orderRows.filter((o) => o.paymentStatus === 'Paid');
+    const chiffreAffaires = payees.reduce((s, o) => s + o.amountCents, 0);
+    const seuilMois = new Date();
+    seuilMois.setUTCDate(1);
+    seuilMois.setUTCHours(0, 0, 0, 0);
+
+    const duMois = orderRows.filter((o) => +new Date(o.createdAt) >= +seuilMois);
+    const payeesMois = duMois.filter((o) => o.paymentStatus === 'Paid');
+
+    // Chiffre d'affaires par jour, pour la courbe des ventes.
+    const ventesParJour = new Map<string, number>();
+    for (const o of payees) {
+      const cle = new Date(o.createdAt).toISOString().slice(0, 10);
+      ventesParJour.set(cle, (ventesParJour.get(cle) ?? 0) + o.amountCents);
+    }
+    const serieVentes = serie.map((p) => ({
+      date: p.date,
+      montantCents: ventesParJour.get(p.date) ?? 0,
+    }));
+
+    /* ---- Commandes ---- */
+    const parStatut: Record<string, number> = {};
+    for (const o of orderRows) parStatut[o.status] = (parStatut[o.status] ?? 0) + 1;
+
+    const dernieres = orderRows
+      .slice()
+      .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))
+      .slice(0, 10)
+      .map((o) => ({
+        id: o.id,
+        reference: o.reference,
+        status: o.status,
+        paymentStatus: o.paymentStatus,
+        customerName: o.customerName,
+        amountCents: o.amountCents,
+        currency: o.currency,
+        createdAt: o.createdAt,
+      }));
+
+    /* ---- Comptes clients ---- */
+    const comptesRecents = userRows
+      .slice()
+      .sort((a, b) => +new Date(b.createdAt ?? 0) - +new Date(a.createdAt ?? 0))
+      .slice(0, 10)
+      .map((u) => ({
+        id: u.id,
+        name: u.name,
+        email: u.email,
+        city: u.city,
+        country: u.country,
+        lastLoginAt: u.lastLoginAt,
+        createdAt: u.createdAt,
+      }));
+
+    /* ---- Numéros WhatsApp ----
+       C'est le carnet d'adresses le plus précieux du studio : des
+       personnes qui ont explicitement accepté d'être recontactées. On le
+       déduit des commandes plutôt que d'une liste séparée, pour qu'il
+       reste exact sans effort de saisie. */
+    const carnet = new Map<
+      string,
+      { nom: string; telephone: string; ville: string; commandes: number; dernier: string | null }
+    >();
+    for (const o of orderRows) {
+      if (!o.acceptsWhatsapp) continue;
+      const tel = (o.customerPhone ?? '').replace(/[^0-9+]/g, '').trim();
+      if (tel.length < 8) continue;
+
+      const cle = tel;
+      const entree = carnet.get(cle) ?? {
+        nom: o.customerName,
+        telephone: tel,
+        ville: o.customerCity ?? '',
+        commandes: 0,
+        dernier: null,
+      };
+      entree.commandes += 1;
+      const dateCommande = new Date(o.createdAt).toISOString();
+      if (!entree.dernier || dateCommande > entree.dernier) {
+        entree.dernier = dateCommande;
+        entree.nom = o.customerName;
+        entree.ville = o.customerCity ?? '';
+      }
+      carnet.set(cle, entree);
+    }
+
+    const numerosWhatsapp = [...carnet.values()]
+      .sort((a, b) => (b.dernier ?? '').localeCompare(a.dernier ?? ''))
+      .slice(0, 50);
+
+    /* ---- Paiements ---- */
+    const paiementsRecents = paymentRows
+      .slice()
+      .sort((a, b) => +new Date(b.createdAt ?? 0) - +new Date(a.createdAt ?? 0))
+      .slice(0, 10)
+      .map((p) => ({
+        id: p.id,
+        orderId: p.orderId,
+        amountCents: p.amountCents,
+        currency: p.currency,
+        status: p.status,
+        provider: p.provider,
+        createdAt: p.createdAt,
+      }));
+
+    res.json({
+      periodeJours: jours,
+
+      audience,
+      audience7,
+      audienceAujourdhui: audience1,
+      serieQuotidienne: serie,
+      pagesLesPlusVues: pages,
+      sources: sources,
+      appareils,
+      pays: paysRows,
+
+      ventes: {
+        chiffreAffairesCents: chiffreAffaires,
+        commandesPayees: payees.length,
+        panierMoyenCents: payees.length ? Math.round(chiffreAffaires / payees.length) : 0,
+        chiffreAffairesMoisCents: payeesMois.reduce((s, o) => s + o.amountCents, 0),
+        commandesMois: duMois.length,
+        /*
+         * Taux de conversion : commandes rapportées aux visiteurs. Il n'est
+         * calculé que sur des visiteurs réellement mesurés — avec zéro
+         * visiteur, afficher un pourcentage n'aurait aucun sens.
+         */
+        tauxConversion: audience.visiteurs
+          ? Math.round((orderRows.length / audience.visiteurs) * 1000) / 10
+          : null,
+        serieVentes,
+      },
+
+      commandes: {
+        total: orderRows.length,
+        parStatut,
+        dernieres,
+        enCours: orderRows.filter((o) =>
+          ['Nouvelle', 'En écriture', 'En composition', 'En enregistrement', 'En relecture'].includes(
+            o.status,
+          ),
+        ).length,
+        livrees: orderRows.filter((o) => o.status === 'Livrée').length,
+      },
+
+      utilisateurs: {
+        total: userRows.length,
+        actifs: userRows.filter((u) => u.isActive).length,
+        recents: comptesRecents,
+      },
+
+      whatsapp: {
+        total: numerosWhatsapp.length,
+        numeros: numerosWhatsapp,
+      },
+
+      paiements: paiementsRecents,
     });
   }),
 );

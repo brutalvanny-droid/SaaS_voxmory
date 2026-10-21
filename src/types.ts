@@ -335,3 +335,95 @@ export interface ClientOrder {
   desiredDeliveryDate: string | null;
   createdAt: string;
 }
+
+/* ------------------------------------------------------------------ */
+/*  Analyse complète du studio                                          */
+/* ------------------------------------------------------------------ */
+
+export interface AudienceResume {
+  visiteurs: number;
+  pagesVues: number;
+  nouveaux: number;
+  revenus: number;
+  pagesParVisite: number;
+}
+
+export interface Repartition {
+  cle: string;
+  total: number;
+}
+
+export interface Analytics {
+  periodeJours: number;
+
+  audience: AudienceResume;
+  audience7: AudienceResume;
+  audienceAujourdhui: AudienceResume;
+  serieQuotidienne: { date: string; visiteurs: number; pagesVues: number }[];
+  pagesLesPlusVues: Repartition[];
+  sources: Repartition[];
+  appareils: Repartition[];
+  pays: Repartition[];
+
+  ventes: {
+    chiffreAffairesCents: number;
+    commandesPayees: number;
+    panierMoyenCents: number;
+    chiffreAffairesMoisCents: number;
+    commandesMois: number;
+    tauxConversion: number | null;
+    serieVentes: { date: string; montantCents: number }[];
+  };
+
+  commandes: {
+    total: number;
+    parStatut: Record<string, number>;
+    dernieres: {
+      id: string;
+      reference: string;
+      status: string;
+      paymentStatus: string;
+      customerName: string;
+      amountCents: number;
+      currency: string;
+      createdAt: string;
+    }[];
+    enCours: number;
+    livrees: number;
+  };
+
+  utilisateurs: {
+    total: number;
+    actifs: number;
+    recents: {
+      id: string;
+      name: string;
+      email: string;
+      city: string | null;
+      country: string | null;
+      lastLoginAt: string | null;
+      createdAt: string;
+    }[];
+  };
+
+  whatsapp: {
+    total: number;
+    numeros: {
+      nom: string;
+      telephone: string;
+      ville: string;
+      commandes: number;
+      dernier: string | null;
+    }[];
+  };
+
+  paiements: {
+    id: string;
+    orderId: string | null;
+    amountCents: number;
+    currency: string;
+    status: string;
+    provider: string;
+    createdAt: string;
+  }[];
+}

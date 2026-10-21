@@ -1,5 +1,6 @@
 import type {
   AdminSession,
+  Analytics,
   BroadcastCampaign,
   BroadcastList,
   ClientOrder,
@@ -261,6 +262,9 @@ export const api = {
         method: 'POST',
         ...body(phone ? { phone } : {}),
       }),
+
+    analytics: (days = 30) =>
+      request<Analytics>(`/api/admin/analytics?days=${encodeURIComponent(String(days))}`),
 
     ai: (payload: Record<string, unknown>) =>
       request<{ text: string; degraded: boolean; error?: string }>('/api/admin/ai', {

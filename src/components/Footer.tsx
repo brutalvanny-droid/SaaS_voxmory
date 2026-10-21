@@ -2,7 +2,7 @@ import { MessageCircle, Mail, Phone, ShieldCheck, ArrowUpRight } from 'lucide-re
 import InstallButton from './InstallButton.js';
 import { LogoMark } from './Logo.js';
 import Reveal from './Reveal.js';
-import { whatsappUrl } from '../lib/contact.js';
+import { CONTACT_EMAIL, mailtoUrl, whatsappUrl } from '../lib/contact.js';
 
 interface FooterProps {
   onNavigate: (page: string) => void;
@@ -125,10 +125,10 @@ export default function Footer({ onNavigate }: FooterProps) {
                     E-mail
                   </span>
                   <a
-                    href="mailto:usvanny10@gmail.com"
+                    href={mailtoUrl()}
                     className="text-[13.5px] text-white hover:text-[#A3FF12] transition-colors font-medium break-all"
                   >
-                    usvanny10@gmail.com
+                    {CONTACT_EMAIL}
                   </a>
                 </div>
               </li>

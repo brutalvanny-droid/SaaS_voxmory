@@ -11,7 +11,7 @@
 export const WHATSAPP_NUMBER = '243978508099';
 
 /** Adresse e-mail de contact. */
-export const CONTACT_EMAIL = 'usvanny10@gmail.com';
+export const CONTACT_EMAIL = 'voxmory@gmail.com';
 
 /**
  * Fabrique un lien WhatsApp.

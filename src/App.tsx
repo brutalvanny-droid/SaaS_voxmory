@@ -10,6 +10,7 @@ import PromotionBanner from './components/PromotionBanner.js';
 
 import { Package, GallerySong, ClientReview, PromotionSettings } from './types.js';
 import { useSEO, useJsonLd } from './hooks/useSEO.js';
+import { signalerVue } from './lib/visiteur.js';
 import WhatsAppButton from './components/WhatsAppButton.js';
 import { api } from './lib/api.js';
 import {
@@ -201,10 +202,16 @@ export default function App() {
     window.scrollTo(0, 0);
   }, [currentPage, memorySlug]);
 
-  // Track page visits
+  /**
+   * Mesure d'audience.
+   *
+   * Le chemin réel est transmis, et non l'identifiant interne de l'écran :
+   * sans cela, /pack/chanson-simple et /pack/premium-vip se confondraient
+   * et l'on ne saurait jamais quelle formule intéresse les gens.
+   */
   useEffect(() => {
-    fetch('/api/stats/visit', { method: 'POST' }).catch(() => {});
-  }, [currentPage]);
+    signalerVue(window.location.pathname || '/');
+  }, [currentPage, packSlug, memorySlug]);
 
   /**
    * Le visiteur est-il connu ?
