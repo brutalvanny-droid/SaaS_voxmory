@@ -35,7 +35,7 @@ const PACK_SEO: Record<string, RouteSeo> = {
   pack_simple: {
     title: 'Chanson Personnalisée pour Mariage ou Anniversaire | VOXMORY',
     description:
-      "Offrez une chanson écrite et enregistrée rien que pour vous : voix professionnelle, texte sur-mesure, livraison en 5 jours. Dès 20 $. Paiement Mobile Money accepté.",
+      "Une chanson écrite et enregistrée rien que pour vous : texte sur-mesure, voix professionnelle, livraison en 5 jours. Dès 20 $, Mobile Money accepté.",
     path: '/pack/chanson-simple',
     h1: 'Votre chanson personnalisée, écrite pour vous',
   },
@@ -49,14 +49,14 @@ const PACK_SEO: Record<string, RouteSeo> = {
   pack_premium_vip: {
     title: 'Chanson Premium VIP — Production Studio Complète | VOXMORY',
     description:
-      "Production haut de gamme : arrangement complet, mixage studio, livraison prioritaire en 3 jours et page souvenir personnalisée. Pour les occasions qui comptent vraiment.",
+      "Production haut de gamme : arrangement complet, mixage studio, livraison en 3 jours et page souvenir. Pour les occasions qui comptent vraiment.",
     path: '/pack/premium-vip',
     h1: 'La production studio, sans compromis',
   },
   pack_presentiel: {
     title: 'Prestation Présentielle — Chanteur Live à Kinshasa | VOXMORY',
     description:
-      "Nos artistes se déplacent chez vous ou sur votre événement à Kinshasa : mariage, anniversaire, hommage. Une chanson créée pour l'instant, chantée en direct.",
+      "Nos artistes se déplacent à Kinshasa, chez vous ou sur votre événement : mariage, anniversaire, hommage. Une chanson chantée en direct.",
     path: '/pack/prestation-presentielle',
     h1: 'Votre chanson, chantée devant vous',
   },
@@ -68,7 +68,7 @@ const PACK_SEO: Record<string, RouteSeo> = {
     h1: 'Votre chanson publicitaire sur-mesure',
   },
   pack_collab: {
-    title: 'Collaboration Musicale à Distance — Production Studio | VOXMORY',
+    title: 'Collaboration Musicale à Distance — Studio | VOXMORY',
     description:
       "Vous avez une voix ou une idée ? Notre studio produit votre instru, mixe et masterise votre chanson à distance dès 50 $.",
     path: '/pack/collaboration-musique',
@@ -87,14 +87,14 @@ const ROUTES: Record<string, RouteSeo> = {
   home: {
     title: 'Chanson personnalisée & jingle entreprise | VOXMORY',
     description:
-      "Offrez une chanson écrite avec votre histoire : mariage, anniversaire, hommage. Nous créons aussi votre chanson publicitaire d'entreprise dès 35 $. Rumba, Afrobeat, Gospel. Livraison sur WhatsApp en RDC.",
+      "Offrez une chanson écrite avec votre histoire : mariage, anniversaire, hommage. Rumba, Afrobeat, Gospel. Livraison sur WhatsApp en RDC, dès 20 $.",
     path: '/',
     h1: 'Votre histoire mérite une chanson',
   },
   order: {
     title: 'Commander ma Chanson Personnalisée | VOXMORY',
     description:
-      "Racontez votre histoire en deux minutes : texte, audio ou WhatsApp. Nos paroliers et compositeurs s'occupent du reste. Chanson publicitaire pour entreprise dès 35 $. Paiement Mobile Money sécurisé.",
+      "Racontez votre histoire en deux minutes : texte, audio ou WhatsApp. Nos paroliers s'occupent du reste. Paiement Mobile Money sécurisé.",
     path: '/commander',
     h1: 'Racontez-nous votre histoire',
   },
