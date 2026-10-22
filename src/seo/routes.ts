@@ -21,6 +21,9 @@ export const PACK_SLUGS: Record<string, string> = {
   pack_musique_video: 'musique-video',
   pack_premium_vip: 'premium-vip',
   pack_presentiel: 'prestation-presentielle',
+  pack_pub: 'chanson-publicitaire',
+  pack_collab: 'collaboration-musique',
+  pack_clip: 'tournage-clip-video',
 };
 
 /** Inverse : retrouver l'identifiant depuis l'adresse. */
@@ -56,6 +59,27 @@ const PACK_SEO: Record<string, RouteSeo> = {
       "Nos artistes se déplacent chez vous ou sur votre événement à Kinshasa : mariage, anniversaire, hommage. Une chanson créée pour l'instant, chantée en direct.",
     path: '/pack/prestation-presentielle',
     h1: 'Votre chanson, chantée devant vous',
+  },
+  pack_pub: {
+    title: 'Chanson Publicitaire & Jingle Entreprise dès 35 $ | VOXMORY',
+    description:
+      "Boostez votre marque ou boutique avec un jingle musical original : paroles sur-mesure, voix studio, livraison rapide en 5 jours dès 35 $.",
+    path: '/pack/chanson-publicitaire',
+    h1: 'Votre chanson publicitaire sur-mesure',
+  },
+  pack_collab: {
+    title: 'Collaboration Musicale à Distance — Production Studio | VOXMORY',
+    description:
+      "Vous avez une voix ou une idée ? Notre studio produit votre instru, mixe et masterise votre chanson à distance dès 50 $.",
+    path: '/pack/collaboration-musique',
+    h1: 'Produisez votre chanson avec notre studio',
+  },
+  pack_clip: {
+    title: 'Tournage & Montage de Clip Vidéo Musical | VOXMORY',
+    description:
+      "Donnez une image professionnelle à votre chanson : montage vidéo, habillage graphique et clip musical complet dès 500 $.",
+    path: '/pack/tournage-clip-video',
+    h1: 'Le clip vidéo qui sublime votre musique',
   },
 };
 
@@ -116,6 +140,12 @@ const ROUTES: Record<string, RouteSeo> = {
     path: '/suivi',
     h1: 'Où en est votre chanson ?',
   },
+  admin: {
+    title: 'Espace Studio — Administration VOXMORY',
+    description: 'Gestion du studio VOXMORY.',
+    path: '/admin',
+    h1: 'Espace Studio',
+  },
 };
 
 /**
@@ -131,6 +161,7 @@ export const PAGE_PATHS: Record<string, string> = {
   tracking: '/suivi',
   account: '/compte',
   myaccount: '/mon-compte',
+  admin: '/admin',
 };
 
 /** Retrouve l'écran interne depuis une adresse publique. */
@@ -142,6 +173,7 @@ export function pathToPage(pathname: string): { page: string; param: string } {
 
   if (first === 'pack' && second) return { page: 'pack', param: second };
   if (first === 'memory' && second) return { page: 'memory', param: second };
+  if (first === 'admin' || first === 'studio') return { page: 'admin', param: '' };
 
   const entry = Object.entries(PAGE_PATHS).find(([, p]) => p === `/${first}`);
   if (entry) return { page: entry[0], param: '' };

@@ -172,16 +172,22 @@ export const updatePackageSchema = z
     currency: z.string().trim().length(3).optional(),
     deliveryTime: z.string().trim().max(80).optional(),
     isActive: z.boolean().optional(),
+    targetAudience: z.string().trim().max(500).optional(),
+    clientSends: z.string().trim().max(1000).optional(),
+    clientReceives: z.string().trim().max(1000).optional(),
+    steps: z.array(z.string().max(200)).max(10).optional(),
   })
   .strict();
 
+const texteRequis = (max: number) => z.string().trim().max(max).default('');
+
 export const gallerySongSchema = z.object({
   title: requiredText('Le titre', 1, 200),
-  occasion: optionalText(100),
-  style: optionalText(100),
-  language: optionalText(100),
-  mood: optionalText(100),
-  description: optionalText(2000),
+  occasion: texteRequis(100),
+  style: texteRequis(100),
+  language: texteRequis(100),
+  mood: texteRequis(100),
+  description: texteRequis(2000),
   audioUrl: z.string().trim().max(700).default(''),
   coverUrl: z.string().trim().max(700).default(''),
   clientReaction: optionalText(2000),

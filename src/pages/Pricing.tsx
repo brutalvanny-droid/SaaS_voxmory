@@ -169,6 +169,34 @@ export default function Pricing({ packages, onNavigate }: PricingProps) {
                     <span className="block text-[10px] text-[#A3FF12] font-semibold tracking-wider uppercase">Délai : {pkg.deliveryTime}</span>
                   </div>
 
+                  {/* Détails du service */}
+                  <div className="space-y-2 pt-3">
+                    {pkg.targetAudience && (
+                      <div className="flex items-start gap-2">
+                        <span className="shrink-0 text-[10px] text-[#A3FF12] font-bold mt-0.5">🎯</span>
+                        <p className="text-[10px] text-[#8A949F] leading-relaxed"><strong>Pour :</strong> {pkg.targetAudience}</p>
+                      </div>
+                    )}
+                    {pkg.clientSends && (
+                      <div className="flex items-start gap-2">
+                        <span className="shrink-0 text-[10px] text-[#A3FF12] font-bold mt-0.5">📤</span>
+                        <p className="text-[10px] text-[#8A949F] leading-relaxed"><strong>Vous envoyez :</strong> {pkg.clientSends}</p>
+                      </div>
+                    )}
+                    {pkg.clientReceives && (
+                      <div className="flex items-start gap-2">
+                        <span className="shrink-0 text-[10px] text-[#A3FF12] font-bold mt-0.5">📥</span>
+                        <p className="text-[10px] text-[#8A949F] leading-relaxed"><strong>Vous recevez :</strong> {pkg.clientReceives}</p>
+                      </div>
+                    )}
+                    {pkg.steps && pkg.steps.length > 0 && (
+                      <div className="flex items-start gap-2">
+                        <span className="shrink-0 text-[10px] text-[#A3FF12] font-bold mt-0.5">1️⃣3️⃣</span>
+                        <p className="text-[10px] text-[#8A949F] leading-relaxed"><strong>Étapes :</strong> {pkg.steps.join(' → ')}</p>
+                      </div>
+                    )}
+                  </div>
+
                   {/* Visual indicators of value */}
                   <div className="space-y-3 bg-[#161A20]/60 p-4 rounded-2xl border border-white/5">
                     <h4 className="text-[10px] font-mono font-bold text-[#A2ABB5] uppercase tracking-wider flex items-center gap-1.5">

@@ -22,6 +22,13 @@ export default function Reviews({ initialReviews }: ReviewsProps) {
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
   useEffect(() => {
+    // Pré-remplir le numéro de commande depuis l'URL (?order=VOX-...)
+    const params = new URLSearchParams(window.location.search);
+    const order = params.get('order');
+    if (order) setOrderNumber(order);
+  }, []);
+
+  useEffect(() => {
     setIsLoading(true);
     fetch('/api/reviews')
       .then(res => res.json())
@@ -47,8 +54,8 @@ export default function Reviews({ initialReviews }: ReviewsProps) {
       rating,
       comment,
       occasion,
-      orderNumber,
-      date: new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }),
+      orderId: orderNumber || undefined,
+      isVerified: Boolean(orderNumber),
       approved: false // requires admin approval
     };
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Search, AlertCircle, CheckCircle2, Loader2, Music, Download, Gift } from 'lucide-react';
+import { Search, AlertCircle, CheckCircle2, Loader2, Music, Download, Gift, Send } from 'lucide-react';
 import { api } from '../lib/api.js';
 import type { PublicOrderTracking } from '../types.js';
 
@@ -36,10 +36,16 @@ const PIPELINE: { status: string; label: string; desc: string }[] = [
     label: 'Chanson livrée !',
     desc: 'Votre chanson et votre page souvenir sont prêtes.',
   },
+  {
+    status: 'Validée',
+    label: 'Validée par vous',
+    desc: 'Vous avez validé la chanson. Merci !',
+  },
 ];
 
 function stageIndex(status: string): number {
   const s = status.toLowerCase();
+  if (s.includes('validée')) return 7;
   if (s.includes('livrée')) return 6;
   if (s.includes('révision')) return 5;
   if (s.includes('production') || s.includes('cours')) return 4;
@@ -185,6 +191,18 @@ export default function Tracking({ initialOrderId, onNavigate }: Props) {
             <p className="mt-6 text-sm text-white">
               Titre : <span className="font-bold">{order.songTitle}</span>
             </p>
+          )}
+
+          {order.status === 'Validée' && order.reference && (
+            <div className="mt-8 p-6 rounded-2xl border border-[#A3FF12]/20 bg-[#A3FF12]/10 text-center">
+              <p className="text-[#A3FF12] font-bold text-sm mb-3 uppercase tracking-wider">✨ Votre chanson est validée</p>
+              <a
+                href={`/avis?order=${encodeURIComponent(order.reference)}`}
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#A3FF12] text-black font-bold rounded-xl hover:opacity-90 transition-all"
+              >
+                <Send className="w-4 h-4" /> Laisser un avis
+              </a>
+            </div>
           )}
 
           {order.finalAudioUrl && (

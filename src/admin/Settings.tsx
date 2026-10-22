@@ -52,7 +52,7 @@ export default function SettingsPanel({ onPromotionChanged }: { onPromotionChang
 
 function Packages() {
   const [items, setItems] = useState<Package[]>([]);
-  const [draft, setDraft] = useState<Record<string, string>>({});
+  const [drafts, setDrafts] = useState<Record<string, Partial<Package>>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
   const [error, setError] = useState('');
@@ -62,9 +62,21 @@ function Packages() {
     try {
       const rows = await api.admin.packages();
       setItems(rows);
-      setDraft(
-        Object.fromEntries(rows.map((p) => [p.id, String(p.priceCents / 100)])),
-      );
+      const d: Record<string, Partial<Package>> = {};
+      rows.forEach((p) => {
+        d[p.id] = {
+          name: p.name,
+          promise: p.promise,
+          deliveryTime: p.deliveryTime,
+          targetAudience: p.targetAudience ?? '',
+          clientSends: p.clientSends ?? '',
+          clientReceives: p.clientReceives ?? '',
+          steps: p.steps ?? [],
+          priceCents: p.priceCents,
+          isActive: p.isActive,
+        };
+      });
+      setDrafts(d);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Chargement impossible.');
     } finally {
@@ -75,12 +87,24 @@ function Packages() {
     void load();
   }, []);
 
+  const setField = (pkgId: string, field: string, value: any) => {
+    setDrafts((d) => ({ ...d, [pkgId]: { ...d[pkgId], [field]: value } }));
+  };
+
   const save = async (pkg: Package) => {
     setSaving(pkg.id);
     try {
-      const price = Number(draft[pkg.id] ?? 0);
+      const d = drafts[pkg.id] ?? {};
       await api.admin.updatePackage(pkg.id, {
-        priceCents: Math.max(0, Math.round(price * 100)),
+        name: d.name,
+        promise: d.promise,
+        deliveryTime: d.deliveryTime,
+        targetAudience: d.targetAudience,
+        clientSends: d.clientSends,
+        clientReceives: d.clientReceives,
+        steps: d.steps,
+        priceCents: d.priceCents ?? pkg.priceCents,
+        isActive: d.isActive ?? pkg.isActive,
       });
       await load();
     } catch (err) {
@@ -96,56 +120,121 @@ function Packages() {
     <div className="space-y-4">
       <ErrorNote message={error} />
       <p className="text-xs text-[#8A949F]">
-        Le prix est enregistré en centimes, jamais interprété depuis une chaîne de
-        caractères : le chiffre d'affaires calculé est donc exact.
+        Chaque formule peut être modifiée : nom, promesse, prix, délai, à qui
+        s\'adresse le service, ce que le client nous envoie, ce qu\'il reçoit,
+        et les 3 étapes de production.
       </p>
-      {items.map((pkg) => (
-        <Card key={pkg.id} title={pkg.name} subtitle={pkg.promise}>
-          <div className="flex items-end gap-3">
-            <div className="flex-1">
-              <Field label="Prix (devise)">
+      {items.map((pkg) => {
+        const d = drafts[pkg.id] ?? {};
+        return (
+          <Card key={pkg.id} title={pkg.name} subtitle={pkg.promise}>
+            <div className="space-y-3">
+              <Field label="Nom du service">
+                <Input
+                  value={d.name ?? pkg.name}
+                  onChange={(e) => setField(pkg.id, 'name', e.target.value)}
+                  className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:border-[#A3FF12] focus:outline-none"
+                />
+              </Field>
+              <Field label="Promesse (sous-titre)">
+                <Input
+                  value={d.promise ?? pkg.promise}
+                  onChange={(e) => setField(pkg.id, 'promise', e.target.value)}
+                  className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:border-[#A3FF12] focus:outline-none"
+                />
+              </Field>
+              <Field label="Prix (dollars)">
                 <Input
                   type="number"
                   min="0"
                   step="0.01"
-                  value={draft[pkg.id] ?? ''}
-                  onChange={(e) => setDraft((d) => ({ ...d, [pkg.id]: e.target.value }))}
+                  value={String(d.priceCents ?? pkg.priceCents) ? (Number(d.priceCents ?? pkg.priceCents) / 100).toFixed(2) : ''}
+                  onChange={(e) => setField(pkg.id, 'priceCents', Math.max(0, Math.round(Number(e.target.value) * 100)))}
+                  className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:border-[#A3FF12] focus:outline-none"
                 />
               </Field>
+              <Field label="Délai de livraison">
+                <Input
+                  value={d.deliveryTime ?? pkg.deliveryTime}
+                  onChange={(e) => setField(pkg.id, 'deliveryTime', e.target.value)}
+                  className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:border-[#A3FF12] focus:outline-none"
+                />
+              </Field>
+              <Field label="À qui s\'adresse ce service">
+                <textarea
+                  value={d.targetAudience ?? pkg.targetAudience}
+                  onChange={(e) => setField(pkg.id, 'targetAudience', e.target.value)}
+                  rows={2}
+                  className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:border-[#A3FF12] focus:outline-none"
+                />
+              </Field>
+              <Field label="Ce que le client nous envoie">
+                <textarea
+                  value={d.clientSends ?? pkg.clientSends}
+                  onChange={(e) => setField(pkg.id, 'clientSends', e.target.value)}
+                  rows={2}
+                  className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:border-[#A3FF12] focus:outline-none"
+                />
+              </Field>
+              <Field label="Ce que le client reçoit">
+                <textarea
+                  value={d.clientReceives ?? pkg.clientReceives}
+                  onChange={(e) => setField(pkg.id, 'clientReceives', e.target.value)}
+                  rows={2}
+                  className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:border-[#A3FF12] focus:outline-none"
+                />
+              </Field>
+              <Field label="Étapes de production (3 max, séparées par des virgules)">
+                <Input
+                  value={(d.steps ?? pkg.steps ?? []).join(', ')}
+                  onChange={(e) => setField(pkg.id, 'steps', e.target.value.split(',').map((s) => s.trim()).filter(Boolean))}
+                  placeholder="Étape 1, Étape 2, Étape 3"
+                  className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:border-[#A3FF12] focus:outline-none"
+                />
+              </Field>
+              <div className="flex items-center gap-3">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={d.isActive ?? pkg.isActive}
+                    onChange={(e) => setField(pkg.id, 'isActive', e.target.checked)}
+                    className="rounded bg-black border-white/10 text-[#A3FF12] focus:ring-[#A3FF12]"
+                  />
+                  <span className="text-xs text-[#C3CAD2]">Service actif sur le site</span>
+                </label>
+              </div>
             </div>
-            <span className="pb-2 text-sm text-[#8A949F]">{pkg.currency}</span>
-            <Button
-              variant="primary"
-              disabled={saving === pkg.id}
-              onClick={() => void save(pkg)}
-              className="mb-0.5"
-            >
-              {saving === pkg.id ? (
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              ) : (
-                <>
+            <ul className="mt-2 space-y-1">
+              {pkg.includes.map((inc) => (
+                <li key={inc} className="text-[11px] text-[#8A949F] flex gap-2">
+                  <span className="text-[#A3FF12]">✓</span>
+                  {inc}
+                </li>
+              ))}
+            </ul>
+            <div className="flex gap-2">
+              <Button
+                variant="primary"
+                disabled={saving === pkg.id}
+                onClick={() => void save(pkg)}
+                className="flex-1"
+              >
+                {saving === pkg.id ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
                   <Save className="w-3.5 h-3.5 inline mr-1.5" />
-                  Enregistrer
-                </>
-              )}
-            </Button>
-          </div>
-          <ul className="mt-3 space-y-1">
-            {pkg.includes.map((inc) => (
-              <li key={inc} className="text-[11px] text-[#8A949F] flex gap-2">
-                <span className="text-[#A3FF12]">✓</span>
-                {inc}
-              </li>
-            ))}
-          </ul>
-          <p className="text-[10px] text-[#6C7581] mt-3">
-            Livraison : {pkg.deliveryTime} · ordre {pkg.sortOrder}
-          </p>
-        </Card>
-      ))}
+                )}
+                Enregistrer
+              </Button>
+            </div>
+          </Card>
+        );
+      })}
     </div>
   );
 }
+
+/* ---------------------------- Promotion ---------------------------- */
 
 /* ---------------------------- Promotion ---------------------------- */
 

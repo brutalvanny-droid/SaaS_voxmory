@@ -8,6 +8,7 @@ import type {
   ClientOrder,
   ClientReview,
   ClientUser,
+  SongReview,
   DashboardStats,
   EventReminder,
   GallerySong,
@@ -73,6 +74,19 @@ export const api = {
     occasion: string;
     comment: string;
   }) => request<ClientReview>('/api/reviews', { method: 'POST', ...body(payload) }),
+
+  songReviews: (songId: string) =>
+    request<SongReview[]>(`/api/songs/${encodeURIComponent(songId)}/reviews`),
+
+  createSongReview: (songId: string, payload: {
+    clientName: string;
+    rating: number;
+    comment: string;
+  }) =>
+    request<SongReview>(
+      `/api/songs/${encodeURIComponent(songId)}/reviews`,
+      { method: 'POST', ...body(payload) }
+    ),
 
   createOrder: (payload: Record<string, unknown>) =>
     request<Order>('/api/orders', { method: 'POST', ...body(payload) }),
@@ -194,12 +208,27 @@ export const api = {
       request<GallerySong>(`/api/admin/gallery/${id}`, { method: 'PUT', ...body(patch) }),
     deleteSong: (id: string) =>
       request<{ success: boolean }>(`/api/admin/gallery/${id}`, { method: 'DELETE' }),
+    orderSongs: (ids: string[]) =>
+      request<{ success: boolean }>('/api/admin/gallery/order', { method: 'PUT', ...body({ ids }) }),
 
     allReviews: () => request<ClientReview[]>('/api/reviews?all=true'),
+    createReview: (data: Record<string, unknown>) =>
+      request<ClientReview>('/api/admin/reviews', { method: 'POST', ...body(data) }),
+    createReviewsEnMasse: (avis: Record<string, unknown>[]) =>
+      request<{ imported: number; avis: ClientReview[] }>('/api/admin/reviews/bulk', {
+        method: 'POST',
+        ...body({ avis }),
+      }),
     updateReview: (id: string, patch: Record<string, unknown>) =>
       request<ClientReview>(`/api/admin/reviews/${id}`, { method: 'PUT', ...body(patch) }),
     deleteReview: (id: string) =>
       request<{ success: boolean }>(`/api/admin/reviews/${id}`, { method: 'DELETE' }),
+
+    songReviews: () => request<SongReview[]>('/api/admin/song-reviews'),
+    updateSongReview: (id: string, patch: Record<string, unknown>) =>
+      request<SongReview>(`/api/admin/song-reviews/${id}`, { method: 'PUT', ...body(patch) }),
+    deleteSongReview: (id: string) =>
+      request<{ success: boolean }>(`/api/admin/song-reviews/${id}`, { method: 'DELETE' }),
 
     memoryPages: () => request<MemoryPage[]>('/api/admin/memory-pages'),
     createMemoryPage: (payload: Record<string, unknown>) =>

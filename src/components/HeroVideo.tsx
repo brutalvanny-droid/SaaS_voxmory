@@ -73,13 +73,14 @@ export default function HeroVideo({ className = '' }: { className?: string }) {
       {/* Affiche : visible immédiatement, et seule image si la vidéo ne
           démarre pas. C'est elle qui garantit qu'il n'y a jamais de trou. */}
       <img
-        src="/images/hero-poster.jpg"
+        src={affiche}
         alt=""
         aria-hidden="true"
         className={`absolute inset-0 w-full h-full object-cover ${className}`}
         // L'affiche est le premier élément peint de la page : on l'indique au
         // navigateur pour qu'il la traite en priorité.
         fetchPriority="high"
+        key={affiche}
       />
 
       {pret && video && (

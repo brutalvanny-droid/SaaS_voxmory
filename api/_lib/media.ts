@@ -34,7 +34,7 @@ export function blobAccess(): BlobAccess {
  * (`..`) ou d'introduire un autre hôte est écartée ici, avant même
  * d'interroger le service de stockage.
  */
-const CHEMIN_VALIDE = /^[a-zA-Z0-9][a-zA-Z0-9._/-]{0,300}$/;
+const CHEMIN_VALIDE = /^[a-zA-Z0-9][^\\\x00-\x1f]{0,300}$/;
 
 export function cheminEstSur(nom: string): boolean {
   if (!CHEMIN_VALIDE.test(nom)) return false;

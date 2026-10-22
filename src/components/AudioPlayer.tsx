@@ -17,6 +17,7 @@ export default function AudioPlayer({ audioUrl, title, subtitle, coverUrl, start
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(0.8);
   const [imageError, setImageError] = useState(false);
+  const [audioError, setAudioError] = useState(false);
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const progressBarRef = useRef<HTMLInputElement | null>(null);
@@ -30,6 +31,7 @@ export default function AudioPlayer({ audioUrl, title, subtitle, coverUrl, start
     setCurrentTime(minTime);
     setDuration(0);
     setImageError(false);
+    setAudioError(false);
     
     if (audioRef.current) {
       audioRef.current.pause();
@@ -106,21 +108,18 @@ export default function AudioPlayer({ audioUrl, title, subtitle, coverUrl, start
     setCurrentTime(minTime);
   };
 
+  /**
+   * Le fichier n'a pas pu être lu.
+   *
+   * Nous ne remplaçons plus le morceau par une piste de démonstration
+   * trouvée ailleurs : le visiteur aurait entendu une chanson qui n'est pas
+   * la nôtre en croyant l'inverse. On prévient simplement, le temps que le
+   * studio redépose le fichier.
+   */
   const handleAudioError = () => {
     setIsLoading(false);
-    if (audioRef.current && audioRef.current.src !== 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' && audioUrl) {
-      console.warn("Audio file not found or failed to load. Falling back to demonstration audio.");
-      audioRef.current.src = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
-      audioRef.current.load();
-      if (isPlaying) {
-        audioRef.current.play().catch(err => {
-          console.error("Playback on fallback failed:", err);
-          setIsPlaying(false);
-        });
-      }
-    } else {
-      setIsPlaying(false);
-    }
+    setIsPlaying(false);
+    if (audioUrl) setAudioError(true);
   };
 
   const handleProgressChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -167,6 +166,11 @@ export default function AudioPlayer({ audioUrl, title, subtitle, coverUrl, start
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
         onEnded={handleAudioEnded}
+        // Le clic droit permettrait d'enregistrer le fichier complet alors
+        // que le studio n'a voulu faire entendre qu'un extrait. On le
+        // désactive : ce n'est pas un verrou absolu, mais cela décourage le
+        // geste le plus courant.
+        onContextMenu={(e) => e.preventDefault()}
         onCanPlay={() => setIsLoading(false)}
         onCanPlayThrough={() => setIsLoading(false)}
         onWaiting={() => { if (isPlaying) setIsLoading(true); }}
@@ -205,6 +209,12 @@ export default function AudioPlayer({ audioUrl, title, subtitle, coverUrl, start
           <span className="text-xs text-[#A3FF12] font-medium">{subtitle}</span>
         </div>
 
+        {audioError ? (
+          <p className="text-[11px] text-[#FF9B9B] bg-[#FF9B9B]/10 border border-[#FF9B9B]/20 rounded-lg px-3 py-2 my-1.5">
+            Fichier audio indisponible pour le moment. Le studio a été prévenu.
+          </p>
+        ) : (
+        <>
         {/* Animated Audio Waveform Visualizer */}
         <div className="h-10 flex items-center justify-between gap-[2px] px-2 bg-black/50 rounded-xl border border-white/5 py-1.5 my-1.5 overflow-hidden">
           {waveformProfile.map((height, index) => {
@@ -261,6 +271,8 @@ export default function AudioPlayer({ audioUrl, title, subtitle, coverUrl, start
           <span className="text-[10px] font-mono text-[#8A949F] w-8">{formatTime(displayDuration || (maxLimit - minTime))}</span>
         </div>
 
+        </>
+        )}
         {/* Controls Panel */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -279,6 +291,7 @@ export default function AudioPlayer({ audioUrl, title, subtitle, coverUrl, start
             
             <button
               onClick={togglePlay}
+              disabled={audioError || !audioUrl}
               className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#A3FF12] via-[#A3FF12] to-[#7ACC00] text-black flex items-center justify-center hover:scale-105 transition-all shadow-md shadow-[#A3FF12]/20 cursor-pointer disabled:opacity-70"
             >
               {isLoading ? (

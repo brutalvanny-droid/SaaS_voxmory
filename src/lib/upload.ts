@@ -44,7 +44,13 @@ async function blobAccess(): Promise<'public' | 'private'> {
   return cachedAccess;
 }
 
-export async function uploadFile(file: File, admin = false, estVideo = false): Promise<string> {
+/** Le service d'envoi sait annoncer l'avancement : on le répercute. */
+export async function uploadFile(
+  file: File,
+  admin = false,
+  estVideo = false,
+  onProgression?: (pourcent: number) => void,
+): Promise<string> {
   // Une vidéo de fond est lourde : le studio dispose d'une enveloppe plus
   // large que celle d'un visiteur qui dépose une note vocale.
   const limite = admin && estVideo ? 80 : 25;
@@ -71,10 +77,19 @@ export async function uploadFile(file: File, admin = false, estVideo = false): P
 
   const { upload } = await import('@vercel/blob/client');
   const access = await blobAccess();
+  const nomPropre = nettoyerNomFichier(file.name);
   try {
-    const blob = await upload(file.name, file, {
+    const blob = await upload(nomPropre, file, {
       access,
       handleUploadUrl: admin ? '/api/uploads?scope=admin' : '/api/uploads',
+      onUploadProgress: (e: { percentage?: number; loaded?: number; total?: number }) => {
+        if (!onProgression) return;
+        if (typeof e.percentage === 'number') {
+          onProgression(Math.min(100, Math.round(e.percentage)));
+        } else if (e.loaded && e.total) {
+          onProgression(Math.min(100, Math.round((e.loaded / e.total) * 100)));
+        }
+      },
     });
 
     /**
@@ -105,6 +120,16 @@ export async function uploadFile(file: File, admin = false, estVideo = false): P
  * Seule l'adresse `blob.url` porte le vrai chemin. On l'utilise donc comme
  * source de vérité, avec repli sur `pathname` si elle manquait.
  */
+function nettoyerNomFichier(nom: string): string {
+  const propre = nom
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-zA-Z0-9._-]/g, '_')
+    .replace(/_+/g, '_')
+    .replace(/^[^a-zA-Z0-9]+/, '');
+  return (propre || `fichier-${Date.now()}`).slice(0, 120);
+}
+
 function cheminReel(blob: { pathname: string; url: string }): string {
   const marque = '.blob.vercel-storage.com/';
   const i = blob.url.indexOf(marque);

@@ -104,13 +104,13 @@ export function Field({
   hint?: string;
 }) {
   return (
-    <label className="block">
+    <div className="block">
       <span className="block text-[10px] font-semibold uppercase tracking-wider text-[#A2ABB5] mb-1.5">
         {label}
       </span>
       {children}
       {hint && <span className="block text-[10px] text-[#6C7581] mt-1">{hint}</span>}
-    </label>
+    </div>
   );
 }
 

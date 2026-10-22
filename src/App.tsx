@@ -81,7 +81,7 @@ export default function App() {
    * de recherche n'apporterait aucun visiteur et exposerait des adresses
    * qui n'ont de sens que pour la personne connectée.
    */
-  const ecranPrive = currentPage === 'account' || currentPage === 'myaccount';
+  const ecranPrive = currentPage === 'account' || currentPage === 'myaccount' || currentPage === 'admin';
 
   useSEO({
     title: seo.title,

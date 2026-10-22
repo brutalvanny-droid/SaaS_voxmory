@@ -22,6 +22,7 @@ import {
   Select,
   TextArea,
 } from './ui.js';
+import EnvoiFichier from './EnvoiFichier.js';
 
 type Tone = 'gray' | 'yellow' | 'green' | 'red' | 'blue' | 'purple';
 
@@ -374,18 +375,20 @@ function OrderDetail({
             onChange={(e) => set('clientFirstName', e.target.value)}
           />
         </Field>
-        <Field label="URL audio final (MP3)">
-          <Input
-            value={form.finalAudioUrl}
-            onChange={(e) => set('finalAudioUrl', e.target.value)}
-            placeholder="/uploads/…"
+        <Field label="Fichier audio final (MP3)">
+          <EnvoiFichier
+            genre="audio"
+            libelle="Choisir l'audio final"
+            valeur={form.finalAudioUrl}
+            onChange={(url) => set('finalAudioUrl', url)}
           />
         </Field>
-        <Field label="URL pochette">
-          <Input
-            value={form.coverImageUrl}
-            onChange={(e) => set('coverImageUrl', e.target.value)}
-            placeholder="https://…"
+        <Field label="Pochette de la chanson">
+          <EnvoiFichier
+            genre="image"
+            libelle="Choisir la pochette"
+            valeur={form.coverImageUrl}
+            onChange={(url) => set('coverImageUrl', url)}
           />
         </Field>
       </div>

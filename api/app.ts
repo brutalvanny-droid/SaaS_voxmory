@@ -199,7 +199,61 @@ const HOME_DEFAUT = {
 type PackageRow = typeof packages.$inferSelect;
 type OrderRow = typeof orders.$inferSelect;
 
-function serializePackage(row: PackageRow) {
+type DetailsFormule = {
+  targetAudience?: string;
+  clientSends?: string;
+  clientReceives?: string;
+  steps?: string[];
+};
+
+const DETAILS_PAR_DEFAUT: Record<string, DetailsFormule> = {
+  pack_simple: {
+    targetAudience: 'Cadeau rapide, anniversaire, message d’amour ou d’amitié.',
+    clientSends: 'Le prénom, l’occasion et quelques phrases ou une note vocale.',
+    clientReceives: 'La chanson personnalisée (1 à 2 min) en MP3 sur WhatsApp.',
+    steps: ['Vous racontez l’histoire', 'Nous écrivons et chantons', 'Livraison sur WhatsApp'],
+  },
+  pack_musique_video: {
+    targetAudience: 'Mariage, anniversaire marquant, hommage familial.',
+    clientSends: 'Votre histoire (texte ou vocal) et vos plus belles photos.',
+    clientReceives: 'La chanson complète (MP3 + WAV), le clip vidéo photo et la page souvenir.',
+    steps: ['Histoire & photos', 'Composition & montage clip', 'Livraison chanson + vidéo'],
+  },
+  pack_premium_vip: {
+    targetAudience: 'Grande occasion, demande en mariage, événement VIP.',
+    clientSends: 'Votre histoire détaillée, vos photos/vidéos et vos préférences musicales.',
+    clientReceives: 'Production studio longue prestige, clip vidéo, page souvenir à vie en 24h.',
+    steps: ['Brief VIP prioritaire', 'Production studio & clip', 'Livraison express 24h'],
+  },
+  pack_presentiel: {
+    targetAudience: 'Cérémonie de mariage, soirée privée ou événement à Kinshasa.',
+    clientSends: 'La date, le lieu de l’événement et l’histoire de la personne célébrée.',
+    clientReceives: 'Prestation live de l’équipe VOXMORY sur place + chanson et vidéo souvenir.',
+    steps: ['Réservation & histoire', 'Création en studio', 'Chanté en direct devant vos invités'],
+  },
+  pack_pub: {
+    targetAudience: 'Boutiques, entreprises, marques, commerces et entrepreneurs.',
+    clientSends: 'Le nom de votre activité, votre slogan, vos produits et votre cible.',
+    clientReceives: 'Un jingle / chanson publicitaire accrocheuse en MP3 prête pour vos pubs.',
+    steps: ['Brief de votre marque', 'Création du refrain accrocheur', 'Livraison du jingle MP3'],
+  },
+  pack_collab: {
+    targetAudience: 'Chanteurs, artistes, chorales ou passionnés ayant déjà une voix ou un texte.',
+    clientSends: 'Votre maquette vocale (même enregistrée au téléphone) et le style souhaité.',
+    clientReceives: 'Votre chanson produite, arrangée, mixée et masterisée (WAV + MP3).',
+    steps: ['Envoi de votre voix', 'Arrangement & mixage studio', 'Master final WAV + MP3'],
+  },
+  pack_clip: {
+    targetAudience: 'Artistes ou clients voulant un clip vidéo professionnel sur leur chanson.',
+    clientSends: 'Votre fichier audio (chanson) et vos photos ou séquences vidéo.',
+    clientReceives: 'Un clip vidéo musical monté et habillé en haute définition (MP4).',
+    steps: ['Envoi audio & visuels', 'Montage & habillage', 'Livraison du clip MP4'],
+  },
+};
+
+function serializePackage(row: PackageRow, detailsMap: Record<string, DetailsFormule> = {}) {
+  const def = DETAILS_PAR_DEFAUT[row.id] ?? {};
+  const perso = detailsMap[row.id] ?? {};
   return {
     id: row.id,
     name: row.name,
@@ -211,6 +265,10 @@ function serializePackage(row: PackageRow) {
     deliveryTime: row.deliveryTime,
     sortOrder: row.sortOrder,
     isActive: row.isActive,
+    targetAudience: perso.targetAudience ?? def.targetAudience ?? '',
+    clientSends: perso.clientSends ?? def.clientSends ?? '',
+    clientReceives: perso.clientReceives ?? def.clientReceives ?? '',
+    steps: perso.steps ?? def.steps ?? [],
   };
 }
 
@@ -711,12 +769,15 @@ app.get(
 app.get(
   '/api/packages',
   asyncHandler(async (_req, res) => {
-    const rows = await db
-      .select()
-      .from(packages)
-      .where(eq(packages.isActive, true))
-      .orderBy(asc(packages.sortOrder));
-    res.json(rows.map(serializePackage));
+    const [rows, detailsMap] = await Promise.all([
+      db
+        .select()
+        .from(packages)
+        .where(eq(packages.isActive, true))
+        .orderBy(asc(packages.sortOrder)),
+      getSetting<Record<string, DetailsFormule>>('packageDetails', {}),
+    ]);
+    res.json(rows.map((r) => serializePackage(r, detailsMap)));
   }),
 );
 
@@ -2318,8 +2379,11 @@ app.delete(
 app.get(
   '/api/admin/packages',
   asyncHandler(async (_req, res) => {
-    const rows = await db.select().from(packages).orderBy(asc(packages.sortOrder));
-    res.json(rows.map(serializePackage));
+    const [rows, detailsMap] = await Promise.all([
+      db.select().from(packages).orderBy(asc(packages.sortOrder)),
+      getSetting<Record<string, DetailsFormule>>('packageDetails', {}),
+    ]);
+    res.json(rows.map((r) => serializePackage(r, detailsMap)));
   }),
 );
 
@@ -2331,17 +2395,27 @@ app.put(
       res.status(400).json({ error: 'Données invalides.', details: parsed.error.issues });
       return;
     }
+    const { targetAudience, clientSends, clientReceives, steps, ...colonnesDb } = parsed.data;
     const [updated] = await db
       .update(packages)
-      .set({ ...parsed.data, updatedAt: new Date() })
+      .set({ ...colonnesDb, updatedAt: new Date() })
       .where(eq(packages.id, req.params.id))
       .returning();
     if (!updated) {
       res.status(404).json({ error: 'Formule introuvable.' });
       return;
     }
+    const detailsMap = await getSetting<Record<string, DetailsFormule>>('packageDetails', {});
+    const actuel = detailsMap[req.params.id] ?? {};
+    detailsMap[req.params.id] = {
+      targetAudience: targetAudience ?? actuel.targetAudience,
+      clientSends: clientSends ?? actuel.clientSends,
+      clientReceives: clientReceives ?? actuel.clientReceives,
+      steps: steps ?? actuel.steps,
+    };
+    await setSetting('packageDetails', detailsMap);
     void logAudit(req, 'package.update', 'package', updated.id, parsed.data);
-    res.json(serializePackage(updated));
+    res.json(serializePackage(updated, detailsMap));
   }),
 );
 
@@ -2580,7 +2654,19 @@ app.delete(
   }),
 );
 
-
+/**
+ * Lister tous les avis de chansons pour le studio.
+ */
+app.get(
+  '/api/admin/song-reviews',
+  asyncHandler(async (_req: AuthedRequest, res: Response) => {
+    const rows = await db
+      .select()
+      .from(songReviews)
+      .orderBy(desc(songReviews.createdAt));
+    res.json(rows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString() })));
+  }),
+);
 
 /**
  * Ajouter un avis de chanson depuis le studio (WhatsApp ou saisie manuelle).
@@ -2594,7 +2680,6 @@ app.post(
       return;
     }
 
-    // Vérifier que la chanson existe
     const [song] = await db
       .select({ id: gallerySongs.id })
       .from(gallerySongs)
@@ -2623,6 +2708,7 @@ app.post(
     res.status(201).json({ ...cree, createdAt: cree.createdAt.toISOString() });
   }),
 );
+
 
 /**
  * Ajouter un avis depuis le studio.

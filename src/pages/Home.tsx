@@ -15,6 +15,7 @@ import {
 import { useLanguage } from '../context/LanguageContext.js';
 import { whatsappUrl } from '../lib/contact.js';
 import AudioPlayer from '../components/AudioPlayer.js';
+import SongReviews from '../components/SongReviews.js';
 import Reveal from '../components/Reveal.js';
 import MeshBackground from '../components/MeshBackground.js';
 import HeroVideo from '../components/HeroVideo.js';
@@ -277,6 +278,7 @@ export default function Home({
                               endTime={song.endTime ?? undefined}
                             />
                           </div>
+                          <SongReviews songId={song.id} />
                         </div>
                       </div>
                     </Reveal>

@@ -18,22 +18,35 @@ export const MAX_UPLOAD_BYTES = 25 * 1024 * 1024; // 25 Mo — studio
 export const MAX_PUBLIC_UPLOAD_BYTES = 10 * 1024 * 1024; // 10 Mo — visiteurs
 
 export const ALLOWED_UPLOAD_TYPES = [
+  'audio/*',
   'audio/mpeg',
   'audio/mp3',
+  'audio/mpeg3',
+  'audio/x-mpeg-3',
   'audio/wav',
   'audio/x-wav',
+  'audio/wave',
+  'audio/vnd.wave',
   'audio/webm',
   'audio/ogg',
   'audio/mp4',
   'audio/m4a',
+  'audio/x-m4a',
+  'audio/aac',
+  'audio/flac',
+  'audio/x-flac',
+  'image/*',
   'image/jpeg',
   'image/jpg',
   'image/png',
   'image/webp',
   'image/gif',
+  'image/avif',
+  'image/svg+xml',
   // Vidéos : la page d'accueil en diffuse une en boucle, et le studio doit
   // pouvoir la remplacer. Sans ces lignes, le stockage refusait l'envoi et
   // le studio voyait « erreur de téléversement » sans plus d'explication.
+  'video/*',
   'video/mp4',
   'video/webm',
   'video/ogg',
