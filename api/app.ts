@@ -19,6 +19,7 @@ import {
   reminders,
   reviews,
   settings,
+  songReviews,
   users,
   webhookEvents,
 } from './_lib/db/schema.js';
@@ -42,6 +43,7 @@ import {
   createOrderSchema,
   createReviewSchema,
   gallerySongSchema,
+  gallerySongUpdateSchema,
   initPaymentSchema,
   loginSchema,
   resetSchema,
@@ -57,7 +59,13 @@ import {
   updateOrderSchema,
   updatePackageSchema,
   updateReviewSchema,
+  adminReviewSchema,
+  adminReviewsEnMasseSchema,
+  sansNumeroDeTelephone,
+  dateOuNull,
   homeConfigSchema,
+  createSongReviewSchema,
+  updateSongReviewSchema,
 } from './_lib/validation.js';
 import {
   createClientSessionToken,
@@ -575,7 +583,19 @@ app.get(
      * paramètre nommé : `/api/media/audio/x.mp3` donne bien « audio/x.mp3 ».
      */
     const brut = (req.params as Record<string, unknown>)[0];
-    const pathname = decodeURIComponent(Array.isArray(brut) ? brut.join('/') : String(brut ?? ''));
+    const brutTexte = Array.isArray(brut) ? brut.join('/') : String(brut ?? '');
+    /**
+     * Les anciens envois pouvaient contenir des espaces : le nom est alors
+     * conservé tel quel dans le stockage, mais l'adresse, elle, est écrite
+     * avec des `%20`. Il faut donc décoder pour retrouver le vrai chemin —
+     * sans jamais faire échouer la requête si l'encodage est bancal.
+     */
+    let pathname = brutTexte;
+    try {
+      pathname = decodeURIComponent(brutTexte);
+    } catch {
+      /* Adresse mal encodée : on garde la version brute, la validation tranchera. */
+    }
 
     if (!pathname || !cheminEstSur(pathname)) {
       res.status(400).json({ error: 'Chemin de fichier invalide.' });
@@ -717,9 +737,30 @@ app.get(
       .from(gallerySongs)
       .orderBy(desc(gallerySongs.isFeatured), desc(gallerySongs.createdAt));
     // Les créations privées ne sortent jamais sur la vitrine publique.
-    res.json(rows.filter((r) => r.visibility !== 'Private').map(serializeGallery));
+    const visibles = rows.filter((r) => r.visibility !== 'Private');
+    res.json(trierSelonOrdreStudio(visibles, await getSetting<string[]>('galerieOrdre', [])).map(serializeGallery));
   }),
 );
+
+/**
+ * Applique l'ordre décidé par le studio.
+ *
+ * L'ordre est un simple réglage — une liste d'identifiants — plutôt qu'une
+ * colonne de plus dans la base : aucun changement de schéma n'est nécessaire,
+ * et une chanson supprimée se retire d'elle-même de la liste.
+ *
+ * Toute création absente de la liste (ajoutée depuis le dernier
+ * réordonnancement) rejoint la fin, dans l'ordre d'arrivée.
+ */
+function trierSelonOrdreStudio<T extends { id: string }>(lignes: T[], ordre: string[]): T[] {
+  if (!Array.isArray(ordre) || ordre.length === 0) return lignes;
+  const rang = new Map(ordre.map((id, i) => [id, i]));
+  return [...lignes].sort((a, b) => {
+    const ra = rang.get(a.id) ?? Number.MAX_SAFE_INTEGER;
+    const rb = rang.get(b.id) ?? Number.MAX_SAFE_INTEGER;
+    return ra - rb;
+  });
+}
 
 app.get(
   '/api/reviews',
@@ -756,7 +797,12 @@ app.post(
 
     const [created] = await db
       .insert(reviews)
-      .values({ id: newId(), ...parsed.data, approved: false })
+      .values({
+        id: newId(),
+        ...parsed.data,
+        comment: sansNumeroDeTelephone(parsed.data.comment),
+        approved: false,
+      })
       .returning();
     res.status(201).json(serializeReview(created));
   }),
@@ -1653,6 +1699,44 @@ app.use('/api/admin', requireAdmin);
 app.use('/api/orders', requireAdmin);
 app.use('/api/whatsapp', requireAdmin);
 
+/* --- Bibliothèque des fichiers envoyés --------------------------------- */
+
+/**
+ * Liste ce qui se trouve réellement dans le stockage.
+ *
+ * Sert de filet de sécurité : si une chanson pointe vers un mauvais
+ * chemin, le studio peut retrouver ici le vrai nom du fichier déposé
+ * et le réattacher, plutôt que de croire l'envoi perdu.
+ */
+app.get(
+  '/api/admin/media',
+  asyncHandler(async (_req, res) => {
+    if (!isBlobConfigured()) {
+      res.json({ fichiers: [] });
+      return;
+    }
+
+    const { list } = await import('@vercel/blob');
+    const fichiers: { chemin: string; taille: number; envoyele: string | null }[] = [];
+    let cursor: string | undefined;
+
+    do {
+      const page = await list({ cursor, limit: 1000 });
+      for (const b of page.blobs) {
+        fichiers.push({
+          chemin: b.pathname,
+          taille: b.size,
+          envoyele: b.uploadedAt instanceof Date ? b.uploadedAt.toISOString() : null,
+        });
+      }
+      cursor = page.cursor ?? undefined;
+    } while (cursor && fichiers.length < 5000);
+
+    fichiers.sort((a, b) => (a.envoyele && b.envoyele ? (a.envoyele < b.envoyele ? 1 : -1) : 0));
+    res.json({ fichiers });
+  }),
+);
+
 /* --- Tableau de bord --------------------------------------------------- */
 
 app.get(
@@ -2288,10 +2372,29 @@ app.post(
   }),
 );
 
+/** Réordonner la galerie : on enregistre la liste des identifiants. */
+app.put(
+  '/api/admin/gallery/order',
+  asyncHandler(async (req: AuthedRequest, res: Response) => {
+    const ids = Array.isArray(req.body?.ids)
+      ? req.body.ids.filter((x: unknown): x is string => typeof x === 'string')
+      : null;
+    if (!ids) {
+      res.status(400).json({ error: 'Liste d’identifiants invalide.' });
+      return;
+    }
+    await setSetting('galerieOrdre', ids);
+    void logAudit(req, 'gallery.reorder', 'setting', null, { count: ids.length });
+    res.json({ success: true, ids });
+  }),
+);
+
 app.put(
   '/api/admin/gallery/:id',
   asyncHandler(async (req: AuthedRequest, res: Response) => {
-    const parsed = gallerySongSchema.partial().safeParse(req.body);
+    // Schéma dédié : une mise à jour partielle ne doit jamais réécrire
+    // les champs absents avec leurs valeurs par défaut.
+    const parsed = gallerySongUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({ error: 'Données invalides.', details: parsed.error.issues });
       return;
@@ -2320,6 +2423,7 @@ app.delete(
     res.json({ success: Boolean(deleted) });
   }),
 );
+
 
 /* --- Avis -------------------------------------------------------------- */
 
@@ -2354,6 +2458,236 @@ app.delete(
       .returning({ id: reviews.id });
     void logAudit(req, 'review.delete', 'review', req.params.id);
     res.json({ success: Boolean(deleted) });
+  }),
+);
+
+/* ================================================================== */
+/*  Avis sous une chanson exemple                                     */
+/* ================================================================== */
+
+/**
+ * Lire les avis approuvés d'une chanson.
+ * Accessible à tous les visiteurs.
+ */
+app.get(
+  '/api/songs/:songId/reviews',
+  asyncHandler(async (req, res) => {
+    const rows = await db
+      .select()
+      .from(songReviews)
+      .where(
+        and(
+          eq(songReviews.songId, req.params.songId),
+          eq(songReviews.approved, true)
+        )
+      )
+      .orderBy(desc(songReviews.createdAt));
+    res.json(rows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString() })));
+  }),
+);
+
+/**
+ * Déposer un avis sur une chanson.
+ * Rate-limit : 5 avis par heure et par IP pour éviter le spam.
+ */
+app.post(
+  '/api/songs/:songId/reviews',
+  asyncHandler(async (req, res) => {
+    maybePurge();
+    const limit = await rateLimit(`song-review:${clientIp(req)}`, 5, 60 * 60 * 1000);
+    if (!limit.ok) {
+      res.status(429).json({ error: "Trop d'avis envoyés. Réessayez plus tard." });
+      return;
+    }
+
+    const parsed = createSongReviewSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: 'Avis invalide.', details: parsed.error.issues });
+      return;
+    }
+
+    // Vérifier que la chanson existe
+    const [song] = await db
+      .select({ id: gallerySongs.id })
+      .from(gallerySongs)
+      .where(eq(gallerySongs.id, req.params.songId))
+      .limit(1);
+    if (!song) {
+      res.status(404).json({ error: 'Chanson introuvable.' });
+      return;
+    }
+
+    const commentaire = sansNumeroDeTelephone(parsed.data.comment);
+
+    const [created] = await db
+      .insert(songReviews)
+      .values({
+        id: newId(),
+        songId: req.params.songId,
+        clientName: parsed.data.clientName,
+        rating: parsed.data.rating,
+        comment: commentaire,
+        isVerified: false,
+        approved: false,
+      })
+      .returning();
+    res.status(201).json({
+      ...created,
+      createdAt: created.createdAt.toISOString(),
+    });
+  }),
+);
+
+/**
+ * Mettre à jour un avis de chanson depuis le studio
+ * (approuver / masquer / modifier).
+ */
+app.put(
+  '/api/admin/song-reviews/:id',
+  asyncHandler(async (req: AuthedRequest, res: Response) => {
+    const parsed = updateSongReviewSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: 'Données invalides.', details: parsed.error.issues });
+      return;
+    }
+
+    const [updated] = await db
+      .update(songReviews)
+      .set({ ...parsed.data, updatedAt: new Date() })
+      .where(eq(songReviews.id, req.params.id))
+      .returning();
+    if (!updated) {
+      res.status(404).json({ error: 'Avis introuvable.' });
+      return;
+    }
+    void logAudit(req, 'song-review.update', 'songReview', updated.id, parsed.data);
+    res.json({ ...updated, createdAt: updated.createdAt.toISOString() });
+  }),
+);
+
+/**
+ * Supprimer un avis de chanson depuis le studio.
+ */
+app.delete(
+  '/api/admin/song-reviews/:id',
+  asyncHandler(async (req: AuthedRequest, res: Response) => {
+    const [deleted] = await db
+      .delete(songReviews)
+      .where(eq(songReviews.id, req.params.id))
+      .returning({ id: songReviews.id });
+    void logAudit(req, 'song-review.delete', 'songReview', req.params.id);
+    res.json({ success: Boolean(deleted) });
+  }),
+);
+
+
+
+/**
+ * Ajouter un avis de chanson depuis le studio (WhatsApp ou saisie manuelle).
+ */
+app.post(
+  '/api/admin/song-reviews',
+  asyncHandler(async (req: AuthedRequest, res: Response) => {
+    const parsed = updateSongReviewSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: 'Données invalides.', details: parsed.error.issues });
+      return;
+    }
+
+    // Vérifier que la chanson existe
+    const [song] = await db
+      .select({ id: gallerySongs.id })
+      .from(gallerySongs)
+      .where(eq(gallerySongs.id, req.body.songId))
+      .limit(1);
+    if (!song) {
+      res.status(404).json({ error: 'Chanson introuvable.' });
+      return;
+    }
+
+    const commentaire = sansNumeroDeTelephone(req.body.comment || '');
+
+    const [cree] = await db
+      .insert(songReviews)
+      .values({
+        id: newId(),
+        songId: req.body.songId,
+        clientName: req.body.clientName,
+        rating: req.body.rating ?? 5,
+        comment: commentaire,
+        isVerified: req.body.isVerified ?? false,
+        approved: req.body.approved ?? false,
+      })
+      .returning();
+    void logAudit(req, 'song-review.create', 'songReview', cree.id);
+    res.status(201).json({ ...cree, createdAt: cree.createdAt.toISOString() });
+  }),
+);
+
+/**
+ * Ajouter un avis depuis le studio.
+ *
+ * Sans cette route, un témoignage reçu par WhatsApp ne pouvait pas entrer
+ * sur le site : le formulaire public impose d'être un visiteur, et l'écran
+ * d'administration ne savait que modérer ce qui existait déjà.
+ */
+app.post(
+  '/api/admin/reviews',
+  asyncHandler(async (req: AuthedRequest, res: Response) => {
+    const parsed = adminReviewSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({
+        error: 'Avis invalide.',
+        details: parsed.error.issues.map((i) => ({ field: i.path.join('.'), message: i.message })),
+      });
+      return;
+    }
+    const { createdAt, comment, ...reste } = parsed.data;
+    const date = dateOuNull(createdAt);
+    const [cree] = await db
+      .insert(reviews)
+      .values({
+        id: newId(),
+        ...reste,
+        comment: sansNumeroDeTelephone(comment),
+        ...(date ? { createdAt: date, updatedAt: date } : {}),
+      })
+      .returning();
+    void logAudit(req, 'review.create', 'review', cree.id);
+    res.status(201).json(serializeReview(cree));
+  }),
+);
+
+/**
+ * Importer plusieurs avis d'un coup.
+ *
+ * Le studio reçoit ses retours par WhatsApp et les recopie bloc par bloc.
+ * Les saisir un par un découragerait : on accepte donc une liste entière,
+ * validée en une seule passe.
+ */
+app.post(
+  '/api/admin/reviews/bulk',
+  asyncHandler(async (req: AuthedRequest, res: Response) => {
+    const parsed = adminReviewsEnMasseSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({
+        error: 'Import invalide.',
+        details: parsed.error.issues.map((i) => ({ field: i.path.join('.'), message: i.message })),
+      });
+      return;
+    }
+    const lignes = parsed.data.avis.map(({ createdAt, comment, ...reste }) => {
+      const date = dateOuNull(createdAt);
+      return {
+        id: newId(),
+        ...reste,
+        comment: sansNumeroDeTelephone(comment),
+        ...(date ? { createdAt: date, updatedAt: date } : {}),
+      };
+    });
+    const crees = await db.insert(reviews).values(lignes).returning();
+    void logAudit(req, 'review.bulk_create', 'review', null, { count: crees.length });
+    res.status(201).json({ imported: crees.length, avis: crees.map(serializeReview) });
   }),
 );
 

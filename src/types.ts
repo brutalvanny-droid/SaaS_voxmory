@@ -15,6 +15,7 @@ export type OrderStatus =
   | 'Paroles en préparation'
   | 'Chanson en production'
   | 'En révision'
+  | 'Validée'
   | 'Archivée';
 
 export const ORDER_STATUSES: OrderStatus[] = [
@@ -23,6 +24,7 @@ export const ORDER_STATUSES: OrderStatus[] = [
   'En attente de paiement',
   'Histoire reçue',
   'Paroles en préparation',
+  'Validée',
   'Chanson en production',
   'En cours',
   'En révision',
@@ -55,6 +57,14 @@ export interface Package {
   deliveryTime: string;
   sortOrder: number;
   isActive: boolean;
+  /** À qui ce service s'adresse. */
+  targetAudience: string;
+  /** Ce que le client doit nous envoyer. */
+  clientSends: string;
+  /** Ce que le client reçoit. */
+  clientReceives: string;
+  /** Les étapes de production (3 max). */
+  steps: string[];
 }
 
 export interface Order {
@@ -176,6 +186,21 @@ export interface ClientReview {
   comment: string;
   screenshotUrl?: string | null;
   audioTestimonialUrl?: string | null;
+  approved: boolean;
+  isVerified: boolean;
+  orderId?: string | null;
+  createdAt: string;
+}
+
+/** Avis laissé sous une chanson exemple. */
+export interface SongReview {
+  id: string;
+  songId: string;
+  orderId?: string | null;
+  clientName: string;
+  rating: number;
+  comment: string;
+  isVerified: boolean;
   approved: boolean;
   createdAt: string;
 }
