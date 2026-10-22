@@ -459,11 +459,11 @@ export default function Home({
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.75, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
-              className="text-[clamp(2.05rem,5.8vw,4.5rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-white"
+              className="text-[clamp(2.05rem,5.8vw,4.5rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-white text-balance"
             >
               {t('title_part1', 'hero')}{' '}
-              <span className="text-gradient">{t('title_grad', 'hero')}</span>
-              <br className="hidden sm:block" /> {t('title_part2', 'hero')}
+              <span className="text-gradient">{t('title_grad', 'hero')}</span>{' '}
+              {t('title_part2', 'hero')}
             </motion.h1>
 
             <motion.p
