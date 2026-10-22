@@ -421,3 +421,81 @@ export const homeConfigSchema = z.object({
 });
 
 export type HomeConfig = z.infer<typeof homeConfigSchema>;
+
+/* ================================================================== */
+/*  Utilitaires et schémas d'avis de chansons                         */
+/* ================================================================== */
+
+const REGEX_TELEPHONE = /(\+?\d{1,3}[\s\-]?)?(\d{2}[\s\-]?){4}\d{2}|\d{3}[\s\-]?\d{3}[\s\-]?\d{4}/g;
+
+export function sansNumeroDeTelephone(texte: string): string {
+  return texte.replace(REGEX_TELEPHONE, '[coordonnées masquées]');
+}
+
+export function dateOuNull(valeur: string | null | undefined): Date | null {
+  if (!valeur) return null;
+  const d = new Date(valeur);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+export const createSongReviewSchema = z.object({
+  clientName: z.string().trim().min(2, 'Indiquez votre nom (2 caractères minimum).').max(120),
+  rating: z.coerce.number().int().min(1).max(5),
+  comment: z.string().trim().min(5, 'Votre commentaire est trop court.').max(2000),
+});
+
+export const updateSongReviewSchema = z.object({
+  clientName: z.string().trim().min(2).max(120).optional(),
+  rating: z.coerce.number().int().min(1).max(5).optional(),
+  comment: z.string().trim().min(5).max(2000).optional(),
+  isVerified: z.boolean().optional(),
+  approved: z.boolean().optional(),
+});
+
+export const adminReviewSchema = z.object({
+  clientName: z.string().trim().min(2, 'Le nom est requis.').max(120),
+  rating: z.coerce.number().int().min(1).max(5).default(5),
+  occasion: z.string().trim().max(100).default(''),
+  comment: z.string().trim().min(5, 'Le témoignage est trop court.').max(2000),
+  screenshotUrl: z.string().trim().max(700).nullable().optional(),
+  createdAt: z.string().trim().optional(),
+  orderId: z.string().trim().max(100).nullable().optional(),
+  isVerified: z.coerce.boolean().default(false),
+});
+
+export const adminReviewsEnMasseSchema = z.object({
+  avis: z
+    .array(
+      z.object({
+        clientName: z.string().trim().min(2, 'Le nom est requis.').max(120),
+        rating: z.coerce.number().int().min(1).max(5).default(5),
+        occasion: z.string().trim().max(100).default(''),
+        comment: z.string().trim().min(5, 'Le témoignage est trop court.').max(2000),
+        screenshotUrl: z.string().trim().max(700).nullable().optional(),
+        createdAt: z.string().trim().optional(),
+        orderId: z.string().trim().max(100).nullable().optional(),
+        isVerified: z.coerce.boolean().default(false),
+      })
+    )
+    .min(1, 'Ajoutez au moins un avis.'),
+});
+
+export const gallerySongUpdateSchema = z.object({
+  title: z.string().trim().min(1, 'Le titre est requis.').max(200).optional(),
+  occasion: z.string().trim().max(100).optional(),
+  style: z.string().trim().max(100).optional(),
+  language: z.string().trim().max(100).optional(),
+  mood: z.string().trim().max(100).optional(),
+  description: z.string().trim().max(2000).optional(),
+  audioUrl: z.string().trim().max(700).optional(),
+  coverUrl: z.string().trim().max(700).optional(),
+  clientReaction: z.string().trim().max(2000).nullable().optional(),
+  clientFirstName: z.string().trim().max(100).nullable().optional(),
+  visibility: z
+    .enum(['Private', 'Public with first name', 'Public anonymous', 'Demo only'])
+    .optional(),
+  startTime: z.coerce.number().int().min(0).optional(),
+  endTime: z.coerce.number().int().min(1).max(3600).nullable().optional(),
+  memorySlug: z.string().trim().max(200).nullable().optional(),
+  isFeatured: z.boolean().optional(),
+});
