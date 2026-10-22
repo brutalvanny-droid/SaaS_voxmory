@@ -1,5 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
 @import "tailwindcss";
+
+/* Les polices sont chargées depuis index.html (préconnexion + feuille de
+   style) : un @import ici ajouterait une requête bloquante en cascade. */
 
 /* ================================================================== */
 /*  VOXMORY — Système de design                                        */
@@ -26,7 +28,7 @@
   /* ---- Texte ---- */
   --color-chalk: #F4F6F7;
   --color-chalk-dim: #A2ABB5;
-  --color-chalk-faint: #6C7581;
+  --color-chalk-faint: #7E8894;
 
   /* ---- Accent : vert signal ---- */
   --color-lime: #A3FF12;
@@ -156,6 +158,41 @@ body {
 ::selection {
   background: rgba(163, 255, 18, 0.28);
   color: #FFFFFF;
+}
+
+/* ================================================================== */
+/*  Accessibilité — focus au clavier                                   */
+/*                                                                     */
+/*  Le site se pilote beaucoup à la souris, mais une personne qui      */
+/*  navigue au clavier doit voir où elle se trouve. On ne dessine      */
+/*  l'anneau que pour le clavier (`:focus-visible`) : au clic à la      */
+/*  souris, il n'apparaît pas.                                          */
+/* ================================================================== */
+
+:where(a, button, [role='button'], input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--vox-lime);
+  outline-offset: 2px;
+}
+
+/* Lien d'évitement : premier élément focalisable de la page, il permet
+   de sauter la navigation et d'aller droit au contenu. */
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 100;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.75rem;
+  background: var(--vox-lime);
+  color: #06080A;
+  font-size: 0.875rem;
+  font-weight: 700;
+  transform: translateY(-150%);
+  transition: transform 0.2s ease;
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
 }
 
 /* Barre de défilement discrète */
@@ -404,10 +441,10 @@ body {
 .shimmer-text {
   background: linear-gradient(
     90deg,
-    #6C7581 0%,
+    #7E8894 0%,
     #C8D2DC 40%,
     var(--vox-lime) 55%,
-    #6C7581 100%
+    #7E8894 100%
   );
   background-size: 200% 100%;
   -webkit-background-clip: text;

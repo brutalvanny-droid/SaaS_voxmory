@@ -3,10 +3,16 @@
 User-agent: *
 Allow: /
 
-# Le studio d'administration ne doit jamais être indexé :
-# c'est un espace privé, sans intérêt pour un visiteur.
-Disallow: /#admin
+# Le studio d'administration est un espace privé : il n'a rien à faire
+# dans un index de recherche. (Une règle « /#admin » ne servait à rien :
+# tout ce qui suit un « # » n'est jamais envoyé au serveur.)
 Disallow: /admin
+Disallow: /api/
+
+# Les espaces personnels sont déjà marqués « noindex » par la page
+# elle-même ; on évite en plus de les explorer inutilement.
+Disallow: /compte
+Disallow: /mon-compte
 
 # Emplacement du plan du site.
 Sitemap: https://saa-s-voxmory.vercel.app/sitemap.xml

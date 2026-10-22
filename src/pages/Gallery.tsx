@@ -186,7 +186,7 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
     // If a custom memorySlug is specified, use that.
     // Otherwise, try to find a clean format. We fallback to memory/ID
     const slug = song.memorySlug || song.id;
-    return `${window.location.origin}/#memory/${slug}`;
+    return `${window.location.origin}/memory/${slug}`;
   };
 
   const handleShareWhatsApp = (song: GallerySong) => {
@@ -406,6 +406,7 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
             {/* Occasion Selector */}
             <div className="md:col-span-3 relative">
               <select
+                aria-label="Filtrer par occasion"
                 value={selectedOccasion}
                 onChange={(e) => setSelectedOccasion(e.target.value)}
                 className="w-full bg-black border border-white/10 rounded-xl px-4 py-3.5 text-white focus:border-[#A3FF12] focus:outline-none text-sm transition-all appearance-none cursor-pointer"
@@ -422,6 +423,7 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
             {/* Music Style Selector */}
             <div className="md:col-span-3 relative">
               <select
+                aria-label="Filtrer par rythme"
                 value={selectedStyle}
                 onChange={(e) => setSelectedStyle(e.target.value)}
                 className="w-full bg-black border border-white/10 rounded-xl px-4 py-3.5 text-white focus:border-[#A3FF12] focus:outline-none text-sm transition-all appearance-none cursor-pointer"
@@ -622,7 +624,7 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
               <Music className="w-6 h-6" />
             </div>
             <div className="space-y-1">
-              <h3 className="font-bold text-lg text-white">Aucun exemple trouvé</h3>
+              <h2 className="font-bold text-lg text-white">Aucun exemple trouvé</h2>
               <p className="text-xs text-[#A2ABB5] max-w-sm mx-auto">Essayez de modifier vos critères de recherche ou sélectionnez d'autres options de filtre.</p>
             </div>
             <button
@@ -731,6 +733,7 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
                 <div className="space-y-1">
                   <label className="text-[10px] text-[#A2ABB5] uppercase font-mono">Occasion *</label>
                   <select
+                    aria-label="Occasion de la chanson"
                     value={editOccasion}
                     onChange={(e) => setEditOccasion(e.target.value)}
                     className="w-full bg-black border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none cursor-pointer focus:border-red-500"
@@ -749,6 +752,7 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
                 <div className="space-y-1">
                   <label className="text-[10px] text-[#A2ABB5] uppercase font-mono">Rythme / Style *</label>
                   <select
+                    aria-label="Rythme de la chanson"
                     value={editStyle}
                     onChange={(e) => setEditStyle(e.target.value)}
                     className="w-full bg-black border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none cursor-pointer focus:border-red-500"
@@ -884,6 +888,7 @@ export default function Gallery({ initialSongs, onNavigate }: GalleryProps) {
                 <div className="space-y-1">
                   <label className="text-[10px] text-[#A2ABB5] uppercase font-mono">Option de Visibilité</label>
                   <select
+                    aria-label="Visibilité de la chanson"
                     value={editVisibility}
                     onChange={(e: any) => setEditVisibility(e.target.value)}
                     className="w-full bg-black border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none cursor-pointer focus:border-red-500"

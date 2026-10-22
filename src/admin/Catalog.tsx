@@ -611,7 +611,7 @@ function ReviewsAdmin() {
                     </Badge>
                   )}
                 </div>
-                <p className="text-[11px] text-[#6C7581] mt-1">
+                <p className="text-[11px] text-[#7E8894] mt-1">
                   {r.occasion}
                   {r.occasion && ' · '}
                   {new Date(r.createdAt).toLocaleDateString('fr-FR')}
@@ -709,7 +709,7 @@ function ReviewsAdmin() {
             />
           </Field>
 
-          <p className="text-[11.5px] text-[#6C7581] leading-relaxed">
+          <p className="text-[11.5px] text-[#7E8894] leading-relaxed">
             Les numéros de téléphone contenus dans le texte sont automatiquement
             remplacés par « [coordonnées masquées] » : ils ne seront jamais
             affichés sur le site.
@@ -732,7 +732,7 @@ function ReviewsAdmin() {
             le témoignage.
           </p>
 
-          <pre className="text-[11px] text-[#6C7581] bg-black/40 border border-white/10 rounded-lg p-3 overflow-x-auto">
+          <pre className="text-[11px] text-[#7E8894] bg-black/40 border border-white/10 rounded-lg p-3 overflow-x-auto">
 {`Marie — 5
 Ma sœur a pleuré en écoutant la chanson.
 
@@ -1038,7 +1038,7 @@ function MemoryAdmin() {
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
             <a
-              href={`#memory/${p.id}`}
+              href={`/memory/${p.id}`}
               className="px-3 py-1.5 rounded-lg text-xs font-bold bg-white/5 hover:bg-white/10 text-white"
             >
               Voir

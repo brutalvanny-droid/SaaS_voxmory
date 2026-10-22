@@ -57,7 +57,7 @@ export default function Clients() {
           <p className="text-3xl font-black text-white tabular-nums">
             {data.utilisateurs.total}
           </p>
-          <p className="text-[11.5px] text-[#6C7581] mt-1">
+          <p className="text-[11.5px] text-[#7E8894] mt-1">
             Une inscription n'est jamais obligatoire pour commander — elle
             sert à retrouver ses chansons.
           </p>
@@ -67,7 +67,7 @@ export default function Clients() {
           <p className="text-3xl font-black text-[#A3FF12] tabular-nums">
             {data.whatsapp.total}
           </p>
-          <p className="text-[11.5px] text-[#6C7581] mt-1">
+          <p className="text-[11.5px] text-[#7E8894] mt-1">
             Personnes joignables, déduites des commandes passées.
           </p>
         </Card>
@@ -140,7 +140,7 @@ function Comptes({
       subtitle={`${recents.length} plus récent${recents.length > 1 ? 's' : ''} sur ${total}`}
     >
       <div className="relative mb-4">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#6C7581]" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#7E8894]" />
         <input
           value={recherche}
           onChange={(e) => setRecherche(e.target.value)}
@@ -152,7 +152,7 @@ function Comptes({
       <div className="overflow-x-auto">
         <table className="w-full text-[12.5px]">
           <thead>
-            <tr className="text-[#6C7581] text-left border-b border-white/[0.06]">
+            <tr className="text-[#7E8894] text-left border-b border-white/[0.06]">
               <th className="pb-2 font-semibold">Nom</th>
               <th className="pb-2 font-semibold">Adresse e-mail</th>
               <th className="pb-2 font-semibold">Ville</th>
@@ -171,7 +171,7 @@ function Comptes({
                     ? new Date(u.lastLoginAt).toLocaleDateString('fr-FR')
                     : 'jamais'}
                 </td>
-                <td className="py-2.5 text-[#6C7581]">
+                <td className="py-2.5 text-[#7E8894]">
                   {new Date(u.createdAt).toLocaleDateString('fr-FR')}
                 </td>
               </tr>
@@ -227,7 +227,7 @@ function Carnet({ numeros }: { numeros: Analytics['whatsapp']['numeros'] }) {
     >
       <div className="flex flex-wrap items-center gap-3 mb-4">
         <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#6C7581]" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#7E8894]" />
           <input
             value={recherche}
             onChange={(e) => setRecherche(e.target.value)}
@@ -252,7 +252,7 @@ function Carnet({ numeros }: { numeros: Analytics['whatsapp']['numeros'] }) {
       <div className="overflow-x-auto">
         <table className="w-full text-[12.5px]">
           <thead>
-            <tr className="text-[#6C7581] text-left border-b border-white/[0.06]">
+            <tr className="text-[#7E8894] text-left border-b border-white/[0.06]">
               <th className="pb-2 font-semibold">Nom</th>
               <th className="pb-2 font-semibold">Téléphone</th>
               <th className="pb-2 font-semibold">Ville</th>

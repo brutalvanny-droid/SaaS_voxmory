@@ -32,6 +32,21 @@
     <meta name="theme-color" content="#07080A" />
 
     <!-- ============================================================
+         POLICES
+         Chargées ici plutôt que depuis le CSS : un @import dans une
+         feuille de style crée une chaîne de requêtes (HTML → CSS → CSS
+         → police) qui retarde le premier affichage. Les préconnexions
+         ouvrent la connexion pendant que le HTML est encore analysé.
+         ============================================================ -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    />
+
+
+    <!-- ============================================================
          OPEN GRAPH (Facebook, WhatsApp, LinkedIn)
          Sans og:image, un lien partagé s'affiche sans aucune vignette.
          ============================================================ -->
@@ -55,6 +70,7 @@
     <meta property="og:video:height" content="720" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/jpeg" />
     <meta property="og:image:alt" content="VOXMORY — Votre histoire, votre chanson" />
 
     <!-- ============================================================
@@ -139,16 +155,11 @@
       }
     </script>
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="/icon-192.png" />
-
     <!-- PWA Manifest & Meta -->
     <link rel="manifest" href="/manifest.json" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="VOXMORY" />
-    <link rel="apple-touch-icon" href="/icon-192.png" />
-    <meta name="theme-color" content="#000000" />
   </head>
   <body class="bg-black text-white antialiased selection:bg-yellow-500/30 selection:text-white">
     <div id="root"></div>

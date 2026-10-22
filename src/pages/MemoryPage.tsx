@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Sparkles, Heart, Share2, Music, Award, ArrowRight } from 'lucide-react';
 import AudioPlayer from '../components/AudioPlayer.js';
+import { useSEO } from '../hooks/useSEO.js';
 import { MemoryPage } from '../types.js';
 
 interface MemoryPageProps {
@@ -37,8 +38,30 @@ export default function MemoryPageComp({ slug = 'maman-georgette', onNavigate }:
       });
   }, [slug]);
 
+  /**
+   * Référencement de la page souvenir.
+   *
+   * Chaque page souvenir a son propre titre : un lien partagé sur WhatsApp
+   * doit annoncer le prénom du destinataire, pas « VOXMORY » en général.
+   * Le crochet est appelé après la lecture des données, donc il s'applique
+   * bien après celui de l'application.
+   */
+  useSEO({
+    title: pageData
+      ? `${pageData.songTitle || pageData.eventTitle} — Chanson pour ${pageData.recipientName} | VOXMORY`
+      : 'Page souvenir | VOXMORY',
+    description: pageData
+      ? `Écoutez la chanson personnalisée créée pour ${pageData.recipientName}${
+          pageData.occasion ? ` à l'occasion de ${pageData.occasion}` : ''
+        }${pageData.senderName ? ` par ${pageData.senderName}` : ''}. Paroles, dédicace et lecture en ligne.`
+      : 'Une chanson personnalisée offerte par un proche.',
+    path: `/memory/${slug}`,
+    image: pageData?.coverUrl || pageData?.photoUrl || undefined,
+    type: 'article',
+  });
+
   const getShareText = () => {
-    return `❤️ Écoute cette chanson personnalisée magnifique « ${pageData?.songTitle || pageData?.eventTitle || 'Chanson'} », créée spécialement pour ${pageData?.recipientName} ! Découvre les paroles et la dédicace ici : ${window.location.origin}/#memory/${slug}`;
+    return `❤️ Écoute cette chanson personnalisée magnifique « ${pageData?.songTitle || pageData?.eventTitle || 'Chanson'} », créée spécialement pour ${pageData?.recipientName} ! Découvre les paroles et la dédicace ici : ${window.location.origin}/memory/${slug}`;
   };
 
   const shareWhatsApp = () => {
@@ -48,7 +71,7 @@ export default function MemoryPageComp({ slug = 'maman-georgette', onNavigate }:
   };
 
   const shareFacebook = () => {
-    const shareUrl = `${window.location.origin}/#memory/${slug}`;
+    const shareUrl = `${window.location.origin}/memory/${slug}`;
     const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
     window.open(fbUrl, '_blank');
   };
@@ -60,7 +83,7 @@ export default function MemoryPageComp({ slug = 'maman-georgette', onNavigate }:
   };
 
   const copyLink = () => {
-    const shareUrl = `${window.location.origin}/#memory/${slug}`;
+    const shareUrl = `${window.location.origin}/memory/${slug}`;
     navigator.clipboard.writeText(shareUrl).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);

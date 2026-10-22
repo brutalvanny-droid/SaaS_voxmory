@@ -70,14 +70,14 @@ export default function SongReviews({ songId }: { songId: string }) {
           Avis clients
         </p>
         {avis.length > 0 && (
-          <span className="text-[11px] text-[#6C7581]">{avis.length} avis</span>
+          <span className="text-[11px] text-[#7E8894]">{avis.length} avis</span>
         )}
       </div>
 
       {/* Liste des avis */}
       {charge && !erreur ? (
         avis.length === 0 ? (
-          <p className="text-[11px] text-[#6C7581] text-center py-4">
+          <p className="text-[11px] text-[#7E8894] text-center py-4">
             Aucun avis pour le moment. Soyez le premier !
           </p>
         ) : (
@@ -97,7 +97,7 @@ export default function SongReviews({ songId }: { songId: string }) {
                 <p className="text-[11.5px] text-[#C2CAD3] leading-relaxed">
                   {a.comment}
                 </p>
-                <span className="text-[10px] text-[#6C7581]">
+                <span className="text-[10px] text-[#7E8894]">
                   {new Date(a.createdAt).toLocaleDateString('fr-FR', {
                     day: 'numeric',
                     month: 'short',
@@ -111,7 +111,7 @@ export default function SongReviews({ songId }: { songId: string }) {
       ) : erreur ? (
         <p className="text-[11px] text-[#FF9B9B] text-center py-4">{erreur}</p>
       ) : (
-        <div className="h-16 flex items-center justify-center text-[#6C7581] text-[11px]">
+        <div className="h-16 flex items-center justify-center text-[#7E8894] text-[11px]">
           Chargement…
         </div>
       )}
@@ -124,6 +124,7 @@ export default function SongReviews({ songId }: { songId: string }) {
             <label className="text-[11px] text-[#8A949F] block">Votre nom</label>
             <input
               type="text"
+              aria-label="Votre nom"
               value={nom}
               onChange={(e) => setNom(e.target.value)}
               placeholder="Marie K."
@@ -137,13 +138,14 @@ export default function SongReviews({ songId }: { songId: string }) {
             </label>
             <input
               type="range"
+              aria-label="Votre note sur 5"
               min={1}
               max={5}
               value={note}
               onChange={(e) => setNote(Number(e.target.value))}
               className="w-full accent-[#A3FF12]"
             />
-            <div className="flex justify-between text-[10px] text-[#6C7581]">
+            <div className="flex justify-between text-[10px] text-[#7E8894]">
               <span>1</span>
               <span>5</span>
             </div>
@@ -151,6 +153,7 @@ export default function SongReviews({ songId }: { songId: string }) {
           <div className="space-y-1">
             <label className="text-[11px] text-[#8A949F] block">Votre commentaire</label>
             <textarea
+              aria-label="Votre commentaire"
               value={commentaire}
               onChange={(e) => setCommentaire(e.target.value)}
               placeholder="Ce que vous avez aimé dans cette chanson…"
@@ -158,7 +161,7 @@ export default function SongReviews({ songId }: { songId: string }) {
               className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:border-[#A3FF12] focus:outline-none"
             />
           </div>
-          <p className="text-[10px] text-[#6C7581]">
+          <p className="text-[10px] text-[#7E8894]">
             Votre numéro de téléphone, s'il figure dans le texte, sera automatiquement masqué.
           </p>
           <button

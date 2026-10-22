@@ -55,7 +55,7 @@ export function Stat({
     <div className="bg-[#0B0D10] border border-white/10 rounded-2xl p-4">
       <p className="text-[10px] uppercase tracking-widest text-[#8A949F] font-semibold">{label}</p>
       <p className={`text-2xl font-black mt-1 ${accent}`}>{value}</p>
-      {hint && <p className="text-[11px] text-[#6C7581] mt-1">{hint}</p>}
+      {hint && <p className="text-[11px] text-[#7E8894] mt-1">{hint}</p>}
     </div>
   );
 }
@@ -109,7 +109,7 @@ export function Field({
         {label}
       </span>
       {children}
-      {hint && <span className="block text-[10px] text-[#6C7581] mt-1">{hint}</span>}
+      {hint && <span className="block text-[10px] text-[#7E8894] mt-1">{hint}</span>}
     </div>
   );
 }
@@ -207,7 +207,7 @@ export function Modal({
 
 export function Empty({ message }: { message: string }) {
   return (
-    <p className="text-center text-sm text-[#6C7581] py-10 border border-dashed border-white/10 rounded-xl">
+    <p className="text-center text-sm text-[#7E8894] py-10 border border-dashed border-white/10 rounded-xl">
       {message}
     </p>
   );

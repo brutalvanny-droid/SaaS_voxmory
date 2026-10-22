@@ -138,7 +138,7 @@ export default function Pricing({ packages, onNavigate }: PricingProps) {
                     isFeatured 
                       ? 'bg-gradient-to-r from-[#A3FF12] via-[#A3FF12] to-[#7ACC00] text-black'
                       : pkg.id === 'pack_premium_vip'
-                      ? 'bg-gradient-to-r from-[#A3FF12] to-[#7ACC00] text-white border border-[#A3FF12]/20'
+                      ? 'bg-gradient-to-r from-[#A3FF12] to-[#7ACC00] text-[#06080A] border border-[#A3FF12]/20'
                       : 'bg-[#161A20] text-[#A3FF12] border border-[#A3FF12]/10'
                   }`}>
                     {badge}
@@ -149,7 +149,7 @@ export default function Pricing({ packages, onNavigate }: PricingProps) {
                   
                   {/* Name and Promise */}
                   <div className="space-y-2 text-center pt-2">
-                    <h3 className="font-sans font-black text-xl text-white">
+                    <h2 className="font-sans font-black text-xl text-white">
                       <button
                         onClick={() => onNavigate('pack', { slug: PACK_SLUGS[pkg.id] })}
                         className="hover:text-[#A3FF12] transition-colors cursor-pointer"
@@ -157,7 +157,7 @@ export default function Pricing({ packages, onNavigate }: PricingProps) {
                       >
                         {pkg.name}
                       </button>
-                    </h3>
+                    </h2>
                     <p className="text-xs text-[#A3FF12]/70 italic leading-relaxed min-h-[40px] px-2">
                       « {pkg.promise} »
                     </p>
@@ -199,10 +199,10 @@ export default function Pricing({ packages, onNavigate }: PricingProps) {
 
                   {/* Visual indicators of value */}
                   <div className="space-y-3 bg-[#161A20]/60 p-4 rounded-2xl border border-white/5">
-                    <h4 className="text-[10px] font-mono font-bold text-[#A2ABB5] uppercase tracking-wider flex items-center gap-1.5">
+                    <h3 className="text-[10px] font-mono font-bold text-[#A2ABB5] uppercase tracking-wider flex items-center gap-1.5">
                       <Star className="w-3.5 h-3.5 text-[#A3FF12] fill-[#A3FF12]" />
                       <span>Impact &amp; Valeur Estimés</span>
-                    </h4>
+                    </h3>
                     
                     {/* Emotion Metric */}
                     <div className="space-y-1">
@@ -324,7 +324,7 @@ export default function Pricing({ packages, onNavigate }: PricingProps) {
           <div className="bg-gradient-to-br from-[#161A20] via-[#0B0D10] to-[#0B0D10] border border-[#A3FF12]/20 p-6 sm:p-8 rounded-3xl grid grid-cols-1 md:grid-cols-12 gap-6 items-center shadow-2xl relative">
             
             {/* Corner Badge */}
-            <span className="absolute -top-3 right-6 bg-gradient-to-r from-[#A3FF12] to-[#7ACC00] text-white font-mono font-bold text-[8px] uppercase tracking-widest px-3 py-1 rounded-full border border-[#A3FF12]/20">
+            <span className="absolute -top-3 right-6 bg-gradient-to-r from-[#A3FF12] to-[#7ACC00] text-[#06080A] font-mono font-bold text-[8px] uppercase tracking-widest px-3 py-1 rounded-full border border-[#A3FF12]/20">
               Cadeau Physique
             </span>
 
@@ -372,7 +372,7 @@ export default function Pricing({ packages, onNavigate }: PricingProps) {
             <div className="md:col-span-4 flex flex-col justify-center items-stretch pt-4 md:pt-0">
               <button
                 onClick={() => onNavigate('order', { vipCardSelected: true, step: 7 })}
-                className="w-full py-4 bg-gradient-to-r from-[#A3FF12] to-[#7ACC00] hover:from-[#A3FF12] hover:to-[#7ACC00] text-white rounded-xl font-sans font-extrabold text-xs uppercase tracking-widest text-center transition-all cursor-pointer shadow-lg shadow-[#A3FF12]/10 active:scale-95"
+                className="w-full py-4 bg-gradient-to-r from-[#A3FF12] to-[#7ACC00] hover:from-[#A3FF12] hover:to-[#7ACC00] text-[#06080A] rounded-xl font-sans font-extrabold text-xs uppercase tracking-widest text-center transition-all cursor-pointer shadow-lg shadow-[#A3FF12]/10 active:scale-95"
               >
                 Ajouter la Carte VIP
               </button>
@@ -466,10 +466,10 @@ export default function Pricing({ packages, onNavigate }: PricingProps) {
                     <button onClick={() => onNavigate('order', { packageId: 'pack_musique_video' })} className="py-2 px-4 rounded-lg bg-gradient-to-r from-[#A3FF12] to-[#7ACC00] text-black font-bold transition-all cursor-pointer hover:scale-105">Choisir</button>
                   </td>
                   <td className="p-4">
-                    <button onClick={() => onNavigate('order', { packageId: 'pack_premium_vip' })} className="py-2 px-4 rounded-lg bg-[#A3FF12] hover:bg-[#A3FF12] text-white font-bold transition-all cursor-pointer hover:scale-105">Choisir</button>
+                    <button onClick={() => onNavigate('order', { packageId: 'pack_premium_vip' })} className="py-2 px-4 rounded-lg bg-[#A3FF12] hover:bg-[#C8FF4D] text-[#06080A] font-bold transition-all cursor-pointer hover:scale-105">Choisir</button>
                   </td>
                   <td className="p-4">
-                    <button onClick={() => onNavigate('order', { packageId: 'pack_presentiel' })} className="py-2 px-4 rounded-lg bg-white/5 hover:bg-white/10 text-white font-bold transition-all cursor-pointer">Dispo</button>
+                    <button onClick={() => onNavigate('order', { packageId: 'pack_presentiel' })} className="py-2 px-4 rounded-lg bg-white/5 hover:bg-white/10 text-white font-bold transition-all cursor-pointer">Choisir</button>
                   </td>
                 </tr>
               </tbody>
@@ -529,7 +529,7 @@ export default function Pricing({ packages, onNavigate }: PricingProps) {
               href={whatsappUrl("Bonjour VOXMORY, je souhaite valider le paiement de ma chanson.")}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full py-2.5 bg-green-600 hover:bg-green-500 text-white rounded-lg font-sans font-bold text-[10px] uppercase tracking-wider text-center flex items-center justify-center gap-1.5 transition-all"
+              className="w-full py-2.5 bg-green-700 hover:bg-green-600 text-white rounded-lg font-sans font-bold text-[10px] uppercase tracking-wider text-center flex items-center justify-center gap-1.5 transition-all"
             >
               <MessageCircle className="w-4 h-4 fill-white" />
               <span>Confirmer sur WhatsApp</span>

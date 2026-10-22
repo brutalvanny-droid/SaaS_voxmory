@@ -77,7 +77,7 @@ interface Props {
   onSubmitSuccess: (reference: string, trackingToken: string) => void;
 }
 
-export default function OrderForm({ packages, onNavigate, onSubmitSuccess }: Props) {
+export default function OrderForm({ packages, initialParams, onNavigate, onSubmitSuccess }: Props) {
   const [step, setStep] = useState(0);
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -136,6 +136,36 @@ export default function OrderForm({ packages, onNavigate, onSubmitSuccess }: Pro
     urgency: 'normal' as 'normal' | 'express' | 'super_express',
     specialInstructions: '',
   });
+
+  /**
+   * Formule présélectionnée depuis une autre page.
+   *
+   * Les cartes de tarifs et les pages de formule envoient l'identifiant
+   * choisi (`onNavigate('order', { packageId })`). Sans cette lecture, le
+   * visiteur qui cliquait « Choisir » sur la formule Premium atterrissait
+   * sur le formulaire réglé sur la moins chère — et devait refaire son
+   * choix. C'est exactement le genre de friction qui fait perdre une
+   * commande au dernier écran.
+   */
+  useEffect(() => {
+    if (!initialParams || typeof initialParams !== 'object') return;
+
+    const p = initialParams as {
+      packageId?: string;
+      vipCardSelected?: boolean;
+      occasion?: string;
+      step?: number;
+    };
+
+    setForm((f) => ({
+      ...f,
+      ...(p.packageId ? { packageId: p.packageId } : {}),
+      ...(p.vipCardSelected ? { vipCardSelected: true } : {}),
+      ...(p.occasion ? { occasion: p.occasion } : {}),
+    }));
+
+    if (typeof p.step === 'number') setStep(p.step);
+  }, [initialParams]);
 
   useEffect(() => {
     if (packages.length > 0 && !packages.some((p) => p.id === form.packageId)) {
@@ -301,7 +331,7 @@ export default function OrderForm({ packages, onNavigate, onSubmitSuccess }: Pro
               </div>
               <span
                 className={`text-[11px] font-bold ${
-                  i === step ? 'text-[#A3FF12]' : 'text-[#6C7581]'
+                  i === step ? 'text-[#A3FF12]' : 'text-[#7E8894]'
                 }`}
               >
                 {titre}
@@ -1076,7 +1106,7 @@ function Field({
         {label}
       </span>
       {children}
-      {hint && !error && <span className="block text-[10px] text-[#6C7581] mt-1">{hint}</span>}
+      {hint && !error && <span className="block text-[10px] text-[#7E8894] mt-1">{hint}</span>}
       {error && <span className="block text-[11px] text-red-400 mt-1">{error}</span>}
     </label>
   );

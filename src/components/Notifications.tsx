@@ -273,7 +273,7 @@ function CarteNotification({
       <button
         onClick={() => fermer(n.id)}
         aria-label="Fermer la notification"
-        className="text-[#6C7581] hover:text-white transition-colors flex-shrink-0"
+        className="text-[#7E8894] hover:text-white transition-colors flex-shrink-0"
       >
         <X className="w-4 h-4" />
       </button>

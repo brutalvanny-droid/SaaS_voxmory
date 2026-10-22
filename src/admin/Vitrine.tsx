@@ -181,7 +181,7 @@ function Hero({
               <ImageIcon className="w-3.5 h-3.5 text-[#8A949F]" />
               Image d'affiche
             </p>
-            <p className="text-[11.5px] text-[#6C7581] mb-2 leading-relaxed">
+            <p className="text-[11.5px] text-[#7E8894] mb-2 leading-relaxed">
               Elle s'affiche immédiatement et reste seule à l'écran si la
               vidéo ne se lance pas. C'est elle qui garantit qu'il n'y a
               jamais de zone noire.
@@ -216,7 +216,7 @@ function Hero({
               <Film className="w-3.5 h-3.5 text-[#8A949F]" />
               Vidéo de fond
             </p>
-            <p className="text-[11.5px] text-[#6C7581] mb-2 leading-relaxed">
+            <p className="text-[11.5px] text-[#7E8894] mb-2 leading-relaxed">
               Facultative. Muette, en boucle, et jamais lancée en économie
               de données : une image seule suffit amplement.
             </p>
@@ -273,7 +273,7 @@ function Hero({
           {hero.posterUrl ? (
             <img src={hero.posterUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
           ) : (
-            <div className="absolute inset-0 grid place-items-center text-[#6C7581] text-[12px]">
+            <div className="absolute inset-0 grid place-items-center text-[#7E8894] text-[12px]">
               Aucune image
             </div>
           )}
@@ -304,7 +304,7 @@ function Hero({
           </div>
         </div>
 
-        <p className="text-[11.5px] text-[#6C7581] mt-3 leading-relaxed">
+        <p className="text-[11.5px] text-[#7E8894] mt-3 leading-relaxed">
           Le texte, lui, vient des traductions : il reste identique dans les
           trois langues du site.
         </p>
@@ -419,7 +419,7 @@ function Promo({
                 maxLength={48}
               />
             </Field>
-            <p className="text-[11.5px] text-[#6C7581]">
+            <p className="text-[11.5px] text-[#7E8894]">
               Un badge se lit en une seconde. Deux mots valent mieux qu'une
               phrase entière.
             </p>
@@ -607,7 +607,7 @@ function ALaUne({
         subtitle="Cliquez sur une vignette pour la mettre en avant sur la page d'accueil"
       >
         {chansons.length === 0 ? (
-          <p className="text-[12.5px] text-[#6C7581] py-4">
+          <p className="text-[12.5px] text-[#7E8894] py-4">
             Aucune chanson. Ajoutez-en depuis le Catalogue.
           </p>
         ) : (
@@ -651,7 +651,7 @@ function ALaUne({
             ))}
           </div>
         )}
-        <p className="text-[11.5px] text-[#6C7581] mt-3">
+        <p className="text-[11.5px] text-[#7E8894] mt-3">
           Les chansons marquées d'une étoile apparaissent en premier sur la
           page d'accueil.
         </p>
@@ -662,7 +662,7 @@ function ALaUne({
         subtitle="Seuls les avis validés sont montrés aux visiteurs"
       >
         {avis.length === 0 ? (
-          <p className="text-[12.5px] text-[#6C7581] py-4">
+          <p className="text-[12.5px] text-[#7E8894] py-4">
             Aucun avis pour l'instant.
           </p>
         ) : (
@@ -881,7 +881,7 @@ function Quantites({
           </div>
         </div>
 
-        <p className="text-[11.5px] text-[#6C7581] leading-relaxed">
+        <p className="text-[11.5px] text-[#7E8894] leading-relaxed">
           Le changement est immédiat : inutile d'enregistrer quoi que ce
           soit d'autre.
         </p>
@@ -974,7 +974,7 @@ function Emplacements({
               }`}
             >
               {/* Rang : on voit tout de suite dans quel ordre ça tombe */}
-              <span className="w-6 text-center text-[12px] font-black text-[#6C7581] tabular-nums flex-shrink-0">
+              <span className="w-6 text-center text-[12px] font-black text-[#7E8894] tabular-nums flex-shrink-0">
                 {i + 1}
               </span>
 
@@ -1014,7 +1014,7 @@ function Emplacements({
                 className={`w-11 h-11 rounded-xl flex-shrink-0 grid place-items-center border transition-colors ${
                   section.visible
                     ? 'border-[#A3FF12]/40 bg-[#A3FF12]/12 text-[#A3FF12]'
-                    : 'border-white/[0.09] text-[#6C7581] hover:text-white'
+                    : 'border-white/[0.09] text-[#7E8894] hover:text-white'
                 }`}
               >
                 {section.visible ? (
@@ -1035,7 +1035,7 @@ function Emplacements({
           changement est immédiat sur le site — inutile d'enregistrer quoi
           que ce soit d'autre.
         </p>
-        <p className="text-[12px] text-[#6C7581] mt-2 leading-relaxed">
+        <p className="text-[12px] text-[#7E8894] mt-2 leading-relaxed">
           Le grand bandeau du haut (« Héros ») reste toujours en place :
           c'est la première chose que voit le visiteur.
         </p>

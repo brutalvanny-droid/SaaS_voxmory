@@ -183,7 +183,7 @@ export default function Dashboard({ onOpenOrders }: { onOpenOrders: () => void }
 
         <Card title="Appareils" subtitle="Téléphone, tablette, ordinateur">
           {data.appareils.length === 0 ? (
-            <p className="text-[12.5px] text-[#6C7581] py-3">Aucune donnée.</p>
+            <p className="text-[12.5px] text-[#7E8894] py-3">Aucune donnée.</p>
           ) : (
             <div className="space-y-3">
               {data.appareils.map((a) => {
@@ -226,14 +226,14 @@ export default function Dashboard({ onOpenOrders }: { onOpenOrders: () => void }
           className="lg:col-span-2"
         >
           {commandes.dernieres.length === 0 ? (
-            <p className="text-[12.5px] text-[#6C7581] py-6 text-center">
+            <p className="text-[12.5px] text-[#7E8894] py-6 text-center">
               Aucune commande pour l'instant.
             </p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-[12.5px]">
                 <thead>
-                  <tr className="text-[#6C7581] text-left border-b border-white/[0.06]">
+                  <tr className="text-[#7E8894] text-left border-b border-white/[0.06]">
                     <th className="pb-2 font-semibold">Référence</th>
                     <th className="pb-2 font-semibold">Client</th>
                     <th className="pb-2 font-semibold">Étape</th>
@@ -277,7 +277,7 @@ export default function Dashboard({ onOpenOrders }: { onOpenOrders: () => void }
         <div className="space-y-4">
           <Card title="Comptes clients" subtitle={`${utilisateurs.total} inscrit${utilisateurs.total > 1 ? 's' : ''}`}>
             {utilisateurs.recents.length === 0 ? (
-              <p className="text-[12.5px] text-[#6C7581] py-3">
+              <p className="text-[12.5px] text-[#7E8894] py-3">
                 Aucun compte pour l'instant. Les commandes restent possibles
                 sans inscription.
               </p>
@@ -287,9 +287,9 @@ export default function Dashboard({ onOpenOrders }: { onOpenOrders: () => void }
                   <div key={u.id} className="flex items-center justify-between gap-2 py-1">
                     <div className="min-w-0">
                       <p className="text-[12.5px] text-[#E8ECEF] truncate">{u.name}</p>
-                      <p className="text-[11px] text-[#6C7581] truncate">{u.email}</p>
+                      <p className="text-[11px] text-[#7E8894] truncate">{u.email}</p>
                     </div>
-                    <span className="text-[10.5px] text-[#6C7581] flex-shrink-0">
+                    <span className="text-[10.5px] text-[#7E8894] flex-shrink-0">
                       {formaterDate(u.createdAt)}
                     </span>
                   </div>
@@ -301,7 +301,7 @@ export default function Dashboard({ onOpenOrders }: { onOpenOrders: () => void }
           <Card title="Aujourd'hui" subtitle="Depuis minuit">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <p className="text-[10px] uppercase tracking-widest text-[#6C7581] font-semibold">
+                <p className="text-[10px] uppercase tracking-widest text-[#7E8894] font-semibold">
                   Visiteurs
                 </p>
                 <p className="text-xl font-black text-white tabular-nums">
@@ -309,7 +309,7 @@ export default function Dashboard({ onOpenOrders }: { onOpenOrders: () => void }
                 </p>
               </div>
               <div>
-                <p className="text-[10px] uppercase tracking-widest text-[#6C7581] font-semibold">
+                <p className="text-[10px] uppercase tracking-widest text-[#7E8894] font-semibold">
                   Pages vues
                 </p>
                 <p className="text-xl font-black text-[#A3FF12] tabular-nums">
@@ -326,7 +326,7 @@ export default function Dashboard({ onOpenOrders }: { onOpenOrders: () => void }
           <div className="overflow-x-auto">
             <table className="w-full text-[12.5px]">
               <thead>
-                <tr className="text-[#6C7581] text-left border-b border-white/[0.06]">
+                <tr className="text-[#7E8894] text-left border-b border-white/[0.06]">
                   <th className="pb-2 font-semibold">Date</th>
                   <th className="pb-2 font-semibold">Référence</th>
                   <th className="pb-2 font-semibold">Statut</th>
@@ -385,7 +385,7 @@ function Indicateur({
   return (
     <div className="bg-[#0B0D10] border border-white/10 rounded-2xl p-4">
       <div className="flex items-center gap-1.5 mb-1.5">
-        <Icone className="w-3.5 h-3.5 text-[#6C7581]" />
+        <Icone className="w-3.5 h-3.5 text-[#7E8894]" />
         <p className="text-[10px] uppercase tracking-widest text-[#8A949F] font-semibold">
           {libelle}
         </p>
@@ -395,7 +395,7 @@ function Indicateur({
       >
         {valeur}
       </p>
-      <p className="text-[11px] text-[#6C7581] mt-1 leading-snug">{sous}</p>
+      <p className="text-[11px] text-[#7E8894] mt-1 leading-snug">{sous}</p>
     </div>
   );
 }
@@ -440,7 +440,7 @@ function Courbe({
 
   if (points.length === 0) {
     return (
-      <p className="text-[12.5px] text-[#6C7581] py-8 text-center">
+      <p className="text-[12.5px] text-[#7E8894] py-8 text-center">
         Les courbes apparaîtront dès les premières visites.
       </p>
     );
@@ -503,7 +503,7 @@ function Courbe({
         <span className="flex items-center gap-1.5 text-[#8A949F]">
           <span className="w-3 h-0.5 rounded-full bg-[#A3FF12]/35" /> {legendeSecondaire}
         </span>
-        <span className="ml-auto text-[#6C7581]">
+        <span className="ml-auto text-[#7E8894]">
           Maximum : {max} · Total : {totalPrincipal.toLocaleString('fr-FR')}
         </span>
       </div>
@@ -518,7 +518,7 @@ function BarresVentes({ points }: { points: { date: string; montantCents: number
 
   if (total === 0) {
     return (
-      <p className="text-[12.5px] text-[#6C7581] py-10 text-center">
+      <p className="text-[12.5px] text-[#7E8894] py-10 text-center">
         Aucun encaissement sur la période. Les ventes apparaîtront ici dès
         la première commande payée.
       </p>
@@ -537,7 +537,7 @@ function BarresVentes({ points }: { points: { date: string; montantCents: number
           />
         ))}
       </div>
-      <div className="flex items-center justify-between mt-2 pt-3 border-t border-white/[0.06] text-[11px] text-[#6C7581]">
+      <div className="flex items-center justify-between mt-2 pt-3 border-t border-white/[0.06] text-[11px] text-[#7E8894]">
         <span>{points[0]?.date?.slice(5)}</span>
         <span className="text-[#A3FF12] font-bold">
           {(total / 100).toLocaleString('fr-FR')} $ encaissés
@@ -557,7 +557,7 @@ function Repartition({
   verticale?: boolean;
 }) {
   if (donnees.length === 0) {
-    return <p className="text-[12.5px] text-[#6C7581] py-3">Aucune donnée.</p>;
+    return <p className="text-[12.5px] text-[#7E8894] py-3">Aucune donnée.</p>;
   }
 
   const total = donnees.reduce((s, d) => s + d.total, 0) || 1;

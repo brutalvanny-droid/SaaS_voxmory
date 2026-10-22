@@ -240,7 +240,7 @@ export default function Account({
         </Reveal>
 
         <Reveal delay={0.14}>
-          <p className="mt-7 text-center text-[13px] text-[#6C7581] leading-relaxed">
+          <p className="mt-7 text-center text-[13px] text-[#7E8894] leading-relaxed">
             Pas besoin de compte pour commander.{' '}
             <button
               onClick={() => onNavigate('order')}
@@ -280,7 +280,7 @@ function Champ({
         {label}
       </span>
       <div className="relative">
-        <Icon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6C7581]" />
+        <Icon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7E8894]" />
         <input
           type={type}
           value={value}

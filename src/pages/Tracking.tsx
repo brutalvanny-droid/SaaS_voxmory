@@ -159,7 +159,7 @@ export default function Tracking({ initialOrderId, onNavigate }: Props) {
                   <div className="flex flex-col items-center">
                     <div
                       className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 ${
-                        done ? 'bg-emerald-500 text-black' : 'bg-white/10 text-[#6C7581]'
+                        done ? 'bg-emerald-500 text-black' : 'bg-white/10 text-[#7E8894]'
                       }`}
                     >
                       {done ? <CheckCircle2 className="w-4 h-4" /> : i + 1}

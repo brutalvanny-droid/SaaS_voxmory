@@ -51,7 +51,7 @@ const PAGES_WITH_STICKY_CTA = ['home', 'gallery', 'reviews', 'pricing', 'memory'
 
 function PageLoader() {
   return (
-    <div className="flex items-center justify-center py-40 text-[#6C7581] gap-3 text-sm">
+    <div className="flex items-center justify-center py-40 text-[#7E8894] gap-3 text-sm">
       <Loader2 className="w-4 h-4 animate-spin text-[#A3FF12]" />
       Chargement…
     </div>
@@ -64,6 +64,16 @@ export default function App() {
   const [memorySlug, setMemorySlug] = useState('maman-georgette');
   const [packSlug, setPackSlug] = useState('');
   const [clientConnecte, setClientConnecte] = useState<boolean | null>(null);
+
+  /**
+   * Barre d'appel fixe (mobile).
+   *
+   * Elle n'apparaît qu'une fois le héros dépassé : au chargement, elle
+   * recouvrait le bouton « Commander ma chanson » du héros et proposait
+   * exactement la même action. Deux boutons identiques superposés, dont
+   * un à moitié caché, donnent l'impression d'un défaut d'affichage.
+   */
+  const [afficherCtaFixe, setAfficherCtaFixe] = useState(false);
 
   /**
    * Référencement de l'écran courant.
@@ -422,6 +432,13 @@ export default function App() {
     };
   }, [chargerDonnees]);
 
+  useEffect(() => {
+    const surDefilement = () => setAfficherCtaFixe(window.scrollY > 520);
+    surDefilement();
+    window.addEventListener('scroll', surDefilement, { passive: true });
+    return () => window.removeEventListener('scroll', surDefilement);
+  }, []);
+
   // Handle direct router triggers with state arguments
   const handleNavigate = (page: string, params: any = null) => {
     setPageParams(params);
@@ -457,6 +474,11 @@ export default function App() {
   return (
     <FournisseurNotifications>
     <div className="relative min-h-screen bg-[#07080A] text-white flex flex-col justify-between selection:bg-[#A3FF12] selection:text-[#06080A] grain">
+      {/* Lien d'évitement : visible au premier Tab, il laisse passer la
+          barre de navigation et va droit au contenu. */}
+      <a href="#contenu" className="skip-link">
+        Aller au contenu principal
+      </a>
       {/* Fond ambiant : deux halos fixes donnent de la profondeur à chaque page */}
       <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
         <div className="absolute -top-40 -left-32 w-[45rem] h-[45rem] rounded-full bg-[#A3FF12]/[0.045] blur-[150px]" />
@@ -474,7 +496,7 @@ export default function App() {
       />
 
       {/* Main Page Canvas */}
-      <main className="flex-grow relative">
+      <main id="contenu" tabIndex={-1} className="flex-grow relative outline-none">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentPage === 'memory' ? `memory-${memorySlug}` : currentPage}
@@ -584,7 +606,7 @@ export default function App() {
 
       {/* Mobile Sticky CTA */}
       <AnimatePresence>
-        {PAGES_WITH_STICKY_CTA.includes(currentPage) && (
+        {PAGES_WITH_STICKY_CTA.includes(currentPage) && afficherCtaFixe && (
           <motion.div
             initial={{ opacity: 0, y: 60 }}
             animate={{ opacity: 1, y: 0 }}

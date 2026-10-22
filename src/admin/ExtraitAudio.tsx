@@ -152,7 +152,7 @@ export default function ExtraitAudio({
             className="w-full accent-[#A3FF12] cursor-pointer"
           />
           <div className="mt-1 flex items-center gap-1.5">
-            <span className="text-[10px] text-[#6C7581]">Secondes :</span>
+            <span className="text-[10px] text-[#7E8894]">Secondes :</span>
             <input
               type="number"
               min={0}
@@ -186,7 +186,7 @@ export default function ExtraitAudio({
             className="w-full accent-[#A3FF12] cursor-pointer"
           />
           <div className="mt-1 flex items-center gap-1.5">
-            <span className="text-[10px] text-[#6C7581]">Secondes :</span>
+            <span className="text-[10px] text-[#7E8894]">Secondes :</span>
             <input
               type="number"
               min={debut + 1}
@@ -207,7 +207,7 @@ export default function ExtraitAudio({
         </div>
       </div>
 
-      <p className="text-[11px] text-[#6C7581] leading-relaxed">
+      <p className="text-[11px] text-[#7E8894] leading-relaxed">
         Sur la page d'accueil et la galerie, le visiteur n'entendra que ce passage (par exemple 0:30 à 1:15).
       </p>
     </div>

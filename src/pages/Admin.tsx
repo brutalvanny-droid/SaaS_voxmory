@@ -142,7 +142,7 @@ export default function Admin({ onNavigate, onPromotionChanged }: AdminProps) {
                 </span>
                 <div className="min-w-0">
                   <p className="text-[13px] font-black text-white leading-tight">Studio</p>
-                  <p className="text-[10px] uppercase tracking-[0.18em] text-[#6C7581] leading-tight">
+                  <p className="text-[10px] uppercase tracking-[0.18em] text-[#7E8894] leading-tight">
                     VOXMORY
                   </p>
                 </div>

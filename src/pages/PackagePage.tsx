@@ -170,13 +170,13 @@ export default function PackagePage({
             className="mt-9 flex flex-wrap items-center justify-center gap-3"
           >
             <div className="px-5 py-3 rounded-2xl bg-white/[0.04] border border-white/10">
-              <span className="block text-[10px] uppercase tracking-widest text-[#6C7581] font-bold">
+              <span className="block text-[10px] uppercase tracking-widest text-[#7E8894] font-bold">
                 Prix
               </span>
               <span className="text-2xl font-black text-[#A3FF12]">{pkg.priceLabel}</span>
             </div>
             <div className="px-5 py-3 rounded-2xl bg-white/[0.04] border border-white/10">
-              <span className="block text-[10px] uppercase tracking-widest text-[#6C7581] font-bold">
+              <span className="block text-[10px] uppercase tracking-widest text-[#7E8894] font-bold">
                 Livraison
               </span>
               <span className="text-2xl font-black text-white flex items-center gap-1.5">
@@ -214,11 +214,11 @@ export default function PackagePage({
 
           <ul className="mt-10 space-y-3">
             {pkg.includes.map((item, i) => (
-              <Reveal key={i} delay={i * 0.05}>
-                <li className="flex items-start gap-3.5 p-4 rounded-2xl bg-white/[0.03] border border-white/[0.07]">
+              <Reveal as="li" key={i} delay={i * 0.05}>
+                <div className="flex items-start gap-3.5 p-4 rounded-2xl bg-white/[0.03] border border-white/[0.07]">
                   <Check className="w-5 h-5 text-[#A3FF12] flex-shrink-0 mt-0.5" />
                   <span className="text-[15.5px] text-[#D5DBE2] leading-relaxed">{item}</span>
-                </li>
+                </div>
               </Reveal>
             ))}
           </ul>

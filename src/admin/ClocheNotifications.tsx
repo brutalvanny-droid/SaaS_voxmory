@@ -166,7 +166,7 @@ export default function ClocheNotifications({
 
           <div className="max-h-[22rem] overflow-y-auto">
             {evenements.length === 0 ? (
-              <p className="px-4 py-8 text-center text-[12.5px] text-[#6C7581]">
+              <p className="px-4 py-8 text-center text-[12.5px] text-[#7E8894]">
                 Rien pour l'instant.
                 <span className="block mt-1 text-[11.5px]">
                   Les commandes et les avis apparaîtront ici.
@@ -193,7 +193,7 @@ export default function ClocheNotifications({
                         {e.detail}
                       </span>
                     </span>
-                    <span className="text-[10.5px] text-[#6C7581] flex-shrink-0">
+                    <span className="text-[10.5px] text-[#7E8894] flex-shrink-0">
                       {il_y_a(e.date)}
                     </span>
                   </button>

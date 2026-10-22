@@ -107,7 +107,7 @@ export default function Reviews({ initialReviews }: ReviewsProps) {
           <div className="lg:col-span-5 bg-[#0B0D10] border border-[#A3FF12]/10 p-6 sm:p-8 rounded-3xl space-y-6 h-fit">
             
             <div className="space-y-1.5 text-center sm:text-left">
-              <h3 className="font-sans font-extrabold text-xl text-white">Laisser un avis</h3>
+              <h2 className="font-sans font-extrabold text-xl text-white">Laisser un avis</h2>
               <p className="text-xs text-[#A2ABB5]">Votre chanson a fait pleurer ou danser ? Racontez-nous ce moment magique.</p>
             </div>
 
@@ -154,9 +154,11 @@ export default function Reviews({ initialReviews }: ReviewsProps) {
                         key={num}
                         type="button"
                         onClick={() => setRating(num)}
-                        className="text-[#A3FF12] hover:scale-110 transition-all cursor-pointer focus:outline-none"
+                        aria-label={`Noter ${num} sur 5`}
+                        aria-pressed={num <= rating}
+                        className="text-[#A3FF12] hover:scale-110 transition-all cursor-pointer"
                       >
-                        <Star className={`w-6 h-6 ${num <= rating ? 'fill-[#A3FF12]' : 'text-[#6C7581]'}`} />
+                        <Star className={`w-6 h-6 ${num <= rating ? 'fill-[#A3FF12]' : 'text-[#7E8894]'}`} />
                       </button>
                     ))}
                     <span className="text-xs font-bold font-mono text-[#A3FF12] pl-2">{rating}/5 étoiles</span>
@@ -167,6 +169,7 @@ export default function Reviews({ initialReviews }: ReviewsProps) {
                 <div className="space-y-1.5">
                   <label className="block text-[12px] font-semibold uppercase tracking-wider text-[#C2CAD3]">Occasion célébrée *</label>
                   <select
+                    aria-label="Occasion célébrée"
                     value={occasion}
                     onChange={(e) => setOccasion(e.target.value)}
                     className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#A3FF12] focus:outline-none text-sm appearance-none cursor-pointer"
@@ -242,7 +245,7 @@ export default function Reviews({ initialReviews }: ReviewsProps) {
                     className="bg-[#0B0D10] border border-white/5 p-6 rounded-2xl space-y-4 animate-pulse"
                   >
                     <div className="flex items-center justify-between">
-                      <div className="flex gap-1 text-[#6C7581]">
+                      <div className="flex gap-1 text-[#7E8894]">
                         {[...Array(5)].map((_, i) => (
                           <div key={i} className="w-4 h-4 rounded bg-white/5"></div>
                         ))}
@@ -276,7 +279,7 @@ export default function Reviews({ initialReviews }: ReviewsProps) {
                         {[...Array(5)].map((_, i) => (
                           <Star
                             key={i}
-                            className={`w-4 h-4 ${i < rev.rating ? 'fill-[#A3FF12] text-[#A3FF12]' : 'text-[#6C7581]'}`}
+                            className={`w-4 h-4 ${i < rev.rating ? 'fill-[#A3FF12] text-[#A3FF12]' : 'text-[#7E8894]'}`}
                           />
                         ))}
                       </div>

@@ -108,9 +108,9 @@ const ROUTES: Record<string, RouteSeo> = {
   reviews: {
     title: 'Avis Clients — Ils ont offert une Chanson VOXMORY | VOXMORY',
     description:
-      "Découvrez les témoignages de ceux qui ont offert une chanson personnalisée. Note moyenne de 5 étoiles. Vous aussi, laissez le vôtre.",
+      "Découvrez les témoignages de ceux qui ont offert une chanson personnalisée. Vous aussi, laissez le vôtre : chaque retour aide un proche à franchir le pas.",
     path: '/avis',
-    h1: 'Ce qu en disent ceux qui ont offert une chanson',
+    h1: "Ce qu'en disent ceux qui ont offert une chanson",
   },
   pricing: {
     title: 'Tarifs Chanson Personnalisée : dès 20 $ | VOXMORY',
@@ -146,6 +146,24 @@ const ROUTES: Record<string, RouteSeo> = {
     path: '/admin',
     h1: 'Espace Studio',
   },
+  install: {
+    title: "Installer l'application VOXMORY sur votre téléphone",
+    description:
+      "Ajoutez VOXMORY à votre écran d'accueil : accès en un geste, lecture de vos chansons même avec une connexion faible. Guide pas à pas pour Android et iPhone.",
+    path: '/installer',
+    h1: "Installer l'application VOXMORY",
+  },
+  /**
+   * Repli pour les pages souvenir : leur véritable titre est posé par la page
+   * elle-même une fois la chanson chargée (prénom, occasion, dédicace).
+   */
+  memory: {
+    title: 'Chanson personnalisée offerte — Page souvenir | VOXMORY',
+    description:
+      'Écoutez une chanson personnalisée créée par le studio VOXMORY : paroles sur-mesure, dédicace et lecture en ligne.',
+    path: '/memory',
+    h1: 'Une chanson offerte, un souvenir à garder',
+  },
 };
 
 /**
@@ -162,6 +180,7 @@ export const PAGE_PATHS: Record<string, string> = {
   account: '/compte',
   myaccount: '/mon-compte',
   admin: '/admin',
+  install: '/installer',
 };
 
 /** Retrouve l'écran interne depuis une adresse publique. */

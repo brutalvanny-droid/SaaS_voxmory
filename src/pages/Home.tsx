@@ -157,9 +157,15 @@ export default function Home({
                     const featured = i === 2;
                     return (
                       <Reveal key={pkg.id} delay={i * 90}>
-                        <button
-                          onClick={() => onNavigate('order')}
-                          className={`lift relative w-full h-full text-left rounded-2xl p-6 flex flex-col overflow-hidden cursor-pointer ${
+                        {/*
+                          La carte est un simple conteneur : les deux actions
+                          (voir le détail, commander cette formule) sont des
+                          boutons distincts. Un bouton ne peut pas en
+                          contenir un autre — le HTML l'interdit, et le
+                          lecteur d'écran ne savait plus quoi annoncer.
+                        */}
+                        <div
+                          className={`lift relative w-full h-full rounded-2xl p-6 flex flex-col overflow-hidden group ${
                             featured
                               ? 'border border-[#A3FF12]/35 bg-gradient-to-b from-[#A3FF12]/[0.08] to-transparent'
                               : 'border border-white/[0.07] bg-gradient-to-b from-white/[0.03] to-transparent'
@@ -174,12 +180,11 @@ export default function Home({
                             <button
                               onClick={() => onNavigate('pack', { slug: PACK_SLUGS[pkg.id] })}
                               className="hover:text-[#A3FF12] transition-colors cursor-pointer text-left"
-                              aria-label={`Découvrir la formule ${pkg.name}`}
                             >
                               {pkg.name}
                             </button>
                           </h3>
-                          <p className="mt-1 text-[12px] text-[#6C7581] leading-snug min-h-[32px]">
+                          <p className="mt-1 text-[12px] text-[#7E8894] leading-snug min-h-[32px]">
                             {pkg.promise}
                           </p>
                           <div className="mt-5 mb-5">
@@ -195,16 +200,18 @@ export default function Home({
                               </li>
                             ))}
                           </ul>
-                          <span
-                            className={`inline-flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-[12.5px] font-bold transition-all ${
+                          <button
+                            onClick={() => onNavigate('order', { packageId: pkg.id })}
+                            className={`inline-flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-[12.5px] font-bold transition-all cursor-pointer ${
                               featured
-                                ? 'bg-[#A3FF12] text-[#06080A]'
-                                : 'bg-white/[0.06] text-white group-hover:bg-white/[0.1]'
+                                ? 'bg-[#A3FF12] text-[#06080A] hover:brightness-110'
+                                : 'bg-white/[0.06] text-white hover:bg-white/[0.1]'
                             }`}
                           >
                             Choisir
-                          </span>
-                        </button>
+                            <span className="sr-only"> la formule {pkg.name}</span>
+                          </button>
+                        </div>
                       </Reveal>
                     );
                   })}
@@ -265,7 +272,7 @@ export default function Home({
                         </div>
                         <div className="p-5">
                           <h3 className="text-[14.5px] font-bold text-white truncate">{song.title}</h3>
-                          <p className="text-[11.5px] text-[#6C7581] mt-0.5">
+                          <p className="text-[11.5px] text-[#7E8894] mt-0.5">
                             {song.style} · {song.occasion}
                           </p>
                           <div className="mt-4">
@@ -318,7 +325,7 @@ export default function Home({
                         </blockquote>
                         <figcaption className="mt-6 pt-4 border-t border-white/[0.07]">
                           <p className="text-[13px] font-bold text-white">{review.clientName}</p>
-                          <p className="text-[11.5px] text-[#6C7581]">{review.occasion}</p>
+                          <p className="text-[11.5px] text-[#7E8894]">{review.occasion}</p>
                         </figcaption>
                       </figure>
                     </Reveal>
@@ -359,7 +366,7 @@ export default function Home({
             <div className="relative z-10 max-w-3xl mx-auto px-5 sm:px-6 text-center">
               <Reveal>
                 <h2 className="text-[clamp(2rem,5.4vw,3.6rem)] font-extrabold tracking-[-0.04em] text-white leading-[1.02]">
-                  Son histoire mérite
+                  Votre histoire mérite
                   <br />
                   <span className="text-gradient">une chanson</span>
                 </h2>
@@ -452,7 +459,7 @@ export default function Home({
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.75, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
-              className="text-[clamp(2.4rem,7.2vw,5.2rem)] font-extrabold leading-[0.95] tracking-[-0.04em] text-white"
+              className="text-[clamp(2.05rem,5.8vw,4.5rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-white"
             >
               {t('title_part1', 'hero')}{' '}
               <span className="text-gradient">{t('title_grad', 'hero')}</span>
@@ -576,7 +583,7 @@ export default function Home({
                 <p className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
                   <Counter value={stat.value} suffix={stat.suffix} />
                 </p>
-                <p className="text-[11px] uppercase tracking-[0.14em] text-[#6C7581] mt-1 font-medium">
+                <p className="text-[11px] uppercase tracking-[0.14em] text-[#7E8894] mt-1 font-medium">
                   {stat.label}
                 </p>
               </div>

@@ -214,7 +214,7 @@ export default function EnvoiFichier({
           value={valeur}
           onChange={(e) => onChange(e.target.value)}
           placeholder={genre === 'audio' ? '/api/media/… ou https://…' : 'https://…'}
-          className="w-full bg-[#14181D] border border-white/20 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-[#6C7581] focus:outline-none focus:border-[#A3FF12]"
+          className="w-full bg-[#14181D] border border-white/20 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-[#7E8894] focus:outline-none focus:border-[#A3FF12]"
         />
       )}
 
@@ -223,7 +223,7 @@ export default function EnvoiFichier({
           {chargementBiblio ? (
             <p className="text-[11px] text-[#8A949F] py-2 text-center">Chargement des fichiers…</p>
           ) : biblio.length === 0 ? (
-            <p className="text-[11px] text-[#6C7581] py-2 text-center">
+            <p className="text-[11px] text-[#7E8894] py-2 text-center">
               Aucun fichier {genre} trouvé dans le stockage.
             </p>
           ) : (
@@ -246,7 +246,7 @@ export default function EnvoiFichier({
                   }`}
                 >
                   <span className="truncate">{f.chemin}</span>
-                  <span className="text-[10px] text-[#6C7581] shrink-0">
+                  <span className="text-[10px] text-[#7E8894] shrink-0">
                     {(f.taille / 1024 / 1024).toFixed(1)} Mo
                   </span>
                 </button>
@@ -271,7 +271,7 @@ function Apercu({ genre, url }: { genre: Genre; url: string }) {
           alt=""
           className="w-20 h-14 object-cover rounded border border-white/10 flex-shrink-0"
         />
-        <p className="text-[11px] text-[#6C7581] truncate flex-1">{url}</p>
+        <p className="text-[11px] text-[#7E8894] truncate flex-1">{url}</p>
         <ImageIcon className="w-3.5 h-3.5 text-[#8A949F] shrink-0" />
       </div>
     );
@@ -282,7 +282,7 @@ function Apercu({ genre, url }: { genre: Genre; url: string }) {
       <div className="p-2 rounded-lg bg-black/30 border border-white/10 space-y-2">
         <div className="flex items-center gap-2">
           <Film className="w-3.5 h-3.5 text-[#A3FF12] shrink-0" />
-          <p className="text-[11px] text-[#6C7581] truncate flex-1">{url}</p>
+          <p className="text-[11px] text-[#7E8894] truncate flex-1">{url}</p>
         </div>
         {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
         <video src={url} controls preload="metadata" className="w-full max-h-40 rounded" />
@@ -294,7 +294,7 @@ function Apercu({ genre, url }: { genre: Genre; url: string }) {
     <div className="p-2 rounded-lg bg-black/30 border border-white/10 space-y-2">
       <div className="flex items-center gap-2">
         <Music className="w-3.5 h-3.5 text-[#A3FF12] shrink-0" />
-        <p className="text-[11px] text-[#6C7581] truncate flex-1">{url}</p>
+        <p className="text-[11px] text-[#7E8894] truncate flex-1">{url}</p>
       </div>
       {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
       <audio src={url} controls preload="metadata" className="w-full h-8" />

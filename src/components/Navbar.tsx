@@ -37,6 +37,16 @@ export default function Navbar({ currentPage, onNavigate, clientConnecte }: Navb
     { id: 'tracking', label: t('tracking', 'nav') },
   ];
 
+  /**
+   * Barre de navigation — ordinateur.
+   *
+   * « Créer ma chanson » n'y figure pas : le bouton vert à droite mène
+   * déjà à cette page. Avec les deux, la barre débordait sur deux lignes
+   * dès 1440 px et le regard hésitait entre deux appels identiques.
+   * Le lien reste dans le menu mobile, où la place ne manque pas.
+   */
+  const navItemsDesktop = navItems.filter((item) => item.id !== 'order');
+
   const handleNav = (page: string) => {
     onNavigate(page);
     setIsOpen(false);
@@ -78,7 +88,7 @@ export default function Navbar({ currentPage, onNavigate, clientConnecte }: Navb
               <span className="block text-[19px] font-extrabold tracking-[-0.02em] text-white leading-none">
                 VOXMORY
               </span>
-              <span className="block text-[8px] tracking-[0.3em] text-[#6C7581] font-medium uppercase leading-none mt-1">
+              <span className="block text-[8px] tracking-[0.3em] text-[#7E8894] font-medium uppercase leading-none mt-1">
                 Studio
               </span>
             </div>
@@ -86,13 +96,13 @@ export default function Navbar({ currentPage, onNavigate, clientConnecte }: Navb
 
           {/* Navigation — ordinateur */}
           <div className="hidden lg:flex items-center gap-1">
-            {navItems.map((item) => {
+            {navItemsDesktop.map((item) => {
               const active = currentPage === item.id;
               return (
                 <button
                   key={item.id}
                   onClick={() => handleNav(item.id)}
-                  className="relative px-3.5 py-2 text-[13.5px] font-medium transition-colors duration-200 cursor-pointer"
+                  className="relative px-3.5 py-2 text-[13.5px] font-medium transition-colors duration-200 cursor-pointer whitespace-nowrap"
                 >
                   <span className={active ? 'text-white' : 'text-[#8A949F] hover:text-white'}>
                     {item.label}
@@ -114,9 +124,12 @@ export default function Navbar({ currentPage, onNavigate, clientConnecte }: Navb
             <div className="relative">
               <button
                 onClick={() => setShowLangDropdown((v) => !v)}
+                aria-expanded={showLangDropdown}
+                aria-haspopup="true"
                 className="flex items-center gap-1.5 px-3 py-2 rounded-full border border-white/[0.09] bg-white/[0.03] hover:bg-white/[0.07] text-[#A2ABB5] hover:text-white text-xs font-semibold transition-all cursor-pointer"
               >
                 <Globe className="w-3.5 h-3.5" />
+                <span className="sr-only">Changer de langue</span>
                 <span>{langLabel}</span>
                 <ChevronDown className="w-3 h-3 opacity-60" />
               </button>
@@ -165,11 +178,11 @@ export default function Navbar({ currentPage, onNavigate, clientConnecte }: Navb
             {clientConnecte !== null && (
               <button
                 onClick={() => handleNav(clientConnecte ? 'myaccount' : 'account')}
-                aria-label={clientConnecte ? 'Mon espace' : 'Me connecter'}
                 className="flex items-center gap-1.5 px-3 py-2.5 rounded-full border border-white/[0.09] bg-white/[0.03] text-[#A2ABB5] hover:text-white hover:bg-white/[0.07] text-xs font-bold transition-all cursor-pointer"
               >
                 <User className="w-3.5 h-3.5" />
-                <span className="hidden xl:inline">
+                <span className="sr-only">{clientConnecte ? 'Mon espace' : 'Connexion'}</span>
+                <span className="hidden xl:inline" aria-hidden="true">
                   {clientConnecte ? 'Mon espace' : 'Connexion'}
                 </span>
               </button>
@@ -189,13 +202,19 @@ export default function Navbar({ currentPage, onNavigate, clientConnecte }: Navb
             <InstallButton variant="pill" onNavigate={handleNav} />
             <button
               onClick={() => setShowLangDropdown((v) => !v)}
+              aria-expanded={showLangDropdown}
+              aria-haspopup="true"
               className="flex items-center gap-1 px-2.5 py-2 rounded-full border border-white/[0.09] bg-white/[0.03] text-[#A2ABB5] text-xs font-semibold cursor-pointer"
             >
               <Globe className="w-3.5 h-3.5" />
+              <span className="sr-only">Changer de langue</span>
               {langLabel}
             </button>
             <button
               onClick={() => setIsOpen((v) => !v)}
+              aria-label={isOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+              aria-expanded={isOpen}
+              aria-controls="menu-mobile"
               className="p-2 rounded-lg text-[#A2ABB5] hover:text-white hover:bg-white/[0.06] transition-all cursor-pointer"
             >
               {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -204,10 +223,51 @@ export default function Navbar({ currentPage, onNavigate, clientConnecte }: Navb
         </div>
       </div>
 
+      {/*
+        Sélecteur de langue — mobile.
+
+        Le bouton « FR » de la barre mobile ouvrait auparavant un menu
+        rendu uniquement en version ordinateur : le bouton ne faisait
+        donc rien de visible sur téléphone. Ce panneau lui donne une
+        réponse immédiate, sans passer par le menu complet.
+      */}
+      {showLangDropdown && (
+        <div className="lg:hidden border-t border-white/[0.07] bg-[#0A0C0F]/98 backdrop-blur-xl">
+          <div className="px-5 py-3 flex items-center gap-2">
+            <span className="text-[10px] uppercase tracking-[0.18em] text-[#7E8894] font-semibold mr-1">
+              Langue
+            </span>
+            {(
+              [
+                ['fr', '🇫🇷 FR'],
+                ['sw', '🇨🇩 SW'],
+                ['en', '🇬🇧 EN'],
+              ] as const
+            ).map(([code, label]) => (
+              <button
+                key={code}
+                onClick={() => {
+                  setLanguage(code);
+                  setShowLangDropdown(false);
+                }}
+                className={`px-3 py-1.5 rounded-lg text-[11px] font-bold border transition-all ${
+                  language === code
+                    ? 'border-[#A3FF12]/50 bg-[#A3FF12]/[0.1] text-[#A3FF12]'
+                    : 'border-white/[0.08] bg-white/[0.03] text-[#A2ABB5]'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Menu mobile */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
+            id="menu-mobile"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
@@ -233,7 +293,7 @@ export default function Navbar({ currentPage, onNavigate, clientConnecte }: Navb
               ))}
 
               <div className="pt-3 pb-1">
-                <p className="px-4 text-[10px] uppercase tracking-[0.18em] text-[#6C7581] mb-2 font-semibold">
+                <p className="px-4 text-[10px] uppercase tracking-[0.18em] text-[#7E8894] mb-2 font-semibold">
                   Langue
                 </p>
                 <div className="flex gap-2 px-4">

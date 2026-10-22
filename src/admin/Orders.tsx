@@ -169,7 +169,7 @@ export default function Orders() {
         actions={
           <div className="flex gap-2">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#6C7581]" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#7E8894]" />
               <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -218,7 +218,7 @@ export default function Orders() {
                     <Badge tone={paymentTone(o.paymentStatus)}>{o.paymentStatus}</Badge>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 mt-2 text-[10px] text-[#6C7581]">
+                <div className="flex items-center gap-3 mt-2 text-[10px] text-[#7E8894]">
                   <span>{new Date(o.createdAt).toLocaleDateString('fr-FR')}</span>
                   <span>{o.musicStyle}</span>
                   <span className="text-[#A3FF12] font-bold">
@@ -472,7 +472,7 @@ function AiAssist({ order }: { order: Order }) {
         avoidWords: order.avoidWords ?? '',
         occasion: order.occasion ?? '',
         memoryPageUrl: order.memoryPageId
-          ? `${window.location.origin}/#memory/${order.memoryPageId}`
+          ? `${window.location.origin}/memory/${order.memoryPageId}`
           : '',
       });
       setText(res.text);

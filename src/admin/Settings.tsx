@@ -357,7 +357,7 @@ function Audit() {
               </div>
               <div className="text-right shrink-0">
                 <p className="text-[#A2ABB5]">{r.adminEmail ?? '—'}</p>
-                <p className="text-[#6C7581] text-[10px]">
+                <p className="text-[#7E8894] text-[10px]">
                   {new Date(r.createdAt).toLocaleString('fr-FR')}
                 </p>
               </div>
@@ -482,7 +482,7 @@ function Whatsapp() {
               placeholder="+243 97 000 00 00"
             />
           </Field>
-          <p className="text-[11.5px] text-[#6C7581] mt-1.5">
+          <p className="text-[11.5px] text-[#7E8894] mt-1.5">
             Laissez vide pour utiliser le numéro du studio.
           </p>
 

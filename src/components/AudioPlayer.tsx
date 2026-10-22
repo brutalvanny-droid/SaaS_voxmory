@@ -266,6 +266,7 @@ export default function AudioPlayer({ audioUrl, title, subtitle, coverUrl, start
             max={maxLimit || 100}
             value={currentTime}
             onChange={handleProgressChange}
+            aria-label="Position dans l'extrait"
             className="flex-grow h-1.5 rounded-lg appearance-none cursor-pointer accent-[#A3FF12] bg-white/10"
           />
           <span className="text-[10px] font-mono text-[#8A949F] w-8">{formatTime(displayDuration || (maxLimit - minTime))}</span>
@@ -284,6 +285,7 @@ export default function AudioPlayer({ audioUrl, title, subtitle, coverUrl, start
                 }
               }}
               title="Reset"
+              aria-label="Revenir au début de l'extrait"
               className="text-[#8A949F] hover:text-white transition-all cursor-pointer"
             >
               <SkipBack className="w-4 h-4" />
@@ -292,6 +294,7 @@ export default function AudioPlayer({ audioUrl, title, subtitle, coverUrl, start
             <button
               onClick={togglePlay}
               disabled={audioError || !audioUrl}
+              aria-label={isPlaying ? `Mettre en pause ${title}` : `Écouter ${title}`}
               className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#A3FF12] via-[#A3FF12] to-[#7ACC00] text-black flex items-center justify-center hover:scale-105 transition-all shadow-md shadow-[#A3FF12]/20 cursor-pointer disabled:opacity-70"
             >
               {isLoading ? (
@@ -329,6 +332,7 @@ export default function AudioPlayer({ audioUrl, title, subtitle, coverUrl, start
               step="0.05"
               value={volume}
               onChange={handleVolumeChange}
+              aria-label="Volume sonore"
               className="w-16 h-1 rounded-lg appearance-none cursor-pointer accent-[#A3FF12]/80 bg-white/10"
             />
           </div>

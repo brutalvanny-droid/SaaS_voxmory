@@ -71,9 +71,9 @@ export default function Footer({ onNavigate }: FooterProps) {
 
           {/* ---------- Navigation ---------- */}
           <Reveal delay={80}>
-            <h3 className="text-[10.5px] font-bold tracking-[0.18em] uppercase text-[#6C7581] mb-5">
+            <h2 className="text-[10.5px] font-bold tracking-[0.18em] uppercase text-[#7E8894] mb-5">
               Navigation
-            </h3>
+            </h2>
             <ul className="space-y-3">
               {NAV_LINKS.map((link) => (
                 <li key={link.page}>
@@ -93,16 +93,16 @@ export default function Footer({ onNavigate }: FooterProps) {
 
           {/* ---------- Service client ---------- */}
           <Reveal delay={140}>
-            <h3 className="text-[10.5px] font-bold tracking-[0.18em] uppercase text-[#6C7581] mb-5">
+            <h2 className="text-[10.5px] font-bold tracking-[0.18em] uppercase text-[#7E8894] mb-5">
               Service client
-            </h3>
+            </h2>
             <ul className="space-y-5">
               <li className="flex items-start gap-3">
                 <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#25D366]/10 border border-[#25D366]/20 shrink-0">
                   <MessageCircle className="w-4 h-4 text-[#25D366]" />
                 </span>
                 <div className="min-w-0">
-                  <span className="block text-[10.5px] uppercase tracking-wider text-[#6C7581]">
+                  <span className="block text-[10.5px] uppercase tracking-wider text-[#7E8894]">
                     WhatsApp 24/7
                   </span>
                   <a
@@ -121,7 +121,7 @@ export default function Footer({ onNavigate }: FooterProps) {
                   <Mail className="w-4 h-4 text-[#A3FF12]" />
                 </span>
                 <div className="min-w-0">
-                  <span className="block text-[10.5px] uppercase tracking-wider text-[#6C7581]">
+                  <span className="block text-[10.5px] uppercase tracking-wider text-[#7E8894]">
                     E-mail
                   </span>
                   <a
@@ -137,7 +137,7 @@ export default function Footer({ onNavigate }: FooterProps) {
                   <Phone className="w-4 h-4 text-[#A2ABB5]" />
                 </span>
                 <div className="min-w-0">
-                  <span className="block text-[10.5px] uppercase tracking-wider text-[#6C7581]">
+                  <span className="block text-[10.5px] uppercase tracking-wider text-[#7E8894]">
                     Contact direct
                   </span>
                   <span className="text-[13.5px] text-white font-medium whitespace-nowrap">
@@ -151,9 +151,9 @@ export default function Footer({ onNavigate }: FooterProps) {
           {/* ---------- Paiements ---------- */}
           <Reveal delay={200}>
             <div className="rounded-2xl border border-white/[0.07] bg-gradient-to-b from-white/[0.035] to-transparent p-5">
-              <h3 className="text-[10.5px] font-bold tracking-[0.18em] uppercase text-[#A3FF12] mb-3">
+              <h2 className="text-[10.5px] font-bold tracking-[0.18em] uppercase text-[#A3FF12] mb-3">
                 Paiements mobiles
-              </h3>
+              </h2>
               <p className="text-[12px] leading-relaxed text-[#8A949F]">
                 Nous acceptons Airtel Money &amp; Orange Money :
               </p>
@@ -168,10 +168,10 @@ export default function Footer({ onNavigate }: FooterProps) {
                     className="flex items-center justify-between gap-3 pb-3 border-b border-white/[0.06] border-dashed last:border-0 last:pb-0"
                   >
                     <div>
-                      <span className="block text-[10.5px] uppercase tracking-wider text-[#6C7581]">
+                      <span className="block text-[10.5px] uppercase tracking-wider text-[#7E8894]">
                         {m.label}
                       </span>
-                      <span className="block text-[9.5px] text-[#6C7581]">{m.name}</span>
+                      <span className="block text-[9.5px] text-[#7E8894]">{m.name}</span>
                     </div>
                     <span className="font-mono text-[12.5px] font-semibold text-[#A3FF12] whitespace-nowrap">
                       {m.number}
@@ -180,7 +180,7 @@ export default function Footer({ onNavigate }: FooterProps) {
                 ))}
               </div>
 
-              <p className="mt-4 text-[10.5px] leading-snug text-[#6C7581]">
+              <p className="mt-4 text-[10.5px] leading-snug text-[#7E8894]">
                 * Envoyez la preuve de paiement sur WhatsApp pour validation immédiate.
               </p>
             </div>
@@ -189,17 +189,17 @@ export default function Footer({ onNavigate }: FooterProps) {
 
         {/* ---------- Barre légale ---------- */}
         <div className="mt-14 pt-6 border-t border-white/[0.06] flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-[12px] text-[#6C7581]">
+          <p className="text-[12px] text-[#7E8894]">
             © 2026 VOXMORY. Tous droits réservés. Kinshasa, RDC.
           </p>
           <div className="flex flex-wrap items-center justify-center sm:justify-end gap-4 sm:gap-6">
             <InstallButton variant="footer" onNavigate={handleNav} />
-            <span className="text-[11.5px] text-[#6C7581] hidden sm:inline">
+            <span className="text-[11.5px] text-[#7E8894] hidden sm:inline">
               « Votre histoire. Votre chanson. »
             </span>
             <button
               onClick={() => handleNav('admin')}
-              className="text-[11.5px] text-[#6C7581] hover:text-[#A3FF12] transition-colors font-mono font-bold"
+              className="text-[11.5px] text-[#7E8894] hover:text-[#A3FF12] transition-colors font-mono font-bold"
             >
               [Espace Studio]
             </button>

@@ -96,12 +96,15 @@ export function useSEO({
     upsertMeta('property', 'og:type', type);
     upsertMeta('property', 'og:site_name', SITE_NAME);
 
-    // Twitter / X — reprend les mêmes informations
-    upsertMeta('property', 'twitter:title', title);
-    upsertMeta('property', 'twitter:description', description);
-    upsertMeta('property', 'twitter:url', url);
-    upsertMeta('property', 'twitter:image', img);
-    upsertMeta('property', 'twitter:card', 'summary_large_image');
+    // Twitter / X — reprend les mêmes informations.
+    // Attention : Twitter lit `name`, pas `property`. Utiliser `property`
+    // créait une seconde balise à côté de celle d'index.html, et le
+    // navigateur pouvait retenir l'ancienne.
+    upsertMeta('name', 'twitter:title', title);
+    upsertMeta('name', 'twitter:description', description);
+    upsertMeta('name', 'twitter:url', url);
+    upsertMeta('name', 'twitter:image', img);
+    upsertMeta('name', 'twitter:card', 'summary_large_image');
   }, [title, description, path, image, type, noindex]);
 }
 
