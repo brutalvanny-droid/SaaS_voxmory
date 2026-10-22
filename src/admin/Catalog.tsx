@@ -3,6 +3,7 @@ import { Plus, Trash2, Check, Loader2, Sparkles, Eye, EyeOff } from 'lucide-reac
 import { api } from '../lib/api.js';
 import type { ClientReview, GallerySong, MemoryPage } from '../types.js';
 import { Badge, Button, Card, Empty, ErrorNote, Field, Input, Modal, Select, TextArea } from './ui.js';
+import EnvoiFichier from './EnvoiFichier.js';
 
 type Tab = 'gallery' | 'reviews' | 'memory';
 
@@ -193,19 +194,18 @@ function GalleryAdmin() {
               />
             </Field>
           </div>
-          <Field label="URL audio (MP3)">
-            <Input
-              value={String(form.audioUrl ?? '')}
-              onChange={(e) => setForm((f) => ({ ...f, audioUrl: e.target.value }))}
-              placeholder="/uploads/… ou https://…"
-            />
-          </Field>
-          <Field label="URL pochette">
-            <Input
-              value={String(form.coverUrl ?? '')}
-              onChange={(e) => setForm((f) => ({ ...f, coverUrl: e.target.value }))}
-            />
-          </Field>
+          <EnvoiFichier
+            genre="audio"
+            libelle="Fichier audio (MP3)"
+            valeur={String(form.audioUrl ?? '')}
+            onChange={(v) => setForm((f) => ({ ...f, audioUrl: v ?? '' }))}
+          />
+          <EnvoiFichier
+            genre="image"
+            libelle="Pochette (image)"
+            valeur={String(form.coverUrl ?? '')}
+            onChange={(v) => setForm((f) => ({ ...f, coverUrl: v ?? '' }))}
+          />
           <Field label="Visibilité">
             <Select
               value={String(form.visibility ?? 'Private')}
