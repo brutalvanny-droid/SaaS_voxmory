@@ -235,25 +235,6 @@ export const reviews = pgTable('reviews', {
 /*  Pages souvenir                                                      */
 /* ------------------------------------------------------------------ */
 
-/* ------------------------------------------------------------------ */
-/*  Avis liés à une chanson                                           */
-/* ------------------------------------------------------------------ */
-
-export const songReviews = pgTable('song_reviews', {
-  id: text('id').primaryKey(),
-  songId: text('song_id').notNull(),
-  clientName: text('client_name').notNull(),
-  rating: integer('rating').notNull().default(5),
-  occasion: text('occasion').notNull().default(''),
-  comment: text('comment').notNull(),
-  screenshotUrl: text('screenshot_url'),
-  orderId: text('order_id'),
-  isVerified: boolean('is_verified').notNull().default(false),
-  approved: boolean('approved').notNull().default(false),
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-});
-
 export const memoryPages = pgTable('memory_pages', {
   id: text('id').primaryKey(),
   orderId: text('order_id').references(() => orders.id, { onDelete: 'set null' }),
