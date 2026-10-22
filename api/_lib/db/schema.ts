@@ -494,3 +494,22 @@ export type BroadcastList = typeof broadcastLists.$inferSelect;
 export type BroadcastContact = typeof broadcastContacts.$inferSelect;
 export type BroadcastCampaign = typeof broadcastCampaigns.$inferSelect;
 export type DailyStat = typeof dailyStats.$inferSelect;
+
+/* ================================================================== */
+/*  Avis sous chaque chanson exemple                                  */
+/* ================================================================== */
+
+export const songReviews = pgTable('song_reviews', {
+  id: text('id').primaryKey(),
+  songId: text('song_id')
+    .notNull()
+    .references(() => gallerySongs.id, { onDelete: 'cascade' }),
+  orderId: text('order_id').references(() => orders.id, { onDelete: 'set null' }),
+  clientName: text('client_name').notNull(),
+  rating: integer('rating').notNull().default(5),
+  comment: text('comment').notNull(),
+  isVerified: boolean('is_verified').notNull().default(false),
+  approved: boolean('approved').notNull().default(false),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});
