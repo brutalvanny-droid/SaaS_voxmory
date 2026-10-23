@@ -16,6 +16,8 @@ import {
   orders,
   packages,
   payments,
+  promoRedemptions,
+  promoCodes,
   reminders,
   reviews,
   settings,
@@ -41,6 +43,7 @@ import {
   broadcastCampaignSchema,
   broadcastListSchema,
   createOrderSchema,
+  createPromoSchema,
   createReviewSchema,
   gallerySongSchema,
   gallerySongUpdateSchema,
@@ -58,6 +61,7 @@ import {
   sendWhatsappSchema,
   updateOrderSchema,
   updatePackageSchema,
+  updatePromoSchema,
   updateReviewSchema,
   adminReviewSchema,
   adminReviewsEnMasseSchema,
@@ -67,6 +71,8 @@ import {
   homeConfigSchema,
   createSongReviewSchema,
   updateSongReviewSchema,
+  validatePromoSchema,
+  generatePromoSchema,
 } from './_lib/validation.js';
 import {
   createClientSessionToken,
@@ -165,6 +171,151 @@ function formatMoney(cents: number, currency: string): string {
   }
   return `${value.toLocaleString('fr-FR', { maximumFractionDigits: 2 })} ${currency}`;
 }
+
+/* ------------------------------------------------------------------ */
+/*  Codes promo                                                         */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Alphabet sans caractères ambigus : ni 0/O, ni 1/I/L.
+ * 31 symboles sur 10 positions → 8,2 × 10¹⁴ combinaisons. Un code qui
+ * offre une chanson ne doit pas pouvoir se deviner.
+ */
+const PROMO_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+const PROMO_LONGUEUR = 10;
+
+function genererCodePromo(): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(PROMO_LONGUEUR));
+  return Array.from(bytes, (b) => PROMO_ALPHABET[b % PROMO_ALPHABET.length]).join('');
+}
+
+/** Forme canonique : majuscules, sans espace ni tiret. */
+function normaliserCode(v: string): string {
+  return String(v ?? '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+}
+
+type PromoRow = typeof promoCodes.$inferSelect;
+
+type ContextePrix = {
+  vipCardSelected: boolean;
+  occasion?: string | null;
+};
+
+/** Montant facturé avant remise — source unique de vérité. */
+function montantDeBase(pkg: { priceCents: number }, opts: ContextePrix): number {
+  if (opts.occasion === OCCASION_PUB) return PRIX_PUB_CENTS;
+  return pkg.priceCents + (opts.vipCardSelected ? 200 : 0);
+}
+
+/**
+ * Applique un code à un montant de base.
+ *
+ * Ne lève jamais : renvoie la raison du refus, que l'appelant traduit en
+ * message. La remise ne porte jamais sur la carte VIP sauf si le code a
+ * été créé pour ça.
+ */
+function remiseDuCode(
+  baseCents: number,
+  packageId: string | null,
+  promo: PromoRow,
+  opts: ContextePrix,
+): { ok: boolean; discountCents: number; reason?: string } {
+  const now = Date.now();
+  if (!promo.isActive) return { ok: false, discountCents: 0, reason: 'Ce code a été désactivé.' };
+  if (promo.startsAt && promo.startsAt.getTime() > now) {
+    return { ok: false, discountCents: 0, reason: "Ce code n'est pas encore actif." };
+  }
+  if (promo.expiresAt && promo.expiresAt.getTime() < now) {
+    return { ok: false, discountCents: 0, reason: 'Ce code a expiré.' };
+  }
+  if (promo.usedCount > 0) {
+    return { ok: false, discountCents: 0, reason: 'Ce code a déjà été utilisé.' };
+  }
+  if (promo.packageId && promo.packageId !== packageId) {
+    return { ok: false, discountCents: 0, reason: "Ce code ne s'applique pas à cette formule." };
+  }
+  if (baseCents <= 0) {
+    return { ok: false, discountCents: 0, reason: 'Montant de commande invalide.' };
+  }
+
+  const estPub = opts.occasion === OCCASION_PUB;
+  const partVip = estPub ? 0 : opts.vipCardSelected ? 200 : 0;
+  const remisable = promo.includeVipFee ? baseCents : Math.max(0, baseCents - partVip);
+
+  if (promo.discountType === 'free') return { ok: true, discountCents: remisable };
+  const pct = Math.min(100, Math.max(0, promo.percentOff));
+  return { ok: true, discountCents: Math.round((remisable * pct) / 100) };
+}
+
+/** Devis complet : base, remise, total. Utilisé par l'API et par la commande. */
+function devisCommande(
+  pkg: { id: string; priceCents: number },
+  opts: ContextePrix,
+  promo: PromoRow | null,
+): {
+  baseCents: number;
+  discountCents: number;
+  finalCents: number;
+  promo: PromoRow | null;
+  reason?: string;
+} {
+  const baseCents = montantDeBase(pkg, opts);
+  if (!promo) return { baseCents, discountCents: 0, finalCents: baseCents, promo: null };
+  const r = remiseDuCode(baseCents, pkg.id, promo, opts);
+  if (!r.ok) {
+    return { baseCents, discountCents: 0, finalCents: baseCents, promo: null, reason: r.reason };
+  }
+  return {
+    baseCents,
+    discountCents: r.discountCents,
+    finalCents: Math.max(0, baseCents - r.discountCents),
+    promo,
+  };
+}
+
+async function trouverCodePromo(code: string): Promise<PromoRow | null> {
+  const propre = normaliserCode(code);
+  if (propre.length < 4) return null;
+  const [row] = await db
+    .select()
+    .from(promoCodes)
+    .where(eq(promoCodes.code, propre))
+    .limit(1);
+  return row ?? null;
+}
+
+function etatDuCode(row: PromoRow): 'Actif' | 'Utilisé' | 'Expiré' | 'Désactivé' {
+  if (!row.isActive) return 'Désactivé';
+  if (row.usedCount > 0) return 'Utilisé';
+  if (row.expiresAt && row.expiresAt.getTime() < Date.now()) return 'Expiré';
+  return 'Actif';
+}
+
+function serializePromo(
+  row: PromoRow,
+  extra?: { orderReference?: string | null; orderPaid?: boolean | null },
+) {  return {
+    id: row.id,
+    code: row.code,
+    label: row.label,
+    packageId: row.packageId,
+    discountType: row.discountType,
+    percentOff: row.percentOff,
+    includeVipFee: row.includeVipFee,
+    usedCount: row.usedCount,
+    startsAt: row.startsAt ? row.startsAt.toISOString() : null,
+    expiresAt: row.expiresAt ? row.expiresAt.toISOString() : null,
+    isActive: row.isActive,
+    note: row.note,
+    createdAt: row.createdAt.toISOString(),
+    state: etatDuCode(row),
+    orderReference: extra?.orderReference ?? null,
+    orderPaid: extra?.orderPaid ?? null,
+  };
+}
+
+/** Signal interne : le code a été consommé entre la saisie et l'envoi. */
+class CodeDejaConsomme extends Error {}
 
 /* ------------------------------------------------------------------ */
 /*  Réglages en base (compteurs, bandeau promo)                         */
@@ -325,6 +476,8 @@ function serializeOrder(row: OrderRow) {
     amountCents: row.amountCents,
     currency: row.currency,
     amountLabel: formatMoney(row.amountCents, row.currency),
+    promoCode: row.promoCode,
+    discountCents: row.discountCents,
 
     desiredDeliveryDate: row.desiredDeliveryDate,
     urgency: row.urgency,
@@ -916,13 +1069,18 @@ function publicTracking(row: OrderRow) {
     createdAt: row.createdAt.toISOString(),
     desiredDeliveryDate: row.desiredDeliveryDate,
     memoryPageId: row.memoryPageId,
-    finalAudioUrl: row.paymentStatus === 'Paid' ? row.finalAudioUrl : null,
+    finalAudioUrl:
+      row.paymentStatus === 'Paid' || row.paymentStatus === 'Offert'
+        ? row.finalAudioUrl
+        : null,
     coverImageUrl: row.coverImageUrl,
     // Le montant permet au navigateur d'envoyer un « Purchase » exact au
     // moment où le paiement est confirmé. Il n'est lisible qu'avec le jeton
     // de suivi, qui n'est connu que du client.
     amountCents: row.amountCents,
     currency: row.currency,
+    /** Un code a été appliqué : le suivi l'affiche, sans révéler le code. */
+    discountCents: row.discountCents,
   };
 }
 
@@ -963,6 +1121,78 @@ app.get(
   }),
 );
 
+/* --- Codes promo : vérification publique ------------------------------- */
+
+/**
+ * Vérifie un code avant la commande.
+ *
+ * Route publique : elle ne renvoie jamais la liste des codes, seulement
+ * la valeur d'un code précis, et elle est plafonnée en débit pour qu'on ne
+ * puisse pas en deviner un par force brute.
+ *
+ * Répond toujours 200 : un code invalide n'est pas une panne serveur, et
+ * le navigateur n'a pas à traiter ça comme une erreur réseau.
+ */
+app.post(
+  '/api/promo/validate',
+  asyncHandler(async (req: Request, res: Response) => {
+    maybePurge();
+    const limit = await rateLimit(`promo:${clientIp(req)}`, 10, 10 * 60 * 1000);
+    if (!limit.ok) {
+      res
+        .status(429)
+        .set('Retry-After', String(limit.retryAfter))
+        .json({ valid: false, reason: 'Trop de tentatives. Patientez quelques minutes.' });
+      return;
+    }
+
+    const parsed = validatePromoSchema.safeParse(req.body ?? {});
+    if (!parsed.success) {
+      res.json({ valid: false, reason: 'Code invalide.' });
+      return;
+    }
+
+    const [pkg] = await db
+      .select()
+      .from(packages)
+      .where(and(eq(packages.id, parsed.data.packageId), eq(packages.isActive, true)))
+      .limit(1);
+    if (!pkg) {
+      res.json({ valid: false, reason: 'Formule indisponible.' });
+      return;
+    }
+
+    const promo = await trouverCodePromo(parsed.data.code);
+    if (!promo) {
+      res.json({ valid: false, reason: 'Ce code est inconnu ou n’existe plus.' });
+      return;
+    }
+
+    const devis = devisCommande(
+      pkg,
+      { vipCardSelected: parsed.data.vipCardSelected, occasion: parsed.data.occasion },
+      promo,
+    );
+    if (devis.reason) {
+      res.json({ valid: false, reason: devis.reason });
+      return;
+    }
+
+    res.json({
+      valid: true,
+      code: promo.code,
+      label: promo.label,
+      discountType: promo.discountType,
+      percentOff: promo.percentOff,
+      includeVipFee: promo.includeVipFee,
+      baseCents: devis.baseCents,
+      discountCents: devis.discountCents,
+      finalCents: devis.finalCents,
+      currency: pkg.currency,
+    });
+  }),
+);
+
 /* --- Création de commande --------------------------------------------- */
 
 app.post(
@@ -996,19 +1226,35 @@ app.post(
     }
 
     // Le prix est figé côté serveur : jamais celui envoyé par le client.
-    const vipFeeCents = data.vipCardSelected ? 200 : 0;
+    const contexte: ContextePrix = {
+      vipCardSelected: data.vipCardSelected,
+      occasion: data.occasion,
+    };
 
     /**
-     * Une chanson publicitaire obéit à un tarif à part.
+     * Code promo éventuel.
      *
-     * Ce n'est pas un souvenir personnalisé : c'est un jingle commandé par
-     * une entreprise pour sa marque. Le forfait est donc unique, quelle que
-     * soit la formule cochée. On l'applique ici, et nulle part ailleurs,
-     * pour qu'un client ne puisse pas l'annoncer lui-même depuis son
-     * navigateur.
+     * Le code est relu ici, jamais cru sur parole : entre le moment où le
+     * client l'a saisi et celui où il envoie sa commande, il a pu être
+     * utilisé par quelqu'un d'autre ou désactivé.
      */
-    const estPub = data.occasion === OCCASION_PUB;
-    const amountCents = estPub ? PRIX_PUB_CENTS : pkg.priceCents + vipFeeCents;
+    let promo: PromoRow | null = null;
+    if (data.promoCode) {
+      promo = await trouverCodePromo(data.promoCode);
+      if (!promo) {
+        res.status(400).json({ error: 'Ce code promo est inconnu.' });
+        return;
+      }
+    }
+
+    const devis = devisCommande(pkg, contexte, promo);
+    if (devis.reason) {
+      res.status(409).json({ error: devis.reason });
+      return;
+    }
+
+    const amountCents = devis.finalCents;
+    const offert = amountCents === 0;
 
     const id = newId();
     const reference = `VOX-${new Date().getFullYear()}-${randomHex(8)}`;
@@ -1016,51 +1262,105 @@ app.post(
 
     // Insertion explicite de chaque colonne : aucun champ non prévu ne peut
     // se glisser depuis la requête, même si le schéma de validation évolue.
-    const [created] = await db
-      .insert(orders)
-      .values({
-        id,
-        reference,
-        trackingToken,
-        status: 'Nouvelle',
-        paymentStatus: 'Unpaid',
+    //
+    // Le tout dans une transaction : si le code promo vient d'être consommé
+    // par quelqu'un d'autre, aucune commande n'est créée et le client reçoit
+    // un refus clair plutôt qu'une remise fantôme.
+    let created: OrderRow;
+    try {
+      created = await db.transaction(async (tx) => {
+        if (devis.promo) {
+          // Consommation atomique : la condition est dans le WHERE, pas
+          // dans un test préalable. Deux requêtes simultanées sur le
+          // dernier code valide : une seule voit un résultat.
+          const pris = await tx
+            .update(promoCodes)
+            .set({ usedCount: sql`${promoCodes.usedCount} + 1`, updatedAt: new Date() })
+            .where(
+              and(
+                eq(promoCodes.id, devis.promo!.id),
+                eq(promoCodes.usedCount, 0),
+                eq(promoCodes.isActive, true),
+              ),
+            )
+            .returning({ id: promoCodes.id });
+          if (pris.length === 0) throw new CodeDejaConsomme();
+        }
 
-        customerName: data.customerName,
-        customerPhone: data.customerPhone,
-        customerCity: data.customerCity,
-        customerCountry: data.customerCountry,
-        customerEmail: data.customerEmail,
-        acceptsWhatsapp: data.acceptsWhatsapp,
+        const [row] = await tx
+          .insert(orders)
+          .values({
+            id,
+            reference,
+            trackingToken,
+            status: 'Nouvelle',
+            paymentStatus: offert ? 'Offert' : 'Unpaid',
 
-        recipientName: data.recipientName,
-        recipientRelationship: data.recipientRelationship,
-        recipientAge: data.recipientAge,
-        eventDate: data.eventDate,
+            customerName: data.customerName,
+            customerPhone: data.customerPhone,
+            customerCity: data.customerCity,
+            customerCountry: data.customerCountry,
+            customerEmail: data.customerEmail,
+            acceptsWhatsapp: data.acceptsWhatsapp,
 
-        storyOption: data.storyOption,
-        storyText: data.storyText,
-        storyAudioUrl: data.storyAudioUrl,
-        storyPhotoUrl: data.storyPhotoUrl,
-        importantWords: data.importantWords,
-        avoidWords: data.avoidWords,
-        occasion: data.occasion,
+            recipientName: data.recipientName,
+            recipientRelationship: data.recipientRelationship,
+            recipientAge: data.recipientAge,
+            eventDate: data.eventDate,
 
-        mood: data.mood,
-        musicStyle: data.musicStyle,
-        packageId: pkg.id,
-        vipCardSelected: data.vipCardSelected,
+            storyOption: data.storyOption,
+            storyText: data.storyText,
+            storyAudioUrl: data.storyAudioUrl,
+            storyPhotoUrl: data.storyPhotoUrl,
+            importantWords: data.importantWords,
+            avoidWords: data.avoidWords,
+            occasion: data.occasion,
 
-        amountCents,
-        currency: pkg.currency,
+            mood: data.mood,
+            musicStyle: data.musicStyle,
+            packageId: pkg.id,
+            vipCardSelected: data.vipCardSelected,
 
-        desiredDeliveryDate: data.desiredDeliveryDate ?? '',
-        urgency: data.urgency,
-        specialInstructions: data.specialInstructions,
+            amountCents,
+            currency: pkg.currency,
 
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      })
-      .returning();
+            promoCode: devis.promo ? devis.promo.code : null,
+            promoId: devis.promo ? devis.promo.id : null,
+            discountCents: devis.discountCents,
+
+            desiredDeliveryDate: data.desiredDeliveryDate ?? '',
+            urgency: data.urgency,
+            specialInstructions: data.specialInstructions,
+
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          })
+          .returning();
+
+        if (devis.promo) {
+          await tx.insert(promoRedemptions).values({
+            id: newId(),
+            promoId: devis.promo.id,
+            orderId: row.id,
+            customerPhone: data.customerPhone,
+            customerEmail: data.customerEmail,
+            baseCents: devis.baseCents,
+            discountCents: devis.discountCents,
+            finalCents: devis.finalCents,
+          });
+        }
+
+        return row;
+      });
+    } catch (err) {
+      if (err instanceof CodeDejaConsomme) {
+        res.status(409).json({
+          error: 'Ce code promo vient d’être utilisé. Retirez-le pour continuer.',
+        });
+        return;
+      }
+      throw err;
+    }
 
     await bumpDailyStat('orders');
 
@@ -1084,7 +1384,12 @@ app.post(
             reference,
             customerName: data.customerName,
             customerPhone: data.customerPhone,
-            packageName: pkg.name + (data.vipCardSelected ? ' + Carte VIP' : ''),
+            packageName:
+              pkg.name +
+              (data.vipCardSelected ? ' + Carte VIP' : '') +
+              (devis.promo
+                ? ` — code ${devis.promo.code} (−${formatMoney(devis.discountCents, pkg.currency)})`
+                : ''),
             amountLabel: formatMoney(amountCents, pkg.currency),
           }),
         );
@@ -1287,6 +1592,11 @@ app.post(
     }
     if (order.paymentStatus === 'Paid') {
       res.json({ alreadyPaid: true, status: 'Paid' });
+      return;
+    }
+    // Commande offerte par un code promo : aucun encaissement à initier.
+    if (order.paymentStatus === 'Offert') {
+      res.json({ alreadyPaid: true, status: 'Offert', offered: true });
       return;
     }
     if (!saspay.isSaspayConfigured()) {
@@ -2589,6 +2899,271 @@ app.put(
     await setSetting('packageDetails', detailsMap);
     void logAudit(req, 'package.update', 'package', updated.id, parsed.data);
     res.json(serializePackage(updated, detailsMap));
+  }),
+);
+
+/* --- Codes promo -------------------------------------------------------- */
+
+/**
+ * Fabrique `count` codes d'un coup.
+ *
+ * L'alphabet exclut les caractères confondables : un code lu au téléphone
+ * ou recopié depuis WhatsApp doit pouvoir être saisi sans erreur.
+ */
+async function creerCodesPromo(
+  count: number,
+  payload: {
+    label: string;
+    packageId?: string | null;
+    discountType: 'percent' | 'free';
+    percentOff: number;
+    includeVipFee: boolean;
+    expiresAt?: string | null;
+    note?: string;
+  },
+  adminEmail: string | null | undefined,
+) {
+  const expiresAt = payload.expiresAt
+    ? new Date(`${payload.expiresAt}T23:59:59.000Z`)
+    : null;
+
+  const lignes = Array.from({ length: count }, () => ({
+    id: newId(),
+    code: genererCodePromo(),
+    label: payload.label,
+    packageId: payload.packageId ?? null,
+    discountType: payload.discountType,
+    percentOff: payload.discountType === 'free' ? 100 : payload.percentOff,
+    includeVipFee: payload.includeVipFee,
+    usedCount: 0,
+    startsAt: null,
+    expiresAt,
+    isActive: true,
+    note: payload.note ?? null,
+    createdBy: adminEmail ?? null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }));
+
+  return db.insert(promoCodes).values(lignes).returning();
+}
+
+/**
+ * Liste des codes, avec la commande éventuellement liée.
+ *
+ * Le rapprochement se fait en une seconde requête plutôt qu'en jointure :
+ * la très grande majorité des codes n'a pas encore été utilisée.
+ */
+app.get(
+  '/api/admin/promo',
+  asyncHandler(async (_req: AuthedRequest, res: Response) => {
+    const rows = await db
+      .select()
+      .from(promoCodes)
+      .orderBy(desc(promoCodes.createdAt))
+      .limit(500);
+
+    const rachats = await db
+      .select({
+        promoId: promoRedemptions.promoId,
+        reference: orders.reference,
+        paymentStatus: orders.paymentStatus,
+        discountCents: promoRedemptions.discountCents,
+      })
+      .from(promoRedemptions)
+      .innerJoin(orders, eq(promoRedemptions.orderId, orders.id));
+
+    const parCode = new Map(rachats.map((r) => [r.promoId, r]));
+
+    res.json(
+      rows.map((row) => {
+        const rachat = parCode.get(row.id);
+        return {
+          ...serializePromo(row, {
+            orderReference: rachat?.reference ?? null,
+            orderPaid: rachat ? rachat.paymentStatus === 'Paid' : null,
+          }),
+        };
+      }),
+    );
+  }),
+);
+
+/** Crée un code unique. */
+app.post(
+  '/api/admin/promo',
+  asyncHandler(async (req: AuthedRequest, res: Response) => {
+    const parsed = createPromoSchema.safeParse(req.body ?? {});
+    if (!parsed.success) {
+      res.status(400).json({ error: 'Paramètres invalides.', details: parsed.error.issues });
+      return;
+    }
+    if (parsed.data.discountType === 'percent' && parsed.data.percentOff >= 100) {
+      res.status(400).json({ error: 'Utilisez le type « gratuit » pour une remise de 100 %.' });
+      return;
+    }
+    if (parsed.data.packageId) {
+      const [pkg] = await db
+        .select({ id: packages.id })
+        .from(packages)
+        .where(eq(packages.id, parsed.data.packageId))
+        .limit(1);
+      if (!pkg) {
+        res.status(400).json({ error: 'Formule introuvable.' });
+        return;
+      }
+    }
+
+    const [created] = await creerCodesPromo(1, parsed.data, req.admin?.email);
+    void logAudit(req, 'promo.create', 'promo', created.id, {
+      code: created.code,
+      packageId: created.packageId,
+      type: created.discountType,
+      percent: created.percentOff,
+    });
+    res.status(201).json(serializePromo(created));
+  }),
+);
+
+/** Génère un lot de codes (campagne). */
+app.post(
+  '/api/admin/promo/generate',
+  asyncHandler(async (req: AuthedRequest, res: Response) => {
+    const parsed = generatePromoSchema.safeParse(req.body ?? {});
+    if (!parsed.success) {
+      res.status(400).json({ error: 'Paramètres invalides.', details: parsed.error.issues });
+      return;
+    }
+    if (parsed.data.discountType === 'percent' && parsed.data.percentOff >= 100) {
+      res.status(400).json({ error: 'Utilisez le type « gratuit » pour une remise de 100 %.' });
+      return;
+    }
+    if (parsed.data.packageId) {
+      const [pkg] = await db
+        .select({ id: packages.id })
+        .from(packages)
+        .where(eq(packages.id, parsed.data.packageId))
+        .limit(1);
+      if (!pkg) {
+        res.status(400).json({ error: 'Formule introuvable.' });
+        return;
+      }
+    }
+
+    const created = await creerCodesPromo(
+      parsed.data.count,
+      parsed.data,
+      req.admin?.email,
+    );
+    void logAudit(req, 'promo.generate', 'promo', null, {
+      count: created.length,
+      packageId: parsed.data.packageId ?? null,
+      type: parsed.data.discountType,
+      percent: parsed.data.percentOff,
+    });
+    res.status(201).json(created.map((r) => serializePromo(r)));
+  }),
+);
+
+/** Active ou désactive un code ; permet aussi de corriger la note. */
+app.patch(
+  '/api/admin/promo/:id',
+  asyncHandler(async (req: AuthedRequest, res: Response) => {
+    const parsed = updatePromoSchema.safeParse(req.body ?? {});
+    if (!parsed.success) {
+      res.status(400).json({ error: 'Paramètres invalides.' });
+      return;
+    }
+    const [updated] = await db
+      .update(promoCodes)
+      .set({ ...parsed.data, updatedAt: new Date() })
+      .where(eq(promoCodes.id, req.params.id))
+      .returning();
+    if (!updated) {
+      res.status(404).json({ error: 'Code introuvable.' });
+      return;
+    }
+    void logAudit(req, 'promo.update', 'promo', updated.id, parsed.data);
+    res.json(serializePromo(updated));
+  }),
+);
+
+/**
+ * Libère un code consommé par une commande jamais payée.
+ *
+ * Un panier abandonné ne doit pas brûler définitivement une faveur. Le
+ * code redevient disponible ; la commande, elle, garde son montant figé,
+ * pour ne pas réécrire ce que le client a déjà vu.
+ */
+app.post(
+  '/api/admin/promo/:id/release',
+  asyncHandler(async (req: AuthedRequest, res: Response) => {
+    const [promo] = await db
+      .select()
+      .from(promoCodes)
+      .where(eq(promoCodes.id, req.params.id))
+      .limit(1);
+    if (!promo) {
+      res.status(404).json({ error: 'Code introuvable.' });
+      return;
+    }
+
+    const [rachat] = await db
+      .select({ id: promoRedemptions.id, orderId: promoRedemptions.orderId })
+      .from(promoRedemptions)
+      .where(eq(promoRedemptions.promoId, promo.id))
+      .limit(1);
+
+    if (!rachat) {
+      res.status(400).json({ error: 'Ce code n’a jamais été utilisé.' });
+      return;
+    }
+
+    const [commande] = await db
+      .select({ paymentStatus: orders.paymentStatus })
+      .from(orders)
+      .where(eq(orders.id, rachat.orderId))
+      .limit(1);
+    if (commande && commande.paymentStatus === 'Paid') {
+      res.status(409).json({ error: 'La commande liée est payée : le code ne peut plus être libéré.' });
+      return;
+    }
+
+    await db.transaction(async (tx) => {
+      await tx.delete(promoRedemptions).where(eq(promoRedemptions.id, rachat.id));
+      await tx
+        .update(promoCodes)
+        .set({ usedCount: 0, updatedAt: new Date() })
+        .where(eq(promoCodes.id, promo.id));
+    });
+
+    void logAudit(req, 'promo.release', 'promo', promo.id, { orderId: rachat.orderId });
+    res.json({ ok: true });
+  }),
+);
+
+/** Supprime un code jamais utilisé. Un code consommé se désactive. */
+app.delete(
+  '/api/admin/promo/:id',
+  asyncHandler(async (req: AuthedRequest, res: Response) => {
+    const [promo] = await db
+      .select()
+      .from(promoCodes)
+      .where(eq(promoCodes.id, req.params.id))
+      .limit(1);
+    if (!promo) {
+      res.status(404).json({ error: 'Code introuvable.' });
+      return;
+    }
+    if (promo.usedCount > 0) {
+      res.status(409).json({
+        error: 'Ce code a été utilisé. Désactivez-le plutôt que de le supprimer.',
+      });
+      return;
+    }
+    await db.delete(promoCodes).where(eq(promoCodes.id, promo.id));
+    void logAudit(req, 'promo.delete', 'promo', promo.id, { code: promo.code });
+    res.json({ ok: true });
   }),
 );
 
