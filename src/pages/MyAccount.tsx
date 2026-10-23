@@ -34,12 +34,14 @@ const STATUS_COULEUR: Record<string, string> = {
 
 const PAIEMENT_COULEUR: Record<string, string> = {
   Paid: 'text-emerald-400',
+  Offert: 'text-[#A3FF12]',
   Unpaid: 'text-amber-400',
   Failed: 'text-red-400',
 };
 
 const PAIEMENT_LIBELLE: Record<string, string> = {
   Paid: 'Payée',
+  Offert: 'Offerte (code promo)',
   Unpaid: 'En attente de paiement',
   Failed: 'Paiement échoué',
 };
