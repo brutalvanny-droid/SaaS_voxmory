@@ -6,6 +6,7 @@ import {
   Users2,
   Library,
   Megaphone,
+  Ticket,
   Settings as SettingsIcon,
   LogOut,
   Loader2,
@@ -24,6 +25,7 @@ import Outreach from '../admin/Outreach.js';
 import SettingsPanel from '../admin/Settings.js';
 import Clients from '../admin/Clients.js';
 import Vitrine from '../admin/Vitrine.js';
+import Promo from '../admin/Promo.js';
 import ClocheNotifications from '../admin/ClocheNotifications.js';
 
 type Tab =
@@ -32,6 +34,7 @@ type Tab =
   | 'orders'
   | 'clients'
   | 'catalog'
+  | 'promos'
   | 'outreach'
   | 'settings';
 
@@ -41,6 +44,7 @@ const TABS: { id: Tab; label: string; icon: typeof LayoutDashboard; description:
   { id: 'orders', label: 'Commandes', icon: ShoppingBag, description: 'Produire et livrer les chansons' },
   { id: 'clients', label: 'Clients', icon: Users2, description: 'Comptes et carnet WhatsApp' },
   { id: 'catalog', label: 'Catalogue', icon: Library, description: 'Formules, extraits et avis' },
+  { id: 'promos', label: 'Codes promo', icon: Ticket, description: 'Chansons offertes et remises' },
   { id: 'outreach', label: 'Diffusion', icon: Megaphone, description: 'Contacts et campagnes' },
   { id: 'settings', label: 'Réglages', icon: SettingsIcon, description: 'Prix, paiements, textes' },
 ];
@@ -282,6 +286,7 @@ export default function Admin({ onNavigate, onPromotionChanged }: AdminProps) {
             {tab === 'orders' && <Orders />}
             {tab === 'clients' && <Clients />}
             {tab === 'catalog' && <Catalog />}
+            {tab === 'promos' && <Promo />}
             {tab === 'outreach' && <Outreach />}
             {tab === 'settings' && (
               <SettingsPanel onPromotionChanged={onPromotionChanged} />
