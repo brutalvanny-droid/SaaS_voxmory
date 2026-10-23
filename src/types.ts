@@ -34,12 +34,19 @@ export const ORDER_STATUSES: OrderStatus[] = [
   'Archivée',
 ];
 
-export type PaymentStatus = 'Unpaid' | 'Pending confirmation' | 'Paid' | 'Refunded';
+export type PaymentStatus =
+  | 'Unpaid'
+  | 'Pending confirmation'
+  | 'Paid'
+  | 'Refunded'
+  /** Commande intégralement offerte par un code promo : rien à encaisser. */
+  | 'Offert';
 
 export const PAYMENT_STATUSES: PaymentStatus[] = [
   'Unpaid',
   'Pending confirmation',
   'Paid',
+  'Offert',
   'Refunded',
 ];
 
@@ -102,6 +109,10 @@ export interface Order {
 
   amountCents: number;
   currency: string;
+  /** Code promo appliqué, figé au moment de la commande. */
+  promoCode?: string | null;
+  /** Montant de la remise accordée, en centimes. */
+  discountCents?: number;
 
   desiredDeliveryDate: string;
   urgency: 'normal' | 'express' | 'super_express';
@@ -138,6 +149,49 @@ export interface PublicOrderTracking {
   /** Montant réglé, pour la mesure d'achat côté navigateur. */
   amountCents: number;
   currency: string;
+  /** Remise accordée par un code promo, s'il y en a eu une. */
+  discountCents?: number;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Codes promo                                                         */
+/* ------------------------------------------------------------------ */
+
+export type PromoState = 'Actif' | 'Utilisé' | 'Expiré' | 'Désactivé';
+
+export interface PromoCode {
+  id: string;
+  code: string;
+  label: string;
+  /** null = valable sur tous les forfaits. */
+  packageId: string | null;
+  discountType: 'percent' | 'free';
+  percentOff: number;
+  includeVipFee: boolean;
+  usedCount: number;
+  startsAt: string | null;
+  expiresAt: string | null;
+  isActive: boolean;
+  note: string | null;
+  createdAt: string;
+  state: PromoState;
+  /** Commande qui a consommé le code, s'il y en a une. */
+  orderReference: string | null;
+  orderPaid: boolean | null;
+}
+
+export interface PromoValidation {
+  valid: boolean;
+  reason?: string;
+  code?: string;
+  label?: string;
+  discountType?: 'percent' | 'free';
+  percentOff?: number;
+  includeVipFee?: boolean;
+  baseCents?: number;
+  discountCents?: number;
+  finalCents?: number;
+  currency?: string;
 }
 
 export interface PaymentInfo {

@@ -16,13 +16,14 @@ import {
   AlertCircle,
   Copy,
   CreditCard,
+  Ticket,
   User,
 } from 'lucide-react';
 import { api } from '../lib/api.js';
 import { uploadFile } from '../lib/upload.js';
 import { trackInitiateCheckout } from '../lib/metaPixel.js';
 import { useNotifier } from '../components/Notifications.js';
-import type { Order, Package } from '../types.js';
+import type { Order, Package, PromoValidation } from '../types.js';
 
 const STEPS = ['Vous', 'L’histoire', 'La musique', 'Récapitulatif'];
 
@@ -86,6 +87,17 @@ export default function OrderForm({ packages, initialParams, onNavigate, onSubmi
   const [created, setCreated] = useState<Order | null>(null);
   const [uploading, setUploading] = useState<'audio' | 'photo' | null>(null);
   const [consentement, setConsentement] = useState(false);
+
+  /**
+   * Code promo.
+   *
+   * La validation ici n'est qu'un confort d'affichage : le serveur relit
+   * le code et recalcule la remise au moment d'enregistrer la commande.
+   */
+  const [promoInput, setPromoInput] = useState('');
+  const [promo, setPromo] = useState<PromoValidation | null>(null);
+  const [promoBusy, setPromoBusy] = useState(false);
+  const [promoError, setPromoError] = useState('');
 
   /**
    * Tarif publicitaire, annoncé par le serveur.
@@ -184,6 +196,49 @@ export default function OrderForm({ packages, initialParams, onNavigate, onSubmi
     ? prixPubCents
     : (selected?.priceCents ?? 0) + (form.vipCardSelected ? 200 : 0);
 
+  /** Un code n'est valable que pour la formule et les options affichées. */
+  const promoActive = promo?.valid === true;
+  const totalAffiche = promoActive && typeof promo?.finalCents === 'number'
+    ? promo.finalCents
+    : totalCents;
+
+  /**
+   * Changer de formule ou d'option périme le code : la remise a été
+   * calculée sur un autre montant. On l'efface plutôt que d'afficher un
+   * total qui n'existe plus.
+   */
+  useEffect(() => {
+    setPromo(null);
+    setPromoError('');
+  }, [form.packageId, form.vipCardSelected, form.occasion]);
+
+  const appliquerCode = async () => {
+    const code = promoInput.trim();
+    if (!code) return;
+    setPromoBusy(true);
+    setPromoError('');
+    try {
+      const res = await api.validatePromo({
+        code,
+        packageId: form.packageId,
+        vipCardSelected: form.vipCardSelected,
+        occasion: form.occasion,
+      });
+      if (!res.valid) {
+        setPromo(null);
+        setPromoError(res.reason ?? 'Ce code n’est pas valable.');
+      } else {
+        setPromo(res);
+        setPromoInput(res.code ?? code);
+      }
+    } catch {
+      setPromo(null);
+      setPromoError('Vérification impossible pour le moment. Réessayez.');
+    } finally {
+      setPromoBusy(false);
+    }
+  };
+
   const set = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) => {
     setForm((f) => ({ ...f, [key]: value }));
     setFieldErrors((e) => {
@@ -262,6 +317,8 @@ export default function OrderForm({ packages, initialParams, onNavigate, onSubmi
         storyPhotoUrl: form.storyPhotoUrl || null,
         specialInstructions: form.specialInstructions || null,
         desiredDeliveryDate: form.desiredDeliveryDate || null,
+        // Le code part tel quel : c'est le serveur qui le valide à nouveau.
+        promoCode: promoActive ? (promo?.code ?? promoInput.trim()) : null,
       });
       /**
        * Début de commande.
@@ -777,10 +834,68 @@ export default function OrderForm({ packages, initialParams, onNavigate, onSubmi
                 <Recap label="Musique" value={`${form.musicStyle} · ${form.mood}`} />
                 <Recap label="Formule" value={`${selected?.name ?? '—'} · ${selected?.deliveryTime}`} />
 
+                {/* Code promo */}
+                <div className="p-4 rounded-xl bg-black/40 border border-white/10">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-[#8A949F] mb-2 flex items-center gap-1.5">
+                    <Ticket className="w-3.5 h-3.5" />
+                    J'ai un code promo
+                  </p>
+                  <div className="flex gap-2">
+                    <input
+                      value={promoInput}
+                      onChange={(e) => {
+                        setPromoInput(e.target.value.toUpperCase());
+                        setPromoError('');
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          void appliquerCode();
+                        }
+                      }}
+                      placeholder="Ex. K7M4P2QX9R"
+                      maxLength={40}
+                      className="flex-1 bg-[#14181D] border border-white/20 rounded-lg px-3 py-2 text-sm text-white font-mono tracking-wider placeholder:text-[#5C6672] placeholder:font-sans placeholder:tracking-normal focus:outline-none focus:border-[#A3FF12]"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => void appliquerCode()}
+                      disabled={promoBusy || promoInput.trim().length < 4}
+                      className="px-4 rounded-lg bg-white/10 hover:bg-white/15 text-white text-[12px] font-bold disabled:opacity-40"
+                    >
+                      {promoBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Appliquer'}
+                    </button>
+                  </div>
+                  {promoError && (
+                    <p className="text-[12px] text-red-300 mt-2 flex items-center gap-1.5">
+                      <AlertCircle className="w-3.5 h-3.5" />
+                      {promoError}
+                    </p>
+                  )}
+                  {promoActive && (
+                    <p className="text-[12px] text-[#A3FF12] mt-2 flex items-center gap-1.5">
+                      <Check className="w-3.5 h-3.5" />
+                      Code {promo?.code} appliqué
+                      {promo?.discountType === 'free'
+                        ? ' — chanson offerte'
+                        : ` — ${promo?.percentOff} % de remise`}
+                    </p>
+                  )}
+                </div>
+
                 <div className="flex items-center justify-between p-4 rounded-xl bg-[#A3FF12]/10 border border-[#A3FF12]/30">
                   <span className="text-sm font-bold text-white">Total</span>
-                  <span className="text-xl font-black text-[#A3FF12]">
-                    {(totalCents / 100).toLocaleString('fr-FR')} $
+                  <span className="text-right">
+                    {promoActive && totalAffiche !== totalCents && (
+                      <span className="block text-[12px] text-[#8A949F] line-through">
+                        {(totalCents / 100).toLocaleString('fr-FR')} $
+                      </span>
+                    )}
+                    <span className="text-xl font-black text-[#A3FF12]">
+                      {totalAffiche === 0
+                        ? 'Offert'
+                        : `${(totalAffiche / 100).toLocaleString('fr-FR')} $`}
+                    </span>
                   </span>
                 </div>
 
@@ -802,8 +917,9 @@ export default function OrderForm({ packages, initialParams, onNavigate, onSubmi
                   <span className="text-[13px] text-[#C3CAD2] leading-relaxed">
                     J'ai tout relu et je confirme ma commande.
                     <span className="block text-[#8A949F] text-[12px] mt-1">
-                      Vous réglerez à l'étape suivante, par mobile money ou
-                      carte. Rien n'est débité maintenant.
+                      {totalAffiche === 0
+                        ? 'Votre code couvre la totalité : aucun paiement ne vous sera demandé.'
+                        : "Vous réglerez à l'étape suivante, par mobile money ou carte. Rien n'est débité maintenant."}
                     </span>
                   </span>
                 </label>
@@ -1009,9 +1125,11 @@ export function OrderSuccess({
           </button>
         </div>
 
-        {paid ? (
+        {paid || amountCents === 0 ? (
           <p className="mt-6 text-sm text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3">
-            Paiement confirmé. Nos compositeurs commencent à travailler sur votre chanson.
+            {amountCents === 0
+              ? 'Votre code promo couvre cette commande : rien à payer. Nos compositeurs commencent dès maintenant.'
+              : 'Paiement confirmé. Nos compositeurs commencent à travailler sur votre chanson.'}
           </p>
         ) : (
           <div className="mt-6 space-y-4 text-left">

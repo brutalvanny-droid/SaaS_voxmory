@@ -94,6 +94,14 @@ export const createOrderSchema = z
     desiredDeliveryDate: optionalText(50),
     urgency: z.enum(['normal', 'express', 'super_express']).default('normal'),
     specialInstructions: optionalText(2000),
+
+    /**
+     * Code promo saisi par le client.
+     *
+     * Sa présence ne vaut jamais preuve : le serveur relit le code, vérifie
+     * sa validité et recalcule la remise avant toute écriture.
+     */
+    promoCode: optionalText(40),
   })
   .refine(
     (d) => d.storyOption !== 'write' || (d.storyText ?? '').length >= 15,
@@ -571,5 +579,59 @@ export const metaEventSchema = z
       })
       .strict()
       .optional(),
+  })
+  .strict();
+
+/* ------------------------------------------------------------------ */
+/*  Codes promo                                                         */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Un code saisi par un humain : on tolère les espaces, les tirets et les
+ * minuscules. La base ne stocke que la forme canonique, en majuscules.
+ */
+export const codeSaisi = z
+  .string()
+  .trim()
+  .min(4, 'Code trop court.')
+  .max(40, 'Code trop long.')
+  .transform((v) => v.toUpperCase().replace(/[^A-Z0-9]/g, ''))
+  .refine((v) => v.length >= 4, { message: 'Code invalide.' });
+
+/** Vérification publique d'un code, avant création de la commande. */
+export const validatePromoSchema = z.object({
+  code: codeSaisi,
+  packageId: z.string().trim().min(1).max(60),
+  vipCardSelected: z.boolean().default(false),
+  occasion: z.string().trim().max(100).optional(),
+});
+
+/** Création d'un code (unitaire ou par lot). */
+export const createPromoSchema = z.object({
+  label: z.string().trim().max(120).default(''),
+  /** null ou absent = valable sur tous les forfaits. */
+  packageId: z.string().trim().max(60).nullable().optional(),
+  discountType: z.enum(['percent', 'free']),
+  percentOff: z.number().int().min(1).max(100).default(50),
+  includeVipFee: z.boolean().default(false),
+  /** Date au format AAAA-MM-JJ, interprétée à la fin de la journée. */
+  expiresAt: z
+    .string()
+    .trim()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Date invalide.')
+    .optional()
+    .or(z.literal(''))
+    .transform((v) => (v ? v : null)),
+  note: z.string().trim().max(300).optional(),
+});
+
+export const generatePromoSchema = createPromoSchema.extend({
+  count: z.number().int().min(1).max(50).default(1),
+});
+
+export const updatePromoSchema = z
+  .object({
+    isActive: z.boolean().optional(),
+    note: z.string().trim().max(300).optional(),
   })
   .strict();
