@@ -35,7 +35,15 @@ const statusTone = (status: string): Tone => {
 };
 
 const paymentTone = (p: string) =>
-  p === 'Paid' ? 'green' : p === 'Pending confirmation' ? 'yellow' : p === 'Refunded' ? 'blue' : 'red';
+  p === 'Paid'
+    ? 'green'
+    : p === 'Offert'
+      ? 'purple'
+      : p === 'Pending confirmation'
+        ? 'yellow'
+        : p === 'Refunded'
+          ? 'blue'
+          : 'red';
 
 const AI_KINDS = [
   { kind: 'summarize', label: 'Résumé émotionnel' },
@@ -215,7 +223,9 @@ export default function Orders() {
                   </div>
                   <div className="flex flex-col items-end gap-1 shrink-0">
                     <Badge tone={statusTone(o.status)}>{o.status}</Badge>
-                    <Badge tone={paymentTone(o.paymentStatus)}>{o.paymentStatus}</Badge>
+                    <Badge tone={paymentTone(o.paymentStatus)}>
+                      {o.paymentStatus === 'Offert' ? 'Offerte' : o.paymentStatus}
+                    </Badge>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 mt-2 text-[10px] text-[#7E8894]">
@@ -224,6 +234,9 @@ export default function Orders() {
                   <span className="text-[#A3FF12] font-bold">
                     {(o.amountCents / 100).toLocaleString('fr-FR')} {o.currency}
                   </span>
+                  {o.promoCode && (
+                    <span className="font-mono text-[#A3FF12]/80">{o.promoCode}</span>
+                  )}
                 </div>
               </button>
             ))}
