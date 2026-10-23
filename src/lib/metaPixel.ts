@@ -227,6 +227,49 @@ export function trackContact(page: string, libelle?: string): void {
 }
 
 /**
+ * Début de commande.
+ *
+ * Envoyé au moment où la commande est réellement créée (pas à l'ouverture
+ * du formulaire) : c'est le seul instant où l'on connaît la formule et le
+ * montant choisis. L'identifiant est imposé — `checkout_<référence>` — pour
+ * que le serveur envoie le même et que Meta dédoublonne.
+ */
+export function trackInitiateCheckout(commande: {
+  reference: string;
+  value: number;
+  currency?: string;
+  contentId?: string;
+}): void {
+  trackMeta('InitiateCheckout', {
+    eventId: `checkout_${commande.reference}`,
+    customData: {
+      value: commande.value,
+      currency: commande.currency ?? 'USD',
+      content_ids: commande.contentId ? [commande.contentId] : undefined,
+      content_type: 'product',
+      num_items: 1,
+      order_id: commande.reference,
+    },
+  });
+}
+
+/**
+ * Piste — dépôt d'un avis.
+ *
+ * Un avis n'est pas un achat, mais c'est un signal d'engagement fort :
+ * quelqu'un qui prend le temps d'écrire un témoignage est un client
+ * satisfait, et Meta s'en sert pour chercher des profils similaires.
+ */
+export function trackLead(page: string, details?: { content_name?: string }): void {
+  trackMeta('Lead', {
+    customData: {
+      content_name: details?.content_name ?? 'Avis client',
+      status: page,
+    },
+  });
+}
+
+/**
  * Achat confirmé.
  *
  * L'identifiant est **imposé** : `purchase_<référence>`. Le serveur envoie

@@ -1064,6 +1064,16 @@ app.post(
 
     await bumpDailyStat('orders');
 
+    /**
+     * Début de commande — mesure.
+     *
+     * Envoyé depuis le serveur en plus du navigateur, avec le même
+     * identifiant `checkout_<référence>` : Meta dédoublonne. C'est un
+     * événement de tunnel, pas un revenu : il sert à voir où les clients
+     * s'arrêtent, jamais à compter un chiffre d'affaires.
+     */
+    void envoyerCheckoutMeta(created);
+
     // Notifications — jamais bloquantes pour le client.
     void (async () => {
       const adminNumber = process.env.ADMIN_WHATSAPP_NUMBER;
@@ -1440,6 +1450,41 @@ async function markOrderPaid(
      */
     void envoyerAchatMeta(order);
   }
+}
+
+/**
+ * Envoie le début de commande à l'API Conversions Meta.
+ *
+ * Même logique que l'achat : jamais bloquant, jamais levé.
+ */
+async function envoyerCheckoutMeta(order: OrderRow): Promise<void> {
+  if (!isMetaCapiConfigured()) return;
+
+  const [prenom, ...reste] = (order.customerName ?? '').trim().split(/\s+/);
+
+  await sendMetaEvent({
+    eventName: 'InitiateCheckout',
+    eventId: `checkout_${order.reference}`,
+    eventSourceUrl: `${SITE_URL}/commander`,
+    userData: {
+      email: order.customerEmail,
+      phone: order.customerPhone,
+      firstName: prenom,
+      lastName: reste.join(' '),
+      city: order.customerCity,
+      country: order.customerCountry,
+      externalId: order.id,
+    },
+    customData: {
+      value: order.amountCents / 100,
+      currency: order.currency || 'USD',
+      content_name: order.packageId,
+      content_ids: [order.packageId],
+      content_type: 'product',
+      num_items: 1,
+      order_id: order.reference,
+    },
+  });
 }
 
 /**

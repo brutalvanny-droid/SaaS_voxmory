@@ -517,7 +517,14 @@ export const gallerySongUpdateSchema = z.object({
  * réellement besoin sont relayés. Un nom libre permettrait d'injecter
  * n'importe quoi dans le pixel du studio.
  */
-const META_EVENTS = ['PageView', 'ViewContent', 'Contact', 'Purchase', 'InitiateCheckout'] as const;
+const META_EVENTS = [
+  'PageView',
+  'ViewContent',
+  'Contact',
+  'Lead',
+  'InitiateCheckout',
+  'Purchase',
+] as const;
 
 /** Identifiant d'événement : sert au dédoublonnage navigateur / serveur. */
 const eventIdSchema = z

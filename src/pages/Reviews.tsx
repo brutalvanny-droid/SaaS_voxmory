@@ -1,5 +1,6 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { Star, Sparkles, Check, Send } from 'lucide-react';
+import { trackLead } from '../lib/metaPixel.js';
 import { ClientReview } from '../types.js';
 import Reveal from '../components/Reveal.js';
 
@@ -67,6 +68,14 @@ export default function Reviews({ initialReviews }: ReviewsProps) {
       });
       
       if (response.ok) {
+        /**
+         * Piste — avis déposé.
+         *
+         * Envoyé uniquement si le serveur a bien accepté l'avis : un
+         * formulaire refusé ne doit pas produire de signal positif.
+         */
+        trackLead('/avis', { content_name: `Avis — ${occasion}` });
+
         setSubmitSuccess(true);
         setClientName('');
         setComment('');

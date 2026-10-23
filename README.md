@@ -369,6 +369,8 @@ chaque commande deux fois — l'erreur la plus fréquente d'une installation CAP
 | `PageView` | Chaque changement de route | Navigateur + serveur |
 | `ViewContent` | Chaque écran, avec `value` sur les pages de formule | Navigateur + serveur |
 | `Contact` | Clic sur un lien WhatsApp (hors partage) | Navigateur + serveur |
+| `InitiateCheckout` | Création de la commande | Navigateur + serveur |
+| `Lead` | Dépôt d'un avis client accepté | Navigateur |
 | `Purchase` | Confirmation de paiement (webhook SasPay) | Serveur |
 
 `Purchase` ne part **pas** à la création de la commande : une commande

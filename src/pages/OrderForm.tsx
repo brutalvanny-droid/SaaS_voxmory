@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { api } from '../lib/api.js';
 import { uploadFile } from '../lib/upload.js';
+import { trackInitiateCheckout } from '../lib/metaPixel.js';
 import { useNotifier } from '../components/Notifications.js';
 import type { Order, Package } from '../types.js';
 
@@ -262,6 +263,20 @@ export default function OrderForm({ packages, initialParams, onNavigate, onSubmi
         specialInstructions: form.specialInstructions || null,
         desiredDeliveryDate: form.desiredDeliveryDate || null,
       });
+      /**
+       * Début de commande.
+       *
+       * Déclenché ici, et pas à l'ouverture du formulaire : une visite de
+       * page n'est pas une intention d'achat. Le serveur envoie le même
+       * événement au moment de l'insertion, avec le même identifiant.
+       */
+      trackInitiateCheckout({
+        reference: order.reference,
+        value: order.amountCents / 100,
+        currency: order.currency,
+        contentId: order.packageId,
+      });
+
       setCreated(order);
     } catch (err) {
       const e = err as Error & { details?: { field: string; message: string }[] };
