@@ -505,3 +505,64 @@ export const gallerySongUpdateSchema = z.object({
   memorySlug: z.string().trim().max(200).nullable().optional(),
   isFeatured: z.boolean().optional(),
 });
+
+/* ------------------------------------------------------------------ */
+/*  Mesure — événements Meta (API Conversions)                          */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Noms d'événements acceptés depuis le navigateur.
+ *
+ * Liste fermée volontairement : seuls les événements dont le site a
+ * réellement besoin sont relayés. Un nom libre permettrait d'injecter
+ * n'importe quoi dans le pixel du studio.
+ */
+const META_EVENTS = ['PageView', 'ViewContent', 'Contact', 'Purchase', 'InitiateCheckout'] as const;
+
+/** Identifiant d'événement : sert au dédoublonnage navigateur / serveur. */
+const eventIdSchema = z
+  .string()
+  .trim()
+  .min(8)
+  .max(120)
+  .regex(/^[A-Za-z0-9_.:-]+$/, "Identifiant d'événement invalide.");
+
+export const metaEventSchema = z
+  .object({
+    eventName: z.enum(META_EVENTS),
+    eventId: eventIdSchema,
+    eventTime: z.number().int().positive().optional(),
+    eventSourceUrl: z.string().trim().url().max(600).optional(),
+    /**
+     * Données personnelles transmises par le navigateur : uniquement ce que
+     * le client a lui-même saisi dans le formulaire. Elles sont hachées
+     * immédiatement côté serveur et jamais journalisées.
+     */
+    userData: z
+      .object({
+        email: z.string().trim().max(200).optional(),
+        phone: z.string().trim().max(40).optional(),
+        firstName: z.string().trim().max(120).optional(),
+        lastName: z.string().trim().max(120).optional(),
+        city: z.string().trim().max(120).optional(),
+        country: z.string().trim().max(120).optional(),
+        externalId: z.string().trim().max(120).optional(),
+      })
+      .strict()
+      .optional(),
+    /** Données produit : uniquement des valeurs simples et bornées. */
+    customData: z
+      .object({
+        value: z.number().min(0).max(1_000_000).optional(),
+        currency: z.string().trim().length(3).optional(),
+        content_name: z.string().trim().max(200).optional(),
+        content_ids: z.array(z.string().trim().max(120)).max(8).optional(),
+        content_type: z.enum(['product', 'product_group']).optional(),
+        num_items: z.number().int().min(0).max(100).optional(),
+        order_id: z.string().trim().max(120).optional(),
+        status: z.string().trim().max(60).optional(),
+      })
+      .strict()
+      .optional(),
+  })
+  .strict();

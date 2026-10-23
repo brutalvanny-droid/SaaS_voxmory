@@ -135,6 +135,9 @@ export interface PublicOrderTracking {
   memoryPageId: string | null;
   finalAudioUrl: string | null;
   coverImageUrl: string | null;
+  /** Montant réglé, pour la mesure d'achat côté navigateur. */
+  amountCents: number;
+  currency: string;
 }
 
 export interface PaymentInfo {

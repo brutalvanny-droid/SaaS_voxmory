@@ -24,9 +24,10 @@ React 19 · Vite · Express · Neon (Postgres) · Vercel · SasPay
 7. [Stockage des fichiers](#stockage-des-fichiers)
 8. [Notifications WhatsApp](#notifications-whatsapp)
 9. [Assistant IA](#assistant-ia)
-10. [Sécurité](#sécurité)
-11. [Commandes utiles](#commandes-utiles)
-12. [Dépannage](#dépannage)
+10. [Mesure publicitaire — Meta](#mesure-publicitaire--meta-pixel--api-conversions)
+11. [Sécurité](#sécurité)
+12. [Commandes utiles](#commandes-utiles)
+13. [Dépannage](#dépannage)
 
 ---
 
@@ -329,6 +330,66 @@ Suno et Veo) utilise Google Gemini via `GEMINI_API_KEY`.
 contenu. Il affiche un message d'indisponibilité explicite, signalé par une
 étiquette « ⚠️ ne pas livrer telle quelle ». Une réponse simulée crédible
 risquerait d'être livrée à un client comme si elle était personnalisée.
+
+---
+
+## Mesure publicitaire — Meta (Pixel + API Conversions)
+
+Le site envoie trois événements : `ViewContent`, `Contact` et `Purchase`
+(plus `PageView`, indispensable au fonctionnement du pixel).
+
+### Configuration
+
+| Variable | Rôle | Visible côté navigateur |
+|---|---|---|
+| `VITE_META_PIXEL_ID` | Identifiant du pixel | Oui (public par nature) |
+| `META_PIXEL_ID` | Même identifiant, lu par le serveur | Non |
+| `META_CAPI_TOKEN` | Jeton de l'API Conversions | **Jamais** |
+| `META_TEST_EVENT_CODE` | Code d'essai, à vider ensuite | Non |
+
+Sans `VITE_META_PIXEL_ID`, le pixel ne se charge pas et le site fonctionne
+normalement. Sans `META_PIXEL_ID` + `META_CAPI_TOKEN`, le relais serveur
+répond `202` sans rien envoyer.
+
+### Pourquoi deux canaux
+
+Sur un téléphone en 3G, une partie des événements navigateur n'arrive jamais :
+script bloqué, onglet fermé trop tôt, page interrompue. Le serveur envoie donc
+le même événement de son côté, avec l'IP réelle et l'agent utilisateur.
+
+**Le dédoublonnage repose sur `event_id`.** Le navigateur et le serveur
+transmettent le même identifiant ; Meta n'en compte qu'un. Un achat confirmé
+utilise `purchase_<référence>` des deux côtés : c'est ce qui évite de compter
+chaque commande deux fois — l'erreur la plus fréquente d'une installation CAPI.
+
+### Déclencheurs
+
+| Événement | Moment | Source |
+|---|---|---|
+| `PageView` | Chaque changement de route | Navigateur + serveur |
+| `ViewContent` | Chaque écran, avec `value` sur les pages de formule | Navigateur + serveur |
+| `Contact` | Clic sur un lien WhatsApp (hors partage) | Navigateur + serveur |
+| `Purchase` | Confirmation de paiement (webhook SasPay) | Serveur |
+
+`Purchase` ne part **pas** à la création de la commande : une commande
+créée n'est pas une commande payée, et optimiser sur des paniers abandonnés
+ferait acheter à Meta des visiteurs qui ne paient jamais.
+
+### Vérifier l'installation
+
+1. Renseigner `META_TEST_EVENT_CODE` (Events Manager → Événements de test).
+2. Ouvrir le site, naviguer, cliquer sur un lien WhatsApp, simuler un paiement.
+3. Les événements apparaissent dans l'onglet de test, avec la colonne
+   « Source » indiquant navigateur **et** serveur, dédoublonnés.
+4. Vider `META_TEST_EVENT_CODE` une fois la vérification faite.
+
+### Vie privée
+
+La mesure est désactivée si le navigateur envoie `Do Not Track`, ou si la clé
+`voxmory_mesure_refusee` vaut `1` dans le stockage local. Les données
+personnelles (e-mail, téléphone, nom, ville, pays) sont hachées en SHA-256
+côté serveur avant l'envoi, comme l'exige Meta ; le jeton d'accès ne quitte
+jamais le serveur.
 
 ---
 

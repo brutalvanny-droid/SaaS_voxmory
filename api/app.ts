@@ -61,6 +61,7 @@ import {
   updateReviewSchema,
   adminReviewSchema,
   adminReviewsEnMasseSchema,
+  metaEventSchema,
   sansNumeroDeTelephone,
   dateOuNull,
   homeConfigSchema,
@@ -93,6 +94,7 @@ import {
   pays as statsPays,
 } from './_lib/analytics.js';
 import { runAi } from './_lib/ai.js';
+import { isMetaCapiConfigured, sendMetaEvent } from './_lib/metaCapi.js';
 
 const app = express();
 app.set('trust proxy', true);
@@ -121,6 +123,21 @@ const asyncHandler =
  */
 export const OCCASION_PUB = 'PUB — Chanson pour entreprises';
 const PRIX_PUB_CENTS = 3_500; // 35 $
+
+/**
+ * Adresse publique du site.
+ *
+ * Sert d'`event_source_url` pour les événements serveur : Meta exige une
+ * URL d'origine pour rattacher un achat au bon domaine. Surchargeable par
+ * variable d'environnement, sans jamais dépendre du domaine courant.
+ */
+const SITE_URL = (
+  process.env.APP_URL ??
+  process.env.VERCEL_PROJECT_PRODUCTION_URL ??
+  'https://saa-s-voxmory.vercel.app'
+)
+  .trim()
+  .replace(/\/$/, '');
 
 const JSON_LIMIT = '1mb';
 
@@ -901,6 +918,11 @@ function publicTracking(row: OrderRow) {
     memoryPageId: row.memoryPageId,
     finalAudioUrl: row.paymentStatus === 'Paid' ? row.finalAudioUrl : null,
     coverImageUrl: row.coverImageUrl,
+    // Le montant permet au navigateur d'envoyer un « Purchase » exact au
+    // moment où le paiement est confirmé. Il n'est lisible qu'avec le jeton
+    // de suivi, qui n'est connu que du client.
+    amountCents: row.amountCents,
+    currency: row.currency,
   };
 }
 
@@ -1124,6 +1146,65 @@ app.post(
   }),
 );
 
+/* --- Mesure : relais d'événements vers l'API Conversions Meta ---------- */
+
+/**
+ * Relais d'un événement navigateur vers l'API Conversions.
+ *
+ * Le navigateur envoie le même `event_id` que celui transmis au pixel :
+ * Meta dédoublonne les deux sources. Sans configuration Meta, la route
+ * répond 202 sans rien faire — le site continue de fonctionner à
+ * l'identique, simplement sans mesure.
+ */
+app.post(
+  '/api/meta/event',
+  asyncHandler(async (req: Request, res: Response) => {
+    maybePurge();
+
+    // Un visiteur normal produit quelques événements par visite. Cent par
+    // heure et par adresse laissent largement la place à une famille
+    // derrière le même NAT mobile, tout en bornant un script malveillant.
+    const limit = await rateLimit(`meta:${clientIp(req)}`, 100, 60 * 60 * 1000);
+    if (!limit.ok) {
+      res.status(429).json({ error: 'Trop d’événements.' });
+      return;
+    }
+
+    const parsed = metaEventSchema.safeParse(req.body ?? {});
+    if (!parsed.success) {
+      res.status(400).json({ error: 'Événement invalide.' });
+      return;
+    }
+
+    if (!isMetaCapiConfigured()) {
+      res.status(202).json({ ok: true, relayed: false });
+      return;
+    }
+
+    const body = parsed.data;
+
+    const result = await sendMetaEvent({
+      eventName: body.eventName,
+      eventId: body.eventId,
+      eventTime: body.eventTime,
+      eventSourceUrl: body.eventSourceUrl ?? `${SITE_URL}/`,
+      userData: {
+        ...(body.userData ?? {}),
+        // Renseignés par le serveur : le navigateur ne peut pas les falsifier.
+        clientIp: clientIp(req),
+        clientUserAgent: req.header('user-agent') ?? null,
+        fbp: typeof req.cookies?._fbp === 'string' ? req.cookies._fbp : null,
+        fbc: typeof req.cookies?._fbc === 'string' ? req.cookies._fbc : null,
+      },
+      customData: body.customData,
+    });
+
+    // 202 : l'événement est pris en compte, même si Meta l'a refusé. Le
+    // navigateur n'a rien à faire d'une erreur de mesure.
+    res.status(result.ok ? 202 : 502).json({ ok: result.ok, relayed: true });
+  }),
+);
+
 app.post(
   '/api/stats/listen',
   asyncHandler(async (req: Request, res: Response) => {
@@ -1208,7 +1289,7 @@ app.post(
     }
 
     const idempotencyKey = newId();
-    const returnUrl = `${process.env.APP_URL ?? ''}/#suivi/${order.trackingToken}`;
+    const returnUrl = `${SITE_URL}/suivi/${order.trackingToken}`;
     const base = {
       amountCents: order.amountCents,
       currency: order.currency,
@@ -1348,7 +1429,54 @@ async function markOrderPaid(
       order.customerPhone,
       whatsapp.paymentConfirmedMessage(order.customerName, order.reference),
     );
+
+    /**
+     * Mesure : c'est le seul instant où « Purchase » a un sens.
+     *
+     * L'événement part du serveur, donc il arrive même si le client a fermé
+     * son navigateur juste après avoir payé — fréquent sur mobile. Le
+     * navigateur envoie le même événement avec le même `event_id` quand il
+     * repasse par la page de suivi : Meta n'en compte qu'un.
+     */
+    void envoyerAchatMeta(order);
   }
+}
+
+/**
+ * Envoie l'achat à l'API Conversions Meta.
+ *
+ * Ne lève jamais : un échec de mesure ne doit pas remettre en cause un
+ * paiement déjà encaissé.
+ */
+async function envoyerAchatMeta(order: OrderRow): Promise<void> {
+  if (!isMetaCapiConfigured()) return;
+
+  const [prenom, ...reste] = (order.customerName ?? '').trim().split(/\s+/);
+
+  await sendMetaEvent({
+    eventName: 'Purchase',
+    // Identifiant partagé avec le navigateur : c'est lui qui dédoublonne.
+    eventId: `purchase_${order.reference}`,
+    eventSourceUrl: `${SITE_URL}/suivi`,
+    userData: {
+      email: order.customerEmail,
+      phone: order.customerPhone,
+      firstName: prenom,
+      lastName: reste.join(' '),
+      city: order.customerCity,
+      country: order.customerCountry,
+      externalId: order.id,
+    },
+    customData: {
+      value: order.amountCents / 100,
+      currency: order.currency || 'USD',
+      content_name: order.packageId,
+      content_ids: [order.packageId],
+      content_type: 'product',
+      num_items: 1,
+      order_id: order.reference,
+    },
+  });
 }
 
 async function markPaymentSucceeded(

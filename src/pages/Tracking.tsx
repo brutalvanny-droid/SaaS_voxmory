@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Search, AlertCircle, CheckCircle2, Loader2, Music, Download, Gift, Send } from 'lucide-react';
 import { api } from '../lib/api.js';
+import { trackPurchase } from '../lib/metaPixel.js';
 import type { PublicOrderTracking } from '../types.js';
 
 interface Props {
@@ -88,6 +89,44 @@ export default function Tracking({ initialOrderId, onNavigate }: Props) {
     if (initialOrderId) void search(initialOrderId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialOrderId]);
+
+  /**
+   * Achat confirmé.
+   *
+   * Le serveur envoie déjà cet achat au moment de la confirmation de
+   * paiement (webhook), avec le même identifiant `purchase_<référence>` :
+   * Meta dédoublonne. Le navigateur n'apporte donc pas un second achat,
+   * seulement le cookie publicitaire qui améliore l'attribution.
+   *
+   * La mémoire de session évite de renvoyer l'événement à chaque
+   * rafraîchissement de la page de suivi.
+   */
+  const achatEnvoye = useRef('');
+
+  useEffect(() => {
+    if (!order || order.paymentStatus !== 'Paid') return;
+
+    const cle = `purchase_${order.reference}`;
+    if (achatEnvoye.current === cle) return;
+
+    try {
+      const marque = `voxmory_${cle}`;
+      if (sessionStorage.getItem(marque) === '1') {
+        achatEnvoye.current = cle;
+        return;
+      }
+      sessionStorage.setItem(marque, '1');
+    } catch {
+      /* stockage refusé : la garde en mémoire suffit pour cette page */
+    }
+
+    achatEnvoye.current = cle;
+    trackPurchase({
+      reference: order.reference,
+      value: order.amountCents / 100,
+      currency: order.currency,
+    });
+  }, [order]);
 
   const current = order ? stageIndex(order.status) : -1;
 

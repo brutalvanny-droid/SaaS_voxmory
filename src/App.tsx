@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback, lazy, Suspense } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Loader2, ArrowRight } from 'lucide-react';
 import Navbar from './components/Navbar.js';
@@ -11,6 +11,12 @@ import PromotionBanner from './components/PromotionBanner.js';
 import { Package, GallerySong, ClientReview, PromotionSettings } from './types.js';
 import { useSEO, useJsonLd } from './hooks/useSEO.js';
 import { signalerVue } from './lib/visiteur.js';
+import {
+  initMetaPixel,
+  trackPageView,
+  trackViewContent,
+  trackContact,
+} from './lib/metaPixel.js';
 import WhatsAppButton from './components/WhatsAppButton.js';
 import { api } from './lib/api.js';
 import { memeContenu } from './lib/egalite.js';
@@ -64,6 +70,16 @@ export default function App() {
   const [memorySlug, setMemorySlug] = useState('maman-georgette');
   const [packSlug, setPackSlug] = useState('');
   const [clientConnecte, setClientConnecte] = useState<boolean | null>(null);
+
+  /**
+   * Le routeur a-t-il lu l'adresse une première fois ?
+   *
+   * L'application démarre toujours sur « accueil » avant d'analyser l'URL.
+   * Sans ce verrou, une visite directe sur /tarifs envoie un premier
+   * PageView pour « / », puis un second pour « /tarifs » : Meta compte une
+   * page vue qui n'a jamais existé, et l'attribution devient fausse.
+   */
+  const [routeurPret, setRouteurPret] = useState(false);
 
   /**
    * Barre d'appel fixe (mobile).
@@ -267,7 +283,7 @@ export default function App() {
 
   // Dynamically initialize Google Analytics from environment variables
   useEffect(() => {
-    const gaId = (import.meta as any).env.VITE_GA_MEASUREMENT_ID || 'G-Z0D54XEMDR';
+    const gaId = import.meta.env.VITE_GA_MEASUREMENT_ID || 'G-Z0D54XEMDR';
     if (!gaId) return;
 
     const scriptId = 'google-analytics-gtag';
@@ -293,7 +309,7 @@ export default function App() {
 
   // Track page views on route changes (Google Analytics)
   useEffect(() => {
-    const gaId = (import.meta as any).env.VITE_GA_MEASUREMENT_ID || 'G-Z0D54XEMDR';
+    const gaId = import.meta.env.VITE_GA_MEASUREMENT_ID || 'G-Z0D54XEMDR';
     if (window.gtag && gaId) {
       const pagePath = window.location.pathname || '/';
       window.gtag('config', gaId, {
@@ -318,6 +334,10 @@ export default function App() {
       setCurrentPage(page);
       if (page === 'memory' && param) setMemorySlug(param);
       if (page === 'pack' && param) setPackSlug(param);
+      // Retour de paiement : /suivi/<jeton> pré-remplit la recherche.
+      if (page === 'tracking' && param) setPageParams({ id: param });
+
+      setRouteurPret(true);
     };
 
     window.addEventListener('popstate', parseLocation);
@@ -339,8 +359,95 @@ export default function App() {
    * et l'on ne saurait jamais quelle formule intéresse les gens.
    */
   useEffect(() => {
+    if (!routeurPret) return;
     signalerVue(window.location.pathname || '/');
-  }, [currentPage, packSlug, memorySlug]);
+  }, [routeurPret, currentPage, packSlug, memorySlug]);
+
+  /* ================================================================== */
+  /*  Mesure Meta (pixel + API Conversions)                             */
+  /* ================================================================== */
+
+  useEffect(() => {
+    // Idempotent : sans identifiant de pixel configuré, ne fait rien.
+    initMetaPixel();
+  }, []);
+
+  /**
+   * Vue de page et vue de contenu à **chaque** changement de route.
+   *
+   * Une application monopage ne recharge jamais le document : sans ce
+   * déclenchement explicite, Meta ne verrait qu'une seule page vue par
+   * visite, quel que soit le nombre d'écrans traversés — et le pixel
+   * serait incapable d'attribuer une commande à la formule consultée.
+   */
+  useEffect(() => {
+    if (!routeurPret) return;
+    trackPageView(window.location.pathname || '/');
+  }, [routeurPret, currentPage, packSlug, memorySlug]);
+
+  /**
+   * Vue de contenu, une seule fois par écran.
+   *
+   * Sur une page de formule, on attend que les prix soient chargés pour
+   * envoyer la valeur : sinon l'événement partirait sans montant, et Meta
+   * ne pourrait pas optimiser sur le panier. Une référence mémorise ce qui
+   * a déjà été envoyé pour éviter les doublons au rechargement des données.
+   */
+  const vueContenuEnvoyee = useRef('');
+
+  useEffect(() => {
+    if (!routeurPret) return;
+
+    const chemin = window.location.pathname || '/';
+    const estPageFormule = currentPage === 'pack' && Boolean(packIdForSeo);
+    const formule = packIdForSeo ? packages.find((p) => p.id === packIdForSeo) : undefined;
+
+    // Page de formule sans prix connu : on attend la réponse du serveur.
+    if (estPageFormule && packages.length === 0) return;
+
+    const cle = `${chemin}|${formule?.id ?? currentPage}`;
+    if (vueContenuEnvoyee.current === cle) return;
+    vueContenuEnvoyee.current = cle;
+
+    if (formule) {
+      trackViewContent(chemin, {
+        id: formule.id,
+        name: formule.name,
+        value: formule.priceCents / 100,
+        currency: formule.currency,
+      });
+    } else {
+      trackViewContent(chemin, { id: currentPage, name: seo.title });
+    }
+  }, [routeurPret, currentPage, packSlug, memorySlug, packages, seo, packIdForSeo]);
+
+  /**
+   * Prise de contact.
+   *
+   * Le clic sur un lien WhatsApp est le vrai début du parcours commercial :
+   * c'est l'équivalent d'un formulaire envahi. On l'écoute au niveau du
+   * document plutôt que dans chaque composant — les liens WhatsApp
+   * existent dans huit endroits différents et un seul oubli fausserait la
+   * mesure.
+   */
+  useEffect(() => {
+    const surClic = (e: MouseEvent) => {
+      const cible = e.target as HTMLElement | null;
+      const lien = cible?.closest?.('a') as HTMLAnchorElement | null;
+      if (!lien) return;
+
+      const href = lien.getAttribute('href') ?? '';
+      if (!/^https:\/\/(wa\.me|api\.whatsapp\.com|web\.whatsapp\.com)\//i.test(href)) return;
+
+      trackContact(
+        window.location.pathname || '/',
+        (lien.textContent ?? '').trim().slice(0, 80) || undefined,
+      );
+    };
+
+    document.addEventListener('click', surClic, true);
+    return () => document.removeEventListener('click', surClic, true);
+  }, []);
 
   /**
    * Le visiteur est-il connu ?

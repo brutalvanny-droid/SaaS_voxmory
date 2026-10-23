@@ -192,6 +192,9 @@ export function pathToPage(pathname: string): { page: string; param: string } {
 
   if (first === 'pack' && second) return { page: 'pack', param: second };
   if (first === 'memory' && second) return { page: 'memory', param: second };
+  // Lien de retour de paiement : /suivi/<jeton> ouvre directement la bonne
+  // commande, sans que le client ait à recopier sa référence.
+  if (first === 'suivi' && second) return { page: 'tracking', param: second };
   if (first === 'admin' || first === 'studio') return { page: 'admin', param: '' };
 
   const entry = Object.entries(PAGE_PATHS).find(([, p]) => p === `/${first}`);
