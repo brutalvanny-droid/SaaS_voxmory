@@ -107,6 +107,17 @@ export const orders = pgTable(
     amountCents: integer('amount_cents').notNull().default(0),
     currency: text('currency').notNull().default('USD'),
 
+    /**
+     * Code promo appliqué à la commande.
+     *
+     * Recopié ici en clair, sans jointure : le montant et la remise sont
+     * figés au moment de la commande. Désactiver ou supprimer un code plus
+     * tard ne doit jamais réécrire l'histoire d'une commande passée.
+     */
+    promoCode: text('promo_code'),
+    promoId: text('promo_id'),
+    discountCents: integer('discount_cents').notNull().default(0),
+
     /* Livraison */
     desiredDeliveryDate: text('desired_delivery_date').notNull().default(''),
     urgency: text('urgency').notNull().default('normal'),
@@ -131,6 +142,81 @@ export const orders = pgTable(
     index('orders_status_idx').on(t.status),
     index('orders_user_idx').on(t.userId),
     index('orders_email_idx').on(t.customerEmail),
+  ],
+);
+
+/* ------------------------------------------------------------------ */
+/*  Codes promo                                                         */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Un code = une utilisation.
+ *
+ * Le code est volontairement unique et non réutilisable : c'est une
+ * faveur nominative ou une opération de lancement, pas un bon de réduction
+ * permanent. `usedCount` ne descend jamais en dessous de 0 et suffit à
+ * décider si le code est encore disponible.
+ */
+export const promoCodes = pgTable(
+  'promo_codes',
+  {
+    id: text('id').primaryKey(),
+    /** Toujours en majuscules, sans espace ni tiret. */
+    code: text('code').notNull(),
+    /** Nom interne : « Campagne mariage mars », « Ambassadeurs »… */
+    label: text('label').notNull().default(''),
+    /** null = valable sur tous les forfaits. */
+    packageId: text('package_id').references(() => packages.id, { onDelete: 'cascade' }),
+    /** 'free' (100 %) ou 'percent'. */
+    discountType: text('discount_type').notNull().default('percent'),
+    percentOff: integer('percent_off').notNull().default(0),
+    /** La remise touche-t-elle aussi la carte VIP (+2 $) ? */
+    includeVipFee: boolean('include_vip_fee').notNull().default(false),
+    usedCount: integer('used_count').notNull().default(0),
+    startsAt: timestamp('starts_at', { withTimezone: true }),
+    expiresAt: timestamp('expires_at', { withTimezone: true }),
+    isActive: boolean('is_active').notNull().default(true),
+    note: text('note'),
+    createdBy: text('created_by'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex('promo_codes_code_unique').on(t.code),
+    index('promo_codes_package_idx').on(t.packageId),
+    index('promo_codes_active_idx').on(t.isActive),
+    index('promo_codes_created_idx').on(t.createdAt),
+  ],
+);
+
+/**
+ * Trace de chaque utilisation.
+ *
+ * Sert à trois choses : savoir qui a consommé quoi (téléphone normalisé),
+ * compter la valeur réellement offerte, et pouvoir libérer un code quand
+ * une commande reste impayée.
+ */
+export const promoRedemptions = pgTable(
+  'promo_redemptions',
+  {
+    id: text('id').primaryKey(),
+    promoId: text('promo_id')
+      .notNull()
+      .references(() => promoCodes.id, { onDelete: 'cascade' }),
+    orderId: text('order_id')
+      .notNull()
+      .references(() => orders.id, { onDelete: 'cascade' }),
+    customerPhone: text('customer_phone').notNull().default(''),
+    customerEmail: text('customer_email'),
+    baseCents: integer('base_cents').notNull().default(0),
+    discountCents: integer('discount_cents').notNull().default(0),
+    finalCents: integer('final_cents').notNull().default(0),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex('promo_redemptions_order_unique').on(t.orderId),
+    index('promo_redemptions_promo_idx').on(t.promoId),
+    index('promo_redemptions_phone_idx').on(t.customerPhone),
   ],
 );
 
