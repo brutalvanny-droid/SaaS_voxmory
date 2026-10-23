@@ -18,6 +18,8 @@ import type {
   Package,
   PaymentInfo,
   PromotionSettings,
+  PromoCode,
+  PromoValidation,
   PublicOrderTracking,
 } from '../types.js';
 
@@ -87,6 +89,14 @@ export const api = {
       `/api/songs/${encodeURIComponent(songId)}/reviews`,
       { method: 'POST', ...body(payload) }
     ),
+
+  /** Vérifie un code promo avant la commande (public, limité en débit). */
+  validatePromo: (payload: {
+    code: string;
+    packageId: string;
+    vipCardSelected?: boolean;
+    occasion?: string | null;
+  }) => request<PromoValidation>('/api/promo/validate', { method: 'POST', ...body(payload) }),
 
   createOrder: (payload: Record<string, unknown>) =>
     request<Order>('/api/orders', { method: 'POST', ...body(payload) }),
@@ -243,6 +253,18 @@ export const api = {
 
     updatePromotion: (payload: PromotionSettings) =>
       request<PromotionSettings>('/api/admin/promotion', { method: 'PUT', ...body(payload) }),
+
+    promos: () => request<PromoCode[]>('/api/admin/promo'),
+    createPromo: (payload: Record<string, unknown>) =>
+      request<PromoCode>('/api/admin/promo', { method: 'POST', ...body(payload) }),
+    generatePromos: (payload: Record<string, unknown>) =>
+      request<PromoCode[]>('/api/admin/promo/generate', { method: 'POST', ...body(payload) }),
+    updatePromo: (id: string, patch: { isActive?: boolean; note?: string }) =>
+      request<PromoCode>(`/api/admin/promo/${id}`, { method: 'PATCH', ...body(patch) }),
+    deletePromo: (id: string) =>
+      request<{ ok: boolean }>(`/api/admin/promo/${id}`, { method: 'DELETE' }),
+    releasePromo: (id: string) =>
+      request<{ ok: boolean }>(`/api/admin/promo/${id}/release`, { method: 'POST' }),
 
     reminders: () => request<EventReminder[]>('/api/admin/reminders'),
     createReminder: (payload: Record<string, unknown>) =>
