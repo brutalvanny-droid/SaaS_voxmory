@@ -182,10 +182,16 @@ export default function Tracking({ initialOrderId, onNavigate }: Props) {
               className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wide ${
                 order.paymentStatus === 'Paid'
                   ? 'bg-emerald-500/15 text-emerald-300'
-                  : 'bg-[#A3FF12]/15 text-[#A3FF12]'
+                  : order.paymentStatus === 'Offert'
+                    ? 'bg-[#A3FF12]/20 text-[#A3FF12]'
+                    : 'bg-[#A3FF12]/15 text-[#A3FF12]'
               }`}
             >
-              {order.paymentStatus === 'Paid' ? 'Payée' : 'En attente de paiement'}
+              {order.paymentStatus === 'Paid'
+                ? 'Payée'
+                : order.paymentStatus === 'Offert'
+                  ? 'Offerte'
+                  : 'En attente de paiement'}
             </span>
           </div>
 
